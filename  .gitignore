@@ -1,0 +1,19 @@
+# C++ build files
+messenger
+messenger.exe
+*.o
+*.out
+
+# Локальные данные мессенджера
+users.txt
+messages.txt
+
+# Visual Studio Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Временные файлы
+*.tmp
+*.log
