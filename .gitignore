@@ -1,0 +1,19 @@
+# Android / Gradle
+.gradle/
+**/.gradle/
+build/
+**/build/
+
+# Local Android SDK
+local.properties
+
+# Java compiled files
+*.class
+
+# C++ compiled executable
+messenger
+
+# Local server data
+users.txt
+server-java/data/users.txt
+server-java/data/messages.txt

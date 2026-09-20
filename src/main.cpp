@@ -1,360 +1,506 @@
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
-#include <limits>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
 
 using namespace std;
 
-struct User {
-    string login;
-    string password;
-};
+const char* SERVER_IP = "127.0.0.1";
+const int SERVER_PORT = 5000;
 
-struct Message {
-    string from;
-    string to;
-    string text;
-};
+bool sendLine(int socketFd, const string& text) {
+    string data = text + "\n";
 
-vector<User> users;
-vector<Message> messages;
-string currentUser;
+    size_t sentTotal = 0;
 
-// ===============================
-// Загрузка пользователей
-// ===============================
-void loadUsers() {
-    ifstream file("users.txt");
+    while (sentTotal < data.size()) {
+        ssize_t sent = send(
+            socketFd,
+            data.c_str() + sentTotal,
+            data.size() - sentTotal,
+            0
+        );
 
-    User user;
+        if (sent <= 0) {
+            return false;
+        }
 
-    while (file >> user.login >> user.password) {
-        users.push_back(user);
+        sentTotal += sent;
     }
 
-    file.close();
+    return true;
 }
 
-// ===============================
-// Сохранение пользователей
-// ===============================
-void saveUsers() {
-    ofstream file("users.txt");
+bool receiveLine(int socketFd, string& result) {
+    result.clear();
 
-    for (const User& user : users) {
-        file << user.login << " " << user.password << "\n";
-    }
+    char c;
 
-    file.close();
-}
+    while (true) {
+        ssize_t received = recv(
+            socketFd,
+            &c,
+            1,
+            0
+        );
 
-// ===============================
-// Загрузка сообщений
-// ===============================
-void loadMessages() {
-    ifstream file("messages.txt");
+        if (received <= 0) {
+            return false;
+        }
 
-    string from;
-    string to;
-    string text;
+        if (c == '\n') {
+            break;
+        }
 
-    while (getline(file, from, '|')) {
-        getline(file, to, '|');
-        getline(file, text);
+        if (c != '\r') {
+            result += c;
+        }
 
-        if (!from.empty() && !to.empty()) {
-            messages.push_back({from, to, text});
+        if (result.size() > 8192) {
+            return false;
         }
     }
 
-    file.close();
+    return true;
 }
 
-// ===============================
-// Сохранение сообщений
-// ===============================
-void saveMessages() {
-    ofstream file("messages.txt");
+vector<string> splitFirst(
+    const string& text,
+    int count
+) {
+    vector<string> result;
+    size_t start = 0;
 
-    for (const Message& message : messages) {
-        file << message.from << "|"
-             << message.to << "|"
-             << message.text << "\n";
-    }
+    for (int i = 0; i < count - 1; i++) {
+        size_t pos = text.find('|', start);
 
-    file.close();
-}
-
-// ===============================
-// Проверка существования пользователя
-// ===============================
-bool userExists(const string& login) {
-    for (const User& user : users) {
-        if (user.login == login) {
-            return true;
+        if (pos == string::npos) {
+            result.push_back(text.substr(start));
+            return result;
         }
+
+        result.push_back(
+            text.substr(start, pos - start)
+        );
+
+        start = pos + 1;
     }
 
-    return false;
+    result.push_back(text.substr(start));
+
+    return result;
 }
 
-// ===============================
-// Регистрация
-// ===============================
-void registerUser() {
+bool connectToServer(int& socketFd) {
+    socketFd = socket(
+        AF_INET,
+        SOCK_STREAM,
+        0
+    );
+
+    if (socketFd < 0) {
+        return false;
+    }
+
+    sockaddr_in serverAddress{};
+
+    serverAddress.sin_family = AF_INET;
+    serverAddress.sin_port =
+            htons(SERVER_PORT);
+
+    if (inet_pton(
+            AF_INET,
+            SERVER_IP,
+            &serverAddress.sin_addr
+        ) <= 0) {
+
+        close(socketFd);
+        return false;
+    }
+
+    if (connect(
+            socketFd,
+            reinterpret_cast<sockaddr*>(
+                &serverAddress
+            ),
+            sizeof(serverAddress)
+        ) < 0) {
+
+        close(socketFd);
+        return false;
+    }
+
+    return true;
+}
+
+bool receiveServerAnswer(
+    int socketFd,
+    string& answer
+) {
+    return receiveLine(
+        socketFd,
+        answer
+    );
+}
+
+void registerAccount(int socketFd) {
     string login;
     string password;
 
-    cout << "\n========== РЕГИСТРАЦИЯ ==========\n";
+    cout << endl;
+    cout << "=== РЕГИСТРАЦИЯ ===" << endl;
 
-    cout << "Введите логин: ";
-    cin >> login;
+    cout << "Логин: ";
+    getline(cin, login);
 
-    if (userExists(login)) {
-        cout << "Пользователь с таким логином уже существует.\n";
+    cout << "Пароль: ";
+    getline(cin, password);
+
+    sendLine(
+        socketFd,
+        "REGISTER|" + login + "|" + password
+    );
+
+    string response;
+
+    if (!receiveServerAnswer(
+            socketFd,
+            response
+        )) {
+
+        cout << "Сервер отключился." << endl;
         return;
     }
 
-    cout << "Введите пароль: ";
-    cin >> password;
-
-    users.push_back({login, password});
-    saveUsers();
-
-    cout << "Аккаунт успешно создан.\n";
+    if (response == "OK|REGISTERED") {
+        cout << endl;
+        cout << "[OK] Аккаунт создан!" << endl;
+    } else {
+        cout << endl;
+        cout << "SERVER: " << response << endl;
+    }
 }
 
-// ===============================
-// Вход
-// ===============================
-bool loginUser() {
+bool loginAccount(
+    int socketFd,
+    string& currentUser
+) {
     string login;
     string password;
 
-    cout << "\n============ ВХОД ============\n";
+    cout << endl;
+    cout << "=== ВХОД ===" << endl;
 
     cout << "Логин: ";
-    cin >> login;
+    getline(cin, login);
 
     cout << "Пароль: ";
-    cin >> password;
+    getline(cin, password);
 
-    for (const User& user : users) {
-        if (user.login == login &&
-            user.password == password) {
+    sendLine(
+        socketFd,
+        "LOGIN|" + login + "|" + password
+    );
 
-            currentUser = login;
+    string response;
 
-            cout << "\nДобро пожаловать, "
-                 << currentUser << "!\n";
+    if (!receiveServerAnswer(
+            socketFd,
+            response
+        )) {
 
-            return true;
-        }
+        cout << "Сервер отключился." << endl;
+        return false;
     }
 
-    cout << "Неверный логин или пароль.\n";
+    if (response == "OK|LOGIN_SUCCESS") {
+        currentUser = login;
+
+        cout << endl;
+        cout << "[OK] Вход выполнен!" << endl;
+        cout << "Добро пожаловать, "
+             << currentUser
+             << "!" << endl;
+
+        return true;
+    }
+
+    cout << endl;
+    cout << "SERVER: " << response << endl;
 
     return false;
 }
 
-// ===============================
-// Показ пользователей
-// ===============================
-void showUsers() {
-    cout << "\n========== ПОЛЬЗОВАТЕЛИ ==========\n";
+void listUsers(int socketFd) {
+    sendLine(socketFd, "LIST");
 
+    cout << endl;
+    cout << "=== ПОЛЬЗОВАТЕЛИ ===" << endl;
+
+    string response;
+
+    while (receiveLine(
+        socketFd,
+        response
+    )) {
+        if (response == "END") {
+            break;
+        }
+
+        vector<string> parts =
+                splitFirst(response, 3);
+
+        if (parts.size() == 3 &&
+            parts[0] == "USER") {
+
+            cout << "- "
+                 << parts[1]
+                 << " ["
+                 << parts[2]
+                 << "]"
+                 << endl;
+        }
+    }
+}
+
+void sendMessage(int socketFd) {
+    string to;
+    string text;
+
+    cout << endl;
+    cout << "Получатель: ";
+    getline(cin, to);
+
+    cout << "Сообщение: ";
+    getline(cin, text);
+
+    sendLine(
+        socketFd,
+        "SEND|" + to + "|" + text
+    );
+
+    string response;
+
+    if (receiveLine(
+            socketFd,
+            response
+        )) {
+
+        if (response == "OK|MESSAGE_SAVED") {
+            cout << "[OK] Сообщение сохранено!" << endl;
+        } else {
+            cout << "SERVER: "
+                 << response
+                 << endl;
+        }
+    }
+}
+
+void showHistory(int socketFd) {
+    string other;
+
+    cout << endl;
+    cout << "История с пользователем: ";
+    getline(cin, other);
+
+    sendLine(
+        socketFd,
+        "HISTORY|" + other
+    );
+
+    cout << endl;
+    cout << "=== ИСТОРИЯ ===" << endl;
+
+    string response;
     bool found = false;
 
-    for (const User& user : users) {
-        if (user.login != currentUser) {
-            cout << "- " << user.login << "\n";
+    while (receiveLine(
+        socketFd,
+        response
+    )) {
+        if (response == "END") {
+            break;
+        }
+
+        vector<string> parts =
+                splitFirst(response, 5);
+
+        if (parts.size() == 5 &&
+            parts[0] == "MSG") {
+
+            cout << "[" << parts[1] << "] "
+                 << parts[2]
+                 << " -> "
+                 << parts[3]
+                 << ": "
+                 << parts[4]
+                 << endl;
+
             found = true;
         }
     }
 
     if (!found) {
-        cout << "Других пользователей пока нет.\n";
+        cout << "Сообщений пока нет." << endl;
     }
 }
 
-// ===============================
-// Открытие чата
-// ===============================
-void openChat() {
-    string otherUser;
-
-    cout << "\nВведите логин собеседника: ";
-    cin >> otherUser;
-
-    if (!userExists(otherUser)) {
-        cout << "Такого пользователя нет.\n";
-        return;
-    }
-
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-
-    cout << "\n================================\n";
-    cout << "          ЧАТ С " << otherUser << "\n";
-    cout << "================================\n";
-
-    bool hasMessages = false;
-
-    for (const Message& message : messages) {
-        bool firstDirection =
-            message.from == currentUser &&
-            message.to == otherUser;
-
-        bool secondDirection =
-            message.from == otherUser &&
-            message.to == currentUser;
-
-        if (firstDirection || secondDirection) {
-            cout << message.from
-                 << ": "
-                 << message.text
-                 << "\n";
-
-            hasMessages = true;
-        }
-    }
-
-    if (!hasMessages) {
-        cout << "История сообщений пуста.\n";
-    }
-
-    cout << "\nВведите сообщение.\n";
-    cout << "Для выхода напишите /exit\n\n";
-
+void messengerMenu(
+    int socketFd,
+    string& currentUser
+) {
     while (true) {
-        cout << currentUser << ": ";
+        cout << endl;
+        cout << "================================" << endl;
+        cout << "        PIXEL CHAT" << endl;
+        cout << "Пользователь: " << currentUser << endl;
+        cout << "================================" << endl;
+        cout << "1. Пользователи" << endl;
+        cout << "2. Отправить сообщение" << endl;
+        cout << "3. История чата" << endl;
+        cout << "4. Выйти из аккаунта" << endl;
+        cout << "5. Закрыть PIXEL CHAT" << endl;
+        cout << "================================" << endl;
+        cout << "> ";
 
-        string text;
-        getline(cin, text);
+        string choice;
+        getline(cin, choice);
 
-        if (text == "/exit") {
-            break;
-        }
+        if (choice == "1") {
+            listUsers(socketFd);
 
-        if (text.empty()) {
-            continue;
-        }
+        } else if (choice == "2") {
+            sendMessage(socketFd);
 
-        messages.push_back({
-            currentUser,
-            otherUser,
-            text
-        });
+        } else if (choice == "3") {
+            showHistory(socketFd);
 
-        saveMessages();
-    }
-}
+        } else if (choice == "4") {
+            sendLine(socketFd, "LOGOUT");
 
-// ===============================
-// Меню мессенджера
-// ===============================
-void messengerMenu() {
-    while (true) {
-        cout << "\n";
-        cout << "================================\n";
-        cout << "        PIXEL MESSENGER\n";
-        cout << "================================\n";
-        cout << "Аккаунт: " << currentUser << "\n\n";
+            string response;
 
-        cout << "1. Пользователи\n";
-        cout << "2. Открыть чат\n";
-        cout << "3. Выйти из аккаунта\n";
-        cout << "0. Закрыть программу\n";
+            if (receiveLine(
+                    socketFd,
+                    response
+                )) {
 
-        cout << "\nВыберите пункт: ";
+                cout << "SERVER: "
+                     << response
+                     << endl;
+            }
 
-        int choice;
+            currentUser.clear();
+            return;
 
-        if (!(cin >> choice)) {
-            cin.clear();
-            cin.ignore(
-                numeric_limits<streamsize>::max(),
-                '\n'
+        } else if (choice == "5") {
+            sendLine(socketFd, "QUIT");
+
+            string response;
+
+            receiveLine(
+                socketFd,
+                response
             );
 
-            cout << "Введите число.\n";
-            continue;
-        }
+            return;
 
-        switch (choice) {
-            case 1:
-                showUsers();
-                break;
-
-            case 2:
-                openChat();
-                break;
-
-            case 3:
-                currentUser.clear();
-                cout << "Вы вышли из аккаунта.\n";
-                return;
-
-            case 0:
-                cout << "PIXEL MESSENGER закрыт.\n";
-                exit(0);
-
-            default:
-                cout << "Такого пункта нет.\n";
+        } else {
+            cout << "Неизвестная команда." << endl;
         }
     }
 }
 
-// ===============================
-// Главное меню
-// ===============================
 int main() {
-    loadUsers();
-    loadMessages();
+    cout << "================================" << endl;
+    cout << "        PIXEL MESSENGER" << endl;
+    cout << "          C++ Client" << endl;
+    cout << "================================" << endl;
 
-    while (true) {
-        cout << "\n";
-        cout << "================================\n";
-        cout << "        PIXEL MESSENGER\n";
-        cout << "          C++ EDITION\n";
-        cout << "================================\n";
+    int socketFd;
 
-        cout << "1. Регистрация\n";
-        cout << "2. Вход\n";
-        cout << "0. Выход\n";
+    cout << endl;
+    cout << "Подключение к Java-серверу..." << endl;
 
-        cout << "\nВыберите пункт: ";
+    if (!connectToServer(socketFd)) {
+        cout << endl;
+        cout << "[ERROR] Не удалось подключиться." << endl;
+        cout << "Проверь Main.java и порт 5000." << endl;
+        return 1;
+    }
 
-        int choice;
+    cout << "[OK] Сервер подключен!" << endl;
 
-        if (!(cin >> choice)) {
-            cin.clear();
-            cin.ignore(
-                numeric_limits<streamsize>::max(),
-                '\n'
+    string response;
+
+    receiveLine(socketFd, response);
+    cout << "SERVER: " << response << endl;
+
+    receiveLine(socketFd, response);
+    cout << "SERVER: " << response << endl;
+
+    receiveLine(socketFd, response);
+
+    bool running = true;
+
+    while (running) {
+        cout << endl;
+        cout << "================================" << endl;
+        cout << "        PIXEL CHAT" << endl;
+        cout << "================================" << endl;
+        cout << "1. Регистрация" << endl;
+        cout << "2. Вход" << endl;
+        cout << "3. Выход" << endl;
+        cout << "================================" << endl;
+        cout << "> ";
+
+        string choice;
+        getline(cin, choice);
+
+        if (choice == "1") {
+            registerAccount(socketFd);
+
+        } else if (choice == "2") {
+            string currentUser;
+
+            if (loginAccount(
+                    socketFd,
+                    currentUser
+                )) {
+
+                messengerMenu(
+                    socketFd,
+                    currentUser
+                );
+
+                if (currentUser.empty()) {
+                    continue;
+                }
+
+                running = false;
+            }
+
+        } else if (choice == "3") {
+            sendLine(socketFd, "QUIT");
+
+            receiveLine(
+                socketFd,
+                response
             );
 
-            cout << "Введите число.\n";
-            continue;
-        }
+            running = false;
 
-        switch (choice) {
-            case 1:
-                registerUser();
-                break;
-
-            case 2:
-                if (loginUser()) {
-                    messengerMenu();
-                }
-                break;
-
-            case 0:
-                cout << "Программа завершена.\n";
-                return 0;
-
-            default:
-                cout << "Такого пункта нет.\n";
+        } else {
+            cout << "Неизвестная команда." << endl;
         }
     }
+
+    close(socketFd);
+
+    cout << endl;
+    cout << "Соединение закрыто." << endl;
+
+    return 0;
 }

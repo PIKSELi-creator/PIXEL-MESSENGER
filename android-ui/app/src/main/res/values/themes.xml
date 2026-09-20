@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <style name="Theme.PixelChat" parent="Theme.AppCompat.NoActionBar">
+
+        <item name="android:fontFamily">sans</item>
+
+        <item name="android:windowLightStatusBar">false</item>
+
+        <item name="android:statusBarColor">@color/pixel_bg</item>
+        <item name="android:navigationBarColor">@color/pixel_bg</item>
+
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:colorAccent">@color/pixel_blue</item>
+
+    </style>
+
+</resources>
