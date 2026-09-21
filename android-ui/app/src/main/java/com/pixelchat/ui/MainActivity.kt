@@ -1,4 +1,5 @@
 package com.pixelchat.ui
+import androidx.compose.ui.platform.LocalContext
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -117,18 +118,32 @@ fun PixelChatTheme() {
 @Composable
 fun PixelChatApp() {
 
+    val context = LocalContext.current
+    val sessionStore = remember { SessionStore(context) }
+
     var screen by remember { mutableStateOf("splash") }
+    var sessionLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         delay(1100)
-        screen = "welcome"
+
+        val session = sessionStore.getSession()
+
+        screen = if (session != null) {
+            "home"
+        } else {
+            "welcome"
+        }
+
+        sessionLoaded = true
+    }
+
+    if (!sessionLoaded) {
+        SplashScreen()
+        return
     }
 
     when (screen) {
-
-        "splash" -> {
-            SplashScreen()
-        }
 
         "welcome" -> {
             WelcomeScreen(
