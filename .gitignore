@@ -17,3 +17,7 @@ messenger
 users.txt
 server-java/data/users.txt
 server-java/data/messages.txt
+
+# OAuth secrets
+server-java/*client_secret*.json
+server-java/token.json
