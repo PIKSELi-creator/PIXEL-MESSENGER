@@ -1,4 +1,5 @@
 package com.pixelchat.ui
+import kotlinx.coroutines.launch
 import androidx.compose.ui.platform.LocalContext
 
 import android.os.Bundle
@@ -46,6 +47,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -183,7 +185,13 @@ fun PixelChatApp() {
 
         "profile" -> {
             ProfileSetupScreen(
-                onComplete = {
+                email = "",
+                onComplete = { name, username ->
+                    sessionStore.saveSession(
+                        email = "",
+                        displayName = name,
+                        username = username
+                    )
                     screen = "home"
                 }
             )
@@ -780,11 +788,13 @@ fun VerificationScreen(
 
 @Composable
 fun ProfileSetupScreen(
-    onComplete: () -> Unit
+    email: String,
+    onComplete: suspend (String, String) -> Unit
 ) {
 
     var name by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
+    val scope = rememberCoroutineScope()
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -858,7 +868,11 @@ fun ProfileSetupScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
-                onClick = onComplete,
+                onClick = {
+                    scope.launch {
+                        onComplete(name.trim(), username.trim())
+                    }
+                },
                 enabled = name.isNotBlank() && username.isNotBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
