@@ -23,8 +23,8 @@ android {
         minSdk = 26
         targetSdk = 35
 
-        versionCode = 2
-        versionName = "0.1.0"
+        versionCode = 3
+        versionName = "0.1.1"
     }
 }
 
@@ -36,4 +36,5 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.7.8")
     implementation("androidx.compose.ui:ui-tooling-preview:1.7.8")
     implementation("androidx.compose.material3:material3:1.3.1")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }
