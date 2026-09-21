@@ -21,3 +21,4 @@ server-java/data/messages.txt
 # OAuth secrets
 server-java/*client_secret*.json
 server-java/token.json
+server-java/gmail-tokens/
