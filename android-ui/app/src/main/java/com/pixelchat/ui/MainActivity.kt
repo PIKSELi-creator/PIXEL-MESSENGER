@@ -124,6 +124,7 @@ fun PixelChatApp() {
     val sessionStore = remember { SessionStore(context) }
 
     var screen by remember { mutableStateOf("splash") }
+    var registrationEmail by remember { mutableStateOf("") }
     var sessionLoaded by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -177,7 +178,8 @@ fun PixelChatApp() {
                 onBack = {
                     screen = "welcome"
                 },
-                onVerified = {
+                onVerified = { email ->
+                    registrationEmail = email
                     screen = "profile"
                 }
             )
@@ -185,10 +187,10 @@ fun PixelChatApp() {
 
         "profile" -> {
             ProfileSetupScreen(
-                email = "",
+                email = registrationEmail,
                 onComplete = { name, username ->
                     sessionStore.saveSession(
-                        email = "",
+                        email = registrationEmail,
                         displayName = name,
                         username = username
                     )
@@ -568,7 +570,7 @@ private fun AuthShell(
 @Composable
 fun RegisterScreen(
     onBack: () -> Unit,
-    onVerified: () -> Unit
+    onVerified: (String) -> Unit
 ) {
 
     var email by remember { mutableStateOf("") }
@@ -581,7 +583,9 @@ fun RegisterScreen(
             onBack = {
                 codeVisible = false
             },
-            onVerified = onVerified
+            onVerified = {
+                onVerified(email)
+            }
         )
 
         return
