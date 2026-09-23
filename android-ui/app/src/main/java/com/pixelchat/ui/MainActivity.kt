@@ -61,9 +61,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.core.tween
 
 private val PixelBlue = Color(0xFF35A9FF)
 private val PixelBlueDark = Color(0xFF16334A)
@@ -969,7 +971,21 @@ fun HomeScreen() {
 
         floatingActionButton = {
 
-            if (tab == 0 || tab == 1) {
+            AnimatedVisibility(
+                visible = tab == 0 || tab == 1,
+                enter = fadeIn(
+                    animationSpec = tween(250)
+                ) + slideInVertically(
+                    animationSpec = tween(250),
+                    initialOffsetY = { it / 2 }
+                ),
+                exit = fadeOut(
+                    animationSpec = tween(150)
+                ) + slideOutVertically(
+                    animationSpec = tween(150),
+                    targetOffsetY = { it / 2 }
+                )
+            ) {
 
                 FloatingActionButton(
                     onClick = {
@@ -1005,30 +1021,43 @@ fun HomeScreen() {
 
     ) { innerPadding ->
 
-        when (tab) {
+        AnimatedContent(
+            targetState = tab,
+            transitionSpec = {
+                fadeIn(
+                    animationSpec = tween(220)
+                ) togetherWith fadeOut(
+                    animationSpec = tween(160)
+                )
+            },
+            label = "tab_transition"
+        ) { currentTab ->
 
-            0 -> ChatsTab(
-                modifier = Modifier.padding(innerPadding),
-                chats = chats,
-                onOpen = {
-                    openedChat = it
-                }
-            )
+            when (currentTab) {
 
-            1 -> ContactsTab(
-                modifier = Modifier.padding(innerPadding),
-                onOpen = {
-                    openedChat = it
-                }
-            )
+                0 -> ChatsTab(
+                    modifier = Modifier.padding(innerPadding),
+                    chats = chats,
+                    onOpen = {
+                        openedChat = it
+                    }
+                )
 
-            2 -> ProfileTab(
-                modifier = Modifier.padding(innerPadding)
-            )
+                1 -> ContactsTab(
+                    modifier = Modifier.padding(innerPadding),
+                    onOpen = {
+                        openedChat = it
+                    }
+                )
 
-            else -> SettingsTab(
-                modifier = Modifier.padding(innerPadding)
-            )
+                2 -> ProfileTab(
+                    modifier = Modifier.padding(innerPadding)
+                )
+
+                else -> SettingsTab(
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
         }
     }
 }
