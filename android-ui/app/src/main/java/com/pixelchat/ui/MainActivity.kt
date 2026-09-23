@@ -60,6 +60,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 
 private val PixelBlue = Color(0xFF35A9FF)
 private val PixelBlueDark = Color(0xFF16334A)
@@ -971,14 +975,19 @@ fun HomeScreen() {
                     onClick = {
                         showNewChat = true
                     },
-                    containerColor = PixelBlue,
-                    contentColor = Color.White,
-                    shape = CircleShape
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = 4.dp,
+                        pressedElevation = 8.dp
+                    )
                 ) {
 
                     Text(
                         text = "+",
-                        fontSize = 28.sp
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -1030,47 +1039,97 @@ private fun ChatsTab(
     chats: List<ChatItem>,
     onOpen: (ChatItem) -> Unit
 ) {
-
     var query by remember { mutableStateOf("") }
 
     val filtered = chats.filter {
-
-        it.name.contains(
-            query,
-            ignoreCase = true
-        ) || it.message.contains(
-            query,
-            ignoreCase = true
-        )
+        it.name.contains(query, ignoreCase = true) ||
+        it.message.contains(query, ignoreCase = true)
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 14.dp)
+            .padding(horizontal = 16.dp)
     ) {
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-        Text(
-            text = "Чаты",
-            color = PixelText,
-            fontSize = 30.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 6.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = "Чаты",
+                    style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = if (filtered.isEmpty()) {
+                        "Ничего не найдено"
+                    } else {
+                        "${filtered.size} диалога"
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Surface(
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.secondaryContainer
+            ) {
+                Text(
+                    text = "P",
+                    modifier = Modifier.padding(
+                        horizontal = 15.dp,
+                        vertical = 11.dp
+                    ),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            placeholder = {
+                Text("Поиск чатов")
+            },
+            leadingIcon = {
+                Text(
+                    text = "⌕",
+                    fontSize = 23.sp
+                )
+            },
+            trailingIcon = {
+                if (query.isNotEmpty()) {
+                    Text(
+                        text = "×",
+                        modifier = Modifier.clickable {
+                            query = ""
+                        },
+                        fontSize = 24.sp
+                    )
+                }
+            },
+            shape = RoundedCornerShape(24.dp)
         )
 
         Spacer(modifier = Modifier.height(14.dp))
-
-        SearchField(
-            query = query,
-            onQueryChange = {
-                query = it
-            },
-            placeholder = "Поиск чатов"
-        )
-
-        Spacer(modifier = Modifier.height(10.dp))
 
         if (filtered.isEmpty()) {
 
@@ -1083,17 +1142,26 @@ private fun ChatsTab(
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(3.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
 
                 items(filtered) { chat ->
 
-                    ChatRow(
-                        chat = chat,
-                        onClick = {
-                            onOpen(chat)
-                        }
-                    )
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn() + slideInVertically(
+                            initialOffsetY = { it / 5 }
+                        ),
+                        exit = fadeOut()
+                    ) {
+                        ChatRow(
+                            chat = chat,
+                            onClick = {
+                                onOpen(chat)
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -1736,17 +1804,17 @@ private fun PixelBottomNavigation(
     selected: Int,
     onSelected: (Int) -> Unit
 ) {
+    val items = listOf(
+        "Чаты" to "✉",
+        "Контакты" to "●",
+        "Профиль" to "P",
+        "Настройки" to "⚙"
+    )
 
     NavigationBar(
-        containerColor = PixelSurface
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 3.dp
     ) {
-
-        val items = listOf(
-            "Чаты" to "✉",
-            "Контакты" to "●",
-            "Профиль" to "P",
-            "Настройки" to "⚙"
-        )
 
         items.forEachIndexed { index, item ->
 
@@ -1758,22 +1826,48 @@ private fun PixelBottomNavigation(
                 },
 
                 icon = {
-
-                    Text(
-                        text = item.second,
-                        color = if (
-                            selected == index
-                        ) {
-                            PixelBlue
+                    Surface(
+                        shape = RoundedCornerShape(14.dp),
+                        color = if (selected == index) {
+                            MaterialTheme.colorScheme.secondaryContainer
                         } else {
-                            PixelMuted
+                            Color.Transparent
                         }
-                    )
+                    ) {
+                        Text(
+                            text = item.second,
+                            modifier = Modifier.padding(
+                                horizontal = 12.dp,
+                                vertical = 5.dp
+                            ),
+                            color = if (selected == index) {
+                                MaterialTheme.colorScheme.onSecondaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            fontSize = 20.sp
+                        )
+                    }
                 },
 
                 label = {
-                    Text(item.first)
-                }
+                    Text(
+                        text = item.first,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor =
+                        MaterialTheme.colorScheme.onSecondaryContainer,
+                    selectedTextColor =
+                        MaterialTheme.colorScheme.primary,
+                    unselectedIconColor =
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor =
+                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    indicatorColor = Color.Transparent
+                )
             )
         }
     }
