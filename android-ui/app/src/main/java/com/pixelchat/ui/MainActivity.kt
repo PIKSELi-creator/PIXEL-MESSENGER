@@ -114,18 +114,43 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PixelChatTheme() {
 
+    val colorScheme = darkColorScheme(
+        primary = Color(0xFF9CCAFF),
+        onPrimary = Color(0xFF003258),
+        primaryContainer = Color(0xFF004A78),
+        onPrimaryContainer = Color(0xFFCDE5FF),
+
+        secondary = Color(0xFFB8C8D9),
+        onSecondary = Color(0xFF22313F),
+        secondaryContainer = Color(0xFF394A5A),
+        onSecondaryContainer = Color(0xFFD4E4F5),
+
+        tertiary = Color(0xFFCFBDEB),
+        onTertiary = Color(0xFF352348),
+        tertiaryContainer = Color(0xFF4C3860),
+        onTertiaryContainer = Color(0xFFEBDFFF),
+
+        background = Color(0xFF101418),
+        onBackground = Color(0xFFE1E2E6),
+
+        surface = Color(0xFF101418),
+        onSurface = Color(0xFFE1E2E6),
+
+        surfaceVariant = Color(0xFF41474E),
+        onSurfaceVariant = Color(0xFFC1C7CF),
+
+        surfaceContainer = Color(0xFF1C2024),
+        surfaceContainerHigh = Color(0xFF272B30),
+        surfaceContainerHighest = Color(0xFF32363B),
+
+        outline = Color(0xFF8B9199),
+        outlineVariant = Color(0xFF41474E)
+    )
+
     MaterialTheme(
-        colorScheme = androidx.compose.material3.darkColorScheme(
-            primary = PixelBlue,
-            onPrimary = Color.White,
-            background = PixelBackground,
-            onBackground = PixelText,
-            surface = PixelSurface,
-            onSurface = PixelText,
-            surfaceVariant = PixelSurface2,
-            onSurfaceVariant = PixelMuted,
-            outline = PixelDivider
-        )
+        colorScheme = colorScheme,
+        typography = Typography(),
+        shapes = Shapes()
     ) {
         PixelChatApp()
     }
