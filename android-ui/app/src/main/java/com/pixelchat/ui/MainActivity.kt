@@ -66,6 +66,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.ui.graphics.graphicsLayer
 
 private val PixelBlue = Color(0xFF35A9FF)
 private val PixelBlueDark = Color(0xFF16334A)
@@ -1632,13 +1635,29 @@ private fun ChatRow(
     onClick: () -> Unit
 ) {
 
+    val interactionSource = remember {
+        MutableInteractionSource()
+    }
+
+    val pressed by interactionSource.collectIsPressedAsState()
+
+    val rowScale = if (pressed) 0.985f else 1f
+
     Column {
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .graphicsLayer(
+                    scaleX = rowScale,
+                    scaleY = rowScale
+                )
                 .clip(RoundedCornerShape(18.dp))
-                .clickable(onClick = onClick)
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = null,
+                    onClick = onClick
+                )
                 .padding(
                     horizontal = 10.dp,
                     vertical = 11.dp
