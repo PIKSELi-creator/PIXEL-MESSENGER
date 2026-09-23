@@ -65,6 +65,11 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -1422,6 +1427,68 @@ private fun ProfileTab(
             title = "Активные сессии",
             subtitle = "Устройства, где открыт аккаунт"
         )
+    }
+}
+
+
+@Composable
+private fun NameEditorScreen(
+    currentName: String,
+    onBack: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var name by remember { mutableStateOf(currentName) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(PixelBackground)
+            .padding(16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "‹",
+                modifier = Modifier.clickable { onBack() },
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 36.sp
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Text(
+                text = "Имя",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(28.dp))
+
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("Имя") },
+            singleLine = true,
+            shape = RoundedCornerShape(20.dp)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Button(
+            onClick = {
+                if (name.isNotBlank()) {
+                    onSave(name.trim())
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp)
+        ) {
+            Text("Сохранить")
+        }
     }
 }
 
