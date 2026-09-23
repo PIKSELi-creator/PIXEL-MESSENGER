@@ -1303,6 +1303,22 @@ private fun ContactsTab(
 private fun ProfileTab(
     modifier: Modifier
 ) {
+    var showNameEditor by remember { mutableStateOf(false) }
+    var profileName by remember { mutableStateOf("Pixel User") }
+
+    if (showNameEditor) {
+        NameEditorScreen(
+            currentName = profileName,
+            onBack = {
+                showNameEditor = false
+            },
+            onSave = { newName ->
+                profileName = newName
+                showNameEditor = false
+            }
+        )
+        return
+    }
 
     Column(
         modifier = modifier
@@ -1357,7 +1373,7 @@ private fun ProfileTab(
                         Column {
 
                             Text(
-                                text = "Pixel User",
+                                text = profileName,
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Bold
@@ -1391,7 +1407,10 @@ private fun ProfileTab(
 
         ProfileAction(
             title = "Изменить профиль",
-            subtitle = "Имя, username и аватар"
+            subtitle = "Имя, username и аватар",
+            onClick = {
+                showNameEditor = true
+            }
         )
 
         ProfileAction(
@@ -1409,13 +1428,15 @@ private fun ProfileTab(
 @Composable
 private fun ProfileAction(
     title: String,
-    subtitle: String
+    subtitle: String,
+    onClick: () -> Unit = {}
 ) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = PixelSurface
         ),
