@@ -1321,50 +1321,68 @@ private fun ProfileTab(
 
         Spacer(modifier = Modifier.height(18.dp))
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = PixelSurface
-            ),
-            shape = RoundedCornerShape(22.dp)
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn(
+                animationSpec = tween(350)
+            ) + slideInVertically(
+                animationSpec = tween(350),
+                initialOffsetY = { it / 10 }
+            )
         ) {
 
-            Row(
-                modifier = Modifier.padding(18.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                ),
+                shape = RoundedCornerShape(28.dp)
             ) {
 
-                AppAvatar(
-                    initials = "P",
-                    size = 70.dp
-                )
+                Column(
+                    modifier = Modifier.padding(22.dp)
+                ) {
 
-                Spacer(modifier = Modifier.width(16.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
 
-                Column {
+                        AppAvatar(
+                            initials = "P",
+                            size = 82.dp
+                        )
 
-                    Text(
-                        text = "Pixel User",
-                        color = PixelText,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                        Spacer(modifier = Modifier.width(18.dp))
 
-                    Spacer(modifier = Modifier.height(3.dp))
+                        Column {
 
-                    Text(
-                        text = "@pixeluser",
-                        color = PixelBlue,
-                        fontSize = 14.sp
-                    )
+                            Text(
+                                text = "Pixel User",
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
 
-                    Spacer(modifier = Modifier.height(5.dp))
+                            Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(
-                        text = "Я в PIXEL CHAT",
-                        color = PixelMuted,
-                        fontSize = 13.sp
-                    )
+                            Text(
+                                text = "@pixeluser",
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+
+                            Spacer(modifier = Modifier.height(6.dp))
+
+                            Text(
+                                text = "Я в PIXEL CHAT",
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                    alpha = 0.72f
+                                ),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
                 }
             }
         }
