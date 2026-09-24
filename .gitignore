@@ -22,3 +22,14 @@ server-java/data/messages.txt
 server-java/*client_secret*.json
 server-java/token.json
 server-java/gmail-tokens/
+
+# PIXEL CHAT local secrets/generated files
+data/*.dat
+data/*.tmp
+data/*.p12
+.upgrade-backups/
+*.bak
+*.tmp
+crypto-keys/*_private.pem
+crypto-keys/
+crypto-keys/*.key

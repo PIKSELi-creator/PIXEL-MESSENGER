@@ -1735,33 +1735,55 @@ private fun PixelFullMediaCard() {
 
 @Composable
 private fun PixelFullGiftsCard() {
-    Surface(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-        color = PixelSurface,
-        shape = RoundedCornerShape(20.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
+        Text(
+            text = "PIXEL GIFTS",
+            style = MaterialTheme.typography.titleLarge
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = "Пиксель-подарки для профиля и чатов.",
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(modifier = Modifier.height(12.dp))
         Row(
-            modifier = Modifier.fillMaxWidth().padding(15.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Surface(
-                modifier = Modifier.size(44.dp),
-                shape = CircleShape,
-                color = PixelBlueContainer
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text("ПО", color = PixelBlueBright, fontWeight = FontWeight.Bold)
-                }
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Text("Подарки", color = PixelText, fontWeight = FontWeight.Bold)
-                Text("Подарки и будущая валюта", color = PixelMuted, fontSize = 12.sp)
-            }
-            Text("›", color = PixelBlueBright, fontSize = 24.sp)
+            PixelGiftTile("♥", "Heart")
+            PixelGiftTile("★", "Star")
+            PixelGiftTile("◆", "Gem")
+            PixelGiftTile("●", "Coin")
         }
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "Следующим этапом можно подключить покупку, отправку и анимации.",
+            style = MaterialTheme.typography.bodySmall
+        )
     }
 }
+
+@Composable
+private fun PixelGiftTile(symbol: String, name: String) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = symbol, style = MaterialTheme.typography.headlineSmall)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(text = name, style = MaterialTheme.typography.labelSmall)
+    }
+}
+
+
 
 @Composable
 private fun PixelFullSessionsCard() {
