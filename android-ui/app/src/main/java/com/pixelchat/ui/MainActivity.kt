@@ -908,109 +908,214 @@ private fun ChatsTab(
     var filter by rememberSaveable { mutableStateOf(0) }
 
     val filtered = chats.filter { chat ->
-        val matchesSearch = chat.name.contains(query, true) || chat.message.contains(query, true)
+        val matchesSearch =
+            chat.name.contains(query, true) ||
+            chat.message.contains(query, true)
+
         val matchesFilter = when (filter) {
             0 -> true
             1 -> chat.online
             2 -> chat.unread > 0
             else -> true
         }
+
         matchesSearch && matchesFilter
     }
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 18.dp,
+            bottom = 112.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Spacer(Modifier.height(4.dp))
-
-        LargeTopAppBar(
-            title = {
-                Column {
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(
                         "Чаты",
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.ExtraBold
+                        style = MaterialTheme.typography.displaySmall,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
+
+                    Spacer(Modifier.height(2.dp))
+
                     Text(
-                        "${filtered.size} диалога",
-                        style = MaterialTheme.typography.bodyMedium,
+                        "${filtered.size} ${if (filtered.size == 1) "диалог" else "диалога"}",
+                        style = MaterialTheme.typography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-            },
-            actions = {
+
                 Surface(
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.primaryContainer
+                    modifier = Modifier.size(52.dp),
+                    shape = MaterialTheme.shapes.largeIncreased,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    tonalElevation = 2.dp
                 ) {
-                    Text(
-                        "P",
-                        modifier = Modifier.padding(12.dp),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        fontWeight = FontWeight.ExtraBold
-                    )
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "P",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
                 }
-            },
-            colors = TopAppBarDefaults.largeTopAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                titleContentColor = MaterialTheme.colorScheme.onBackground
-            )
-        )
-
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            modifier = Modifier.fillMaxWidth().animateContentSize(),
-            singleLine = true,
-            label = { Text("Поиск") },
-            placeholder = { Text("Чаты и сообщения") },
-            leadingIcon = {
-                Text("⌕", fontSize = 25.sp, color = MaterialTheme.colorScheme.primary)
-            },
-            trailingIcon = {
-                AnimatedVisibility(
-                    visible = query.isNotEmpty(),
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-                    TextButton(onClick = { query = "" }) { Text("Очистить") }
-                }
-            },
-            shape = MaterialTheme.shapes.large,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                cursorColor = MaterialTheme.colorScheme.primary
-            )
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            PixelFilterChip("Все", filter == 0) { filter = 0 }
-            PixelFilterChip("В сети", filter == 1) { filter = 1 }
-            PixelFilterChip("Непрочитанные", filter == 2) { filter = 2 }
+            }
         }
 
-        Spacer(Modifier.height(12.dp))
+        item {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { query = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(),
+                singleLine = true,
+                label = { Text("Поиск") },
+                placeholder = { Text("Чаты и сообщения") },
+                leadingIcon = {
+                    Text(
+                        "⌕",
+                        fontSize = 25.sp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                },
+                trailingIcon = {
+                    AnimatedVisibility(
+                        visible = query.isNotEmpty(),
+                        enter = fadeIn() + scaleIn(),
+                        exit = fadeOut() + scaleOut()
+                    ) {
+                        TextButton(
+                            onClick = { query = "" }
+                        ) {
+                            Text("Очистить")
+                        }
+                    }
+                },
+                shape = MaterialTheme.shapes.extraLarge,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor =
+                        MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor =
+                        MaterialTheme.colorScheme.surfaceContainerHigh,
+                    focusedBorderColor =
+                        MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor =
+                        MaterialTheme.colorScheme.outline,
+                    focusedTextColor =
+                        MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor =
+                        MaterialTheme.colorScheme.onSurface,
+                    cursorColor =
+                        MaterialTheme.colorScheme.primary
+                )
+            )
+        }
 
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            contentPadding = PaddingValues(bottom = 96.dp)
-        ) {
-            items(
-                items = filtered,
-                key = { "${it.name}_${it.time}" }
-            ) { chat ->
-                PixelExpressiveChatItem(chat = chat, onClick = { onOpen(chat) })
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                PixelFilterChip(
+                    text = "Все",
+                    selected = filter == 0
+                ) { filter = 0 }
+
+                PixelFilterChip(
+                    text = "В сети",
+                    selected = filter == 1
+                ) { filter = 1 }
+
+                PixelFilterChip(
+                    text = "Непрочитанные",
+                    selected = filter == 2
+                ) { filter = 2 }
+            }
+        }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        top = 4.dp,
+                        bottom = 2.dp
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Последние чаты",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(Modifier.weight(1f))
+
+                Text(
+                    "${filtered.size}",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+
+        items(
+            items = filtered,
+            key = { "${it.name}_${it.time}" }
+        ) { chat ->
+            PixelExpressiveChatItem(
+                chat = chat,
+                onClick = { onOpen(chat) }
+            )
+        }
+
+        if (filtered.isEmpty()) {
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    tonalElevation = 1.dp
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(28.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "Ничего не найдено",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(Modifier.height(6.dp))
+
+                        Text(
+                            "Попробуй изменить запрос или фильтр",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
         }
     }
@@ -1028,10 +1133,19 @@ private fun PixelFilterChip(
         label = {
             Text(
                 text,
-                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
+                fontWeight = if (selected) {
+                    FontWeight.Bold
+                } else {
+                    FontWeight.Medium
+                }
             )
         },
-        shape = if (selected) MaterialTheme.shapes.large else MaterialTheme.shapes.medium
+        shape = if (selected) {
+            MaterialTheme.shapes.largeIncreased
+        } else {
+            MaterialTheme.shapes.large
+        },
+        modifier = Modifier.animateContentSize()
     )
 }
 
