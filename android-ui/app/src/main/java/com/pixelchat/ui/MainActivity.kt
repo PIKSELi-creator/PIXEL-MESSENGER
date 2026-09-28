@@ -1,4 +1,3 @@
-@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 package com.pixelchat.ui
 
 import androidx.compose.material3.Button
@@ -61,6 +60,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,14 +86,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Badge
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.MaterialExpressiveTheme
-import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.ui.Modifier
@@ -111,19 +108,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-private val PixelBlue = Color(0xFF4D9FFF)
-private val PixelBlueBright = Color(0xFF69B5FF)
-private val PixelBlueContainer = Color(0xFF183B59)
+private val PixelBlue = Color(0xFF000000)
+private val PixelBlueBright = Color(0xFFFFFFFF)
+private val PixelBlueContainer = Color(0xFF2A2A2A)
 
-private val PixelBackground = Color(0xFF071018)
-private val PixelSurface = Color(0xFF101B25)
-private val PixelSurfaceHigh = Color(0xFF172532)
-private val PixelOutline = Color(0xFF425565)
+private val PixelBackground = Color(0xFF000000)
+private val PixelSurface = Color(0xFF151515)
+private val PixelSurfaceHigh = Color(0xFF202020)
+private val PixelOutline = Color(0xFF666666)
 
-private val PixelText = Color(0xFFF4F8FC)
-private val PixelMuted = Color(0xFF97A9B9)
-private val PixelSuccess = Color(0xFF55D6A7)
-private val PixelDanger = Color(0xFFFF6D7A)
+private val PixelText = Color(0xFFFFFFFF)
+private val PixelMuted = Color(0xFFAAAAAA)
+private val PixelSuccess = Color(0xFFFFFFFF)
+private val PixelDanger = Color(0xFFFFFFFF)
 
 private data class ChatItem(
     val name: String,
@@ -155,47 +152,72 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PixelChatTheme() {
-    val scheme = darkColorScheme(
-        primary = PixelBlueBright,
-        onPrimary = Color(0xFF06213A),
-        primaryContainer = PixelBlueContainer,
-        onPrimaryContainer = Color(0xFFD8EDFF),
-        secondary = Color(0xFFB9CAD9),
-        onSecondary = Color(0xFF172530),
-        secondaryContainer = Color(0xFF2D3D49),
-        onSecondaryContainer = Color(0xFFDCEAF6),
-        tertiary = Color(0xFFD3C0FF),
-        onTertiary = Color(0xFF2C214A),
-        tertiaryContainer = Color(0xFF4B3A68),
-        onTertiaryContainer = Color(0xFFEDDEFF),
-        background = PixelBackground,
-        onBackground = PixelText,
-        surface = PixelBackground,
-        onSurface = PixelText,
-        surfaceVariant = PixelSurfaceHigh,
-        onSurfaceVariant = PixelMuted,
-        surfaceContainer = PixelSurface,
-        surfaceContainerHigh = PixelSurfaceHigh,
-        surfaceContainerHighest = Color(0xFF1E2F3D),
-        outline = PixelOutline
+    val darkScheme = darkColorScheme(
+        primary = Color.White,
+        onPrimary = Color.Black,
+        primaryContainer = Color(0xFF2A2A2A),
+        onPrimaryContainer = Color.White,
+        secondary = Color(0xFFD0D0D0),
+        onSecondary = Color.Black,
+        secondaryContainer = Color(0xFF303030),
+        onSecondaryContainer = Color.White,
+        tertiary = Color(0xFFBDBDBD),
+        onTertiary = Color.Black,
+        tertiaryContainer = Color(0xFF383838),
+        onTertiaryContainer = Color.White,
+        background = Color.Black,
+        onBackground = Color.White,
+        surface = Color.Black,
+        onSurface = Color.White,
+        surfaceVariant = Color(0xFF202020),
+        onSurfaceVariant = Color(0xFFBDBDBD),
+        surfaceContainer = Color(0xFF151515),
+        surfaceContainerHigh = Color(0xFF202020),
+        surfaceContainerHighest = Color(0xFF292929),
+        outline = Color(0xFF666666)
     )
+
+    val lightScheme = lightColorScheme(
+        primary = Color.Black,
+        onPrimary = Color.White,
+        primaryContainer = Color(0xFFE5E5E5),
+        onPrimaryContainer = Color.Black,
+        secondary = Color(0xFF444444),
+        onSecondary = Color.White,
+        secondaryContainer = Color(0xFFE8E8E8),
+        onSecondaryContainer = Color.Black,
+        tertiary = Color(0xFF555555),
+        onTertiary = Color.White,
+        tertiaryContainer = Color(0xFFE0E0E0),
+        onTertiaryContainer = Color.Black,
+        background = Color.White,
+        onBackground = Color.Black,
+        surface = Color.White,
+        onSurface = Color.Black,
+        surfaceVariant = Color(0xFFE8E8E8),
+        onSurfaceVariant = Color(0xFF555555),
+        surfaceContainer = Color(0xFFF4F4F4),
+        surfaceContainerHigh = Color(0xFFECECEC),
+        surfaceContainerHighest = Color(0xFFE2E2E2),
+        outline = Color(0xFF777777)
+    )
+
+    val isDark = isSystemInDarkTheme()
+
+    val scheme = if (isDark) darkScheme else lightScheme
 
     val shapes = Shapes(
         extraSmall = RoundedCornerShape(8.dp),
         small = RoundedCornerShape(12.dp),
         medium = RoundedCornerShape(18.dp),
-        large = RoundedCornerShape(28.dp),
-        extraLarge = RoundedCornerShape(32.dp),
-        largeIncreased = RoundedCornerShape(36.dp),
-        extraLargeIncreased = RoundedCornerShape(40.dp)
+        large = RoundedCornerShape(24.dp),
+        extraLarge = RoundedCornerShape(32.dp)
     )
 
-    MaterialExpressiveTheme(
+    MaterialTheme(
         colorScheme = scheme,
-        motionScheme = MotionScheme.expressive(),
         shapes = shapes
     ) {
         PixelChatApp()
@@ -744,6 +766,11 @@ private fun HomeScreen(onLogout: () -> Unit) {
     var openedChat by remember { mutableStateOf<ChatItem?>(null) }
     var showNewChat by remember { mutableStateOf(false) }
 
+    var showEditProfile by remember { mutableStateOf(false) }
+    var profileName by rememberSaveable { mutableStateOf("Pixel User") }
+    var profileUsername by rememberSaveable { mutableStateOf("pixeluser") }
+    var profileBio by rememberSaveable { mutableStateOf("Я в PIXEL CHAT") }
+
     val chats = remember {
         listOf(
             ChatItem("PIXEL CHAT", "Добро пожаловать в новый интерфейс", "19:42", "P"),
@@ -769,13 +796,29 @@ private fun HomeScreen(onLogout: () -> Unit) {
         return
     }
 
+    if (showEditProfile) {
+        EditProfileScreen(
+            name = profileName,
+            username = profileUsername,
+            bio = profileBio,
+            onBack = { showEditProfile = false },
+            onSave = { newName, newUsername, newBio ->
+                profileName = newName
+                profileUsername = newUsername
+                profileBio = newBio
+                showEditProfile = false
+            }
+        )
+        return
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             AnimatedVisibility(
                 visible = tab == 0,
-                enter = fadeIn() + scaleIn(animationSpec = MotionScheme.expressive().defaultSpatialSpec()),
-                exit = fadeOut() + scaleOut(animationSpec = MotionScheme.expressive().defaultSpatialSpec())
+                enter = fadeIn() + scaleIn(animationSpec = tween(300)),
+                exit = fadeOut() + scaleOut(animationSpec = tween(300))
             ) {
                 LargeFloatingActionButton(
                     onClick = { showNewChat = true },
@@ -795,14 +838,14 @@ private fun HomeScreen(onLogout: () -> Unit) {
             targetState = tab,
             modifier = Modifier.fillMaxSize().padding(padding),
             transitionSpec = {
-                fadeIn(animationSpec = MotionScheme.expressive().defaultEffectsSpec()) +
+                fadeIn(animationSpec = tween(250)) +
                     slideInHorizontally(
-                        animationSpec = MotionScheme.expressive().defaultSpatialSpec(),
+                        animationSpec = tween(300),
                         initialOffsetX = { it / 10 }
                     ) togetherWith
-                    fadeOut(animationSpec = MotionScheme.expressive().fastEffectsSpec()) +
+                    fadeOut(animationSpec = tween(180)) +
                     slideOutHorizontally(
-                        animationSpec = MotionScheme.expressive().fastSpatialSpec(),
+                        animationSpec = tween(180),
                         targetOffsetX = { -it / 14 }
                     )
             },
@@ -812,7 +855,13 @@ private fun HomeScreen(onLogout: () -> Unit) {
                 0 -> ChatsTab(chats = chats, onOpen = { openedChat = it })
                 1 -> ContactsTab(onOpen = { openedChat = it })
                 2 -> SettingsTab(onLogout = onLogout)
-                else -> ProfileTab(onSettings = { tab = 2 })
+                else -> ProfileTab(
+                    name = profileName,
+                    username = profileUsername,
+                    bio = profileBio,
+                    onEdit = { showEditProfile = true },
+                    onSettings = { tab = 2 }
+                )
             }
         }
     }
@@ -1159,7 +1208,7 @@ private fun PixelExpressiveChatItem(
 
     val elevation by animateDpAsState(
         targetValue = if (pressed) 6.dp else 1.dp,
-        animationSpec = MotionScheme.expressive().defaultEffectsSpec(),
+        animationSpec = tween(250),
         label = "chat_elevation"
     )
 
@@ -1484,7 +1533,128 @@ private fun CallsTab() {
     }
 }
 @Composable
+private fun EditProfileScreen(
+    name: String,
+    username: String,
+    bio: String,
+    onBack: () -> Unit,
+    onSave: (String, String, String) -> Unit
+) {
+    var editedName by rememberSaveable { mutableStateOf(name) }
+    var editedUsername by rememberSaveable { mutableStateOf(username) }
+    var editedBio by rememberSaveable { mutableStateOf(bio) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .padding(horizontal = 14.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            TextButton(onClick = onBack) {
+                Text("Отмена")
+            }
+
+            Text(
+                text = "Редактировать профиль",
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+                color = PixelText,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            TextButton(
+                onClick = {
+                    onSave(
+                        editedName.trim(),
+                        editedUsername.trim(),
+                        editedBio.trim()
+                    )
+                },
+                enabled = editedName.isNotBlank() && editedUsername.isNotBlank()
+            ) {
+                Text("Сохранить")
+            }
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = PixelSurface,
+            shape = RoundedCornerShape(28.dp),
+            tonalElevation = 2.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    AppAvatar(
+                        initials = editedName
+                            .trim()
+                            .firstOrNull()
+                            ?.uppercase()
+                            ?: "P",
+                        size = 104.dp
+                    )
+                }
+
+                Spacer(Modifier.height(24.dp))
+
+                OutlinedTextField(
+                    value = editedName,
+                    onValueChange = { editedName = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Имя") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(18.dp)
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = editedUsername,
+                    onValueChange = {
+                        editedUsername = it
+                            .removePrefix("@")
+                            .replace(" ", "")
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Username") },
+                    prefix = { Text("@") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(18.dp)
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                OutlinedTextField(
+                    value = editedBio,
+                    onValueChange = { editedBio = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("О себе") },
+                    minLines = 3,
+                    maxLines = 4,
+                    shape = RoundedCornerShape(18.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ProfileTab(
+    name: String,
+    username: String,
+    bio: String,
+    onEdit: () -> Unit,
     onSettings: () -> Unit
 ) {
     Column(
@@ -1502,148 +1672,91 @@ private fun ProfileTab(
             modifier = Modifier.padding(horizontal = 4.dp)
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = PixelSurface,
             shape = RoundedCornerShape(28.dp),
-            tonalElevation = 4.dp
+            tonalElevation = 2.dp
         ) {
             Column(
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                AppAvatar(
+                    initials = name
+                        .trim()
+                        .firstOrNull()
+                        ?.uppercase()
+                        ?: "P",
+                    size = 104.dp
+                )
+
+                Spacer(Modifier.height(14.dp))
+
+                Text(
+                    text = name.ifBlank { "Pixel User" },
+                    color = PixelText,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+
+                Spacer(Modifier.height(4.dp))
+
+                Text(
+                    text = "@${username.ifBlank { "pixeluser" }}",
+                    color = PixelMuted,
+                    fontSize = 14.sp
+                )
+
+                Spacer(Modifier.height(8.dp))
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AppAvatar(
-                        initials = "P",
-                        size = 86.dp
-                    )
+                    Surface(
+                        modifier = Modifier.size(8.dp),
+                        shape = CircleShape,
+                        color = PixelText
+                    ) {}
 
-                    Spacer(Modifier.width(16.dp))
-
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = "Pixel User",
-                            color = PixelText,
-                            fontSize = 23.sp,
-                            fontWeight = FontWeight.ExtraBold
-                        )
-
-                        Spacer(Modifier.height(4.dp))
-
-                        Text(
-                            text = "@pixeluser",
-                            color = PixelBlueBright,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Spacer(Modifier.height(5.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Surface(
-                                modifier = Modifier.size(8.dp),
-                                shape = CircleShape,
-                                color = PixelSuccess
-                            ) {}
-
-                            Spacer(Modifier.width(6.dp))
-
-                            Text(
-                                text = "в сети",
-                                color = PixelSuccess,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(18.dp))
-
-                ProfileInfoRow(
-                    title = "Gmail",
-                    subtitle = "Подтверждённый аккаунт"
-                )
-
-                ProfileInfoRow(
-                    title = "О себе",
-                    subtitle = "Я в PIXEL CHAT"
-                )
-            }
-        }
-
-        Spacer(Modifier.height(10.dp))
-
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = PixelBlueContainer,
-            shape = RoundedCornerShape(22.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
-                    modifier = Modifier.size(48.dp),
-                    shape = CircleShape,
-                    color = PixelBlue
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "★",
-                            color = Color.White,
-                            fontSize = 20.sp
-                        )
-                    }
-                }
-
-                Spacer(Modifier.width(12.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Подарки",
-                        color = PixelText,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(Modifier.height(3.dp))
+                    Spacer(Modifier.width(6.dp))
 
                     Text(
-                        text = "Пиксельные подарки • звёзды • кристаллы",
+                        text = "в сети",
                         color = PixelMuted,
                         fontSize = 12.sp
                     )
                 }
 
-                Text(
-                    text = "›",
-                    color = PixelBlueBright,
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                if (bio.isNotBlank()) {
+                    Spacer(Modifier.height(14.dp))
+
+                    Text(
+                        text = bio,
+                        color = PixelText,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center
+                    )
+                }
+
+                Spacer(Modifier.height(20.dp))
+
+                Button(
+                    onClick = onEdit,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp)
+                ) {
+                    Text(
+                        text = "Изменить профиль",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
 
-        Spacer(Modifier.height(8.dp))
-
-        ProfileAction(
-            title = "Изменить профиль",
-            subtitle = "Имя, username и аватар"
-        )
+        Spacer(Modifier.height(12.dp))
 
         ProfileAction(
             title = "QR-профиль",
@@ -1659,10 +1772,14 @@ private fun ProfileTab(
             title = "Безопасность",
             subtitle = "Шифрование и защита аккаунта"
         )
+
+        ProfileAction(
+            title = "Настройки",
+            subtitle = "Интерфейс, уведомления и приложение",
+            onClick = onSettings
+        )
     }
 }
-
-
 
 @Composable
 private fun ProfileInfoRow(title: String, subtitle: String) {
@@ -1674,8 +1791,13 @@ private fun ProfileInfoRow(title: String, subtitle: String) {
 }
 
 @Composable
-private fun ProfileAction(title: String, subtitle: String) {
+private fun ProfileAction(
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit = {}
+) {
     Surface(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
         color = PixelSurface,
         shape = RoundedCornerShape(21.dp)
@@ -1745,7 +1867,7 @@ private fun SettingsScreen(
             item { SettingAction("Конфиденциальность", "Блокировки, онлайн-статус и права") }
             item { SettingAction("Безопасность", "Сессии, ключи и шифрование") }
             item { SettingAction("Устройства", "Активные подключения PIXEL CHAT") }
-            item { SettingAction("О PIXEL CHAT", "Material 3 Expressive • Server 10.0") }
+            item { SettingAction("О PIXEL CHAT", "Material 3 • Server 10.0") }
 
             item {
                 Spacer(Modifier.height(8.dp))
