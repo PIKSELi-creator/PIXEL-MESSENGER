@@ -42,6 +42,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import coil.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Alignment
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -775,15 +777,6 @@ private fun HomeScreen(onLogout: () -> Unit) {
     var profileName by rememberSaveable { mutableStateOf("Pixel User") }
     var profileUsername by rememberSaveable { mutableStateOf("pixeluser") }
     var profileBio by rememberSaveable { mutableStateOf("Я в PIXEL CHAT") }
-    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
-
-    val profilePhotoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) {
-            profilePhotoUri = uri
-        }
-    }
     var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
 
     val profilePhotoPicker = rememberLauncherForActivityResult(
@@ -1573,6 +1566,8 @@ private fun EditProfileScreen(
     name: String,
     username: String,
     bio: String,
+    photoUri: Uri?,
+    onPickPhoto: () -> Unit,
     onBack: () -> Unit,
     onSave: (String, String, String) -> Unit
 ) {
@@ -1638,8 +1633,15 @@ private fun EditProfileScreen(
                             .firstOrNull()
                             ?.uppercase()
                             ?: "P",
-                        size = 104.dp
+                        size = 104.dp,
+                        photoUri = photoUri
                     )
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                TextButton(onClick = onPickPhoto) {
+                    Text("Изменить фото")
                 }
 
                 Spacer(Modifier.height(24.dp))
@@ -2308,12 +2310,23 @@ private fun AppAvatar(
         tonalElevation = 2.dp
     ) {
         Box(contentAlignment = Alignment.Center) {
-            Text(
-                initials.take(2).uppercase(),
-                color = PixelBlueBright,
-                fontSize = (size.value * 0.29f).sp,
-                fontWeight = FontWeight.ExtraBold
-            )
+            if (photoUri != null) {
+                AsyncImage(
+                    model = photoUri,
+                    contentDescription = "Фото профиля",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(
+                    initials.take(2).uppercase(),
+                    color = PixelBlueBright,
+                    fontSize = (size.value * 0.29f).sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+            }
         }
     }
 }
