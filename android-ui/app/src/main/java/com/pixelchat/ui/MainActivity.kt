@@ -1,5 +1,9 @@
 package com.pixelchat.ui
 
+import android.net.Uri
+
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -771,6 +775,24 @@ private fun HomeScreen(onLogout: () -> Unit) {
     var profileName by rememberSaveable { mutableStateOf("Pixel User") }
     var profileUsername by rememberSaveable { mutableStateOf("pixeluser") }
     var profileBio by rememberSaveable { mutableStateOf("Я в PIXEL CHAT") }
+    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    val profilePhotoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            profilePhotoUri = uri
+        }
+    }
+    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
+
+    val profilePhotoPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            profilePhotoUri = uri
+        }
+    }
 
     val chats = remember {
         listOf(
@@ -802,6 +824,8 @@ private fun HomeScreen(onLogout: () -> Unit) {
             name = profileName,
             username = profileUsername,
             bio = profileBio,
+            photoUri = profilePhotoUri,
+            onPickPhoto = { profilePhotoPicker.launch("image/*") },
             onBack = { showEditProfile = false },
             onSave = { newName, newUsername, newBio ->
                 profileName = newName
@@ -890,64 +914,75 @@ private fun PixelChatNavigation(
         "Профиль" to Icons.Outlined.Person
     )
 
-    NavigationBar(
+    Surface(
         modifier = Modifier
+            .fillMaxWidth()
             .navigationBarsPadding()
             .padding(horizontal = 12.dp, vertical = 8.dp),
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 4.dp
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        shape = RoundedCornerShape(30.dp),
+        tonalElevation = 3.dp
     ) {
-        items.forEachIndexed { index, item ->
-            val active = selected == index
-            NavigationBarItem(
-                selected = active,
-                onClick = { onSelected(index) },
-                icon = {
-                    AnimatedContent(
-                        targetState = active,
-                        label = "nav_$index"
-                    ) { isSelected ->
-                        Surface(
-                            shape = if (isSelected) {
-                                MaterialTheme.shapes.large
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 6.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            items.forEachIndexed { index, item ->
+                val active = selected == index
+
+                Surface(
+                    onClick = { onSelected(index) },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(64.dp),
+                    color = if (active) {
+                        MaterialTheme.colorScheme.surface
+                    } else {
+                        Color.Transparent
+                    },
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = item.second,
+                            contentDescription = item.first,
+                            modifier = Modifier.size(25.dp),
+                            tint = if (active) {
+                                MaterialTheme.colorScheme.onSurface
                             } else {
-                                MaterialTheme.shapes.medium
-                            },
-                            color = if (isSelected) {
-                                MaterialTheme.colorScheme.secondaryContainer
-                            } else {
-                                Color.Transparent
+                                MaterialTheme.colorScheme.onSurfaceVariant
                             }
-                        ) {
-                            Icon(
-                                imageVector = item.second,
-                                contentDescription = item.first,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 7.dp),
-                                tint = if (isSelected) {
-                                    MaterialTheme.colorScheme.onSecondaryContainer
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                }
-                            )
-                        }
+                        )
+
+                        Spacer(Modifier.height(4.dp))
+
+                        Text(
+                            text = item.first,
+                            color = if (active) {
+                                MaterialTheme.colorScheme.onSurface
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = if (active) {
+                                FontWeight.Bold
+                            } else {
+                                FontWeight.Medium
+                            }
+                        )
                     }
-                },
-                label = {
-                    Text(item.first, style = MaterialTheme.typography.labelMedium)
-                },
-                colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = Color.Transparent,
-                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    selectedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            )
+                }
+            }
         }
     }
 }
-
-
 
 @Composable
 private fun ChatsTab(
@@ -1759,26 +1794,6 @@ private fun ProfileTab(
 
         Spacer(Modifier.height(12.dp))
 
-        ProfileAction(
-            title = "QR-профиль",
-            subtitle = "Поделиться своим профилем"
-        )
-
-        ProfileAction(
-            title = "Активные сессии",
-            subtitle = "Устройства, где открыт аккаунт"
-        )
-
-        ProfileAction(
-            title = "Безопасность",
-            subtitle = "Шифрование и защита аккаунта"
-        )
-
-        ProfileAction(
-            title = "Настройки",
-            subtitle = "Интерфейс, уведомления и приложение",
-            onClick = onSettings
-        )
     }
 }
 
@@ -2281,7 +2296,11 @@ private fun NewChatScreen(
 }
 
 @Composable
-private fun AppAvatar(initials: String, size: Dp) {
+private fun AppAvatar(
+    initials: String,
+    size: Dp,
+    photoUri: Uri? = null
+) {
     Surface(
         modifier = Modifier.size(size),
         shape = CircleShape,
