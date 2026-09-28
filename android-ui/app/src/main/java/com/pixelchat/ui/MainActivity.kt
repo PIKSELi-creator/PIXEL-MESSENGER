@@ -15,6 +15,9 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.MusicNote
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.Person
@@ -877,6 +880,8 @@ private fun HomeScreen(onLogout: () -> Unit) {
                     name = profileName,
                     username = profileUsername,
                     bio = profileBio,
+                    photoUri = profilePhotoUri,
+                    onPickPhoto = { profilePhotoPicker.launch("image/*") },
                     onEdit = { showEditProfile = true },
                     onSettings = { tab = 2 }
                 )
@@ -1692,60 +1697,144 @@ private fun ProfileTab(
     name: String,
     username: String,
     bio: String,
+    photoUri: Uri?,
+    onPickPhoto: () -> Unit,
     onEdit: () -> Unit,
     onSettings: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 14.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-        Spacer(Modifier.height(10.dp))
-
-        Text(
-            text = "Профиль",
-            color = PixelText,
-            fontSize = 32.sp,
-            fontWeight = FontWeight.Black,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
-
-        Spacer(Modifier.height(16.dp))
-
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = PixelSurface,
-            shape = RoundedCornerShape(28.dp),
-            tonalElevation = 2.dp
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp)
+                    .background(Color(0xFF111111))
             ) {
-                AppAvatar(
-                    initials = name
-                        .trim()
-                        .firstOrNull()
-                        ?.uppercase()
-                        ?: "P",
-                    size = 104.dp
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp, vertical = 18.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Column {
+                            Text(
+                                "PIXEL CHAT",
+                                color = Color.White,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 2.sp
+                            )
 
-                Spacer(Modifier.height(14.dp))
+                            Text(
+                                "PROFILE",
+                                color = Color(0xFF999999),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Medium,
+                                letterSpacing = 1.5.sp
+                            )
+                        }
+
+                        Surface(
+                            color = Color.White.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Text(
+                                "•••",
+                                color = Color.White,
+                                modifier = Modifier.padding(
+                                    horizontal = 12.dp,
+                                    vertical = 7.dp
+                                ),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "PIXEL",
+                                color = Color.White,
+                                fontSize = 42.sp,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 7.sp
+                            )
+
+                            Text(
+                                "CHAT PROFILE",
+                                color = Color(0xFF8E8E8E),
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 4.sp
+                            )
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(Color.White.copy(alpha = 0.08f))
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+            ) {
+                Spacer(Modifier.height(12.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(y = (-62).dp),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    AppAvatar(
+                        initials = name
+                            .trim()
+                            .firstOrNull()
+                            ?.uppercase()
+                            ?: "P",
+                        size = 118.dp,
+                        photoUri = photoUri
+                    )
+                }
+
+                Spacer(Modifier.height((-42).dp))
 
                 Text(
                     text = name.ifBlank { "Pixel User" },
                     color = PixelText,
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Black
                 )
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(3.dp))
 
                 Text(
                     text = "@${username.ifBlank { "pixeluser" }}",
                     color = PixelMuted,
-                    fontSize = 14.sp
+                    fontSize = 15.sp
                 )
 
                 Spacer(Modifier.height(8.dp))
@@ -1754,48 +1843,208 @@ private fun ProfileTab(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Surface(
-                        modifier = Modifier.size(8.dp),
+                        modifier = Modifier.size(9.dp),
                         shape = CircleShape,
                         color = PixelText
                     ) {}
 
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(7.dp))
 
                     Text(
-                        text = "в сети",
+                        "В сети",
                         color = PixelMuted,
-                        fontSize = 12.sp
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
+
+                Spacer(Modifier.height(18.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = onPickPhoto,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = 10.dp,
+                            vertical = 10.dp
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.PhotoCamera,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            "Фото",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Button(
+                        onClick = onEdit,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = 10.dp,
+                            vertical = 10.dp
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Edit,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            "Изменить",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+
+                    Button(
+                        onClick = onSettings,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp),
+                        contentPadding = PaddingValues(
+                            horizontal = 10.dp,
+                            vertical = 10.dp
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            "Настройки",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(14.dp))
+
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = PixelSurface,
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 13.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Surface(
+                            modifier = Modifier.size(38.dp),
+                            color = PixelBlueContainer,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    imageVector = Icons.Outlined.MusicNote,
+                                    contentDescription = null,
+                                    tint = PixelBlueBright
+                                )
+                            }
+                        }
+
+                        Spacer(Modifier.width(11.dp))
+
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                "Музыка профиля",
+                                color = PixelText,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+
+                            Text(
+                                "Музыка пока не добавлена",
+                                color = PixelMuted,
+                                fontSize = 12.sp
+                            )
+                        }
+
+                        Text(
+                            "›",
+                            color = PixelMuted,
+                            fontSize = 24.sp
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(14.dp))
 
                 if (bio.isNotBlank()) {
-                    Spacer(Modifier.height(14.dp))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = PixelSurface,
+                        shape = RoundedCornerShape(22.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(17.dp)
+                        ) {
+                            Text(
+                                "О себе",
+                                color = PixelMuted,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold
+                            )
 
-                    Text(
-                        text = bio,
-                        color = PixelText,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
-                    )
+                            Spacer(Modifier.height(5.dp))
+
+                            Text(
+                                bio,
+                                color = PixelText,
+                                fontSize = 15.sp,
+                                lineHeight = 21.sp
+                            )
+                        }
+                    }
+
+                    Spacer(Modifier.height(12.dp))
                 }
 
-                Spacer(Modifier.height(20.dp))
-
-                Button(
-                    onClick = onEdit,
+                Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp)
+                    color = PixelSurface,
+                    shape = RoundedCornerShape(22.dp)
                 ) {
-                    Text(
-                        text = "Изменить профиль",
-                        fontWeight = FontWeight.Bold
-                    )
+                    Column(
+                        modifier = Modifier.padding(
+                            horizontal = 17.dp,
+                            vertical = 10.dp
+                        )
+                    ) {
+                        ProfileInfoRow(
+                            title = "Телефон",
+                            subtitle = "Не указан"
+                        )
+
+                        ProfileInfoRow(
+                            title = "Имя пользователя",
+                            subtitle = "@${username.ifBlank { "pixeluser" }}"
+                        )
+
+                        ProfileInfoRow(
+                            title = "Дата рождения",
+                            subtitle = "Не указана"
+                        )
+                    }
                 }
+
+                Spacer(Modifier.height(18.dp))
             }
         }
-
-        Spacer(Modifier.height(12.dp))
-
     }
 }
 
