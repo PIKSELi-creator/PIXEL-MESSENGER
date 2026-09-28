@@ -19,6 +19,8 @@ import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Chat
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
@@ -81,6 +83,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -841,13 +844,16 @@ private fun HomeScreen(onLogout: () -> Unit) {
                 enter = fadeIn() + scaleIn(animationSpec = tween(300)),
                 exit = fadeOut() + scaleOut(animationSpec = tween(300))
             ) {
-                LargeFloatingActionButton(
+                SmallFloatingActionButton(
                     onClick = { showNewChat = true },
-                    shape = MaterialTheme.shapes.largeIncreased,
+                    shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
-                    Text("+", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                    Icon(
+                        imageVector = Icons.Outlined.Add,
+                        contentDescription = "Создать"
+                    )
                 }
             }
         },
@@ -915,16 +921,16 @@ private fun PixelChatNavigation(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .navigationBarsPadding()
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        shape = RoundedCornerShape(30.dp),
-        tonalElevation = 3.dp
+            .navigationBarsPadding(),
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 3.dp,
+        shadowElevation = 3.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 6.dp, vertical = 6.dp),
+                .height(72.dp)
+                .padding(horizontal = 8.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -932,34 +938,45 @@ private fun PixelChatNavigation(
                 val active = selected == index
 
                 Surface(
-                    onClick = { onSelected(index) },
+                    onClick = {
+                        if (selected != index) {
+                            onSelected(index)
+                        }
+                    },
                     modifier = Modifier
                         .weight(1f)
-                        .height(64.dp),
-                    color = if (active) {
-                        MaterialTheme.colorScheme.surface
-                    } else {
-                        Color.Transparent
-                    },
-                    shape = RoundedCornerShape(24.dp)
+                        .fillMaxHeight(),
+                    color = Color.Transparent,
+                    shape = RoundedCornerShape(18.dp)
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            imageVector = item.second,
-                            contentDescription = item.first,
-                            modifier = Modifier.size(25.dp),
-                            tint = if (active) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
-                        )
+                        AnimatedContent(
+                            targetState = active,
+                            transitionSpec = {
+                                (fadeIn(tween(160)) + scaleIn(tween(160))) togetherWith
+                                    (fadeOut(tween(100)) + scaleOut(tween(100)))
+                            },
+                            label = "nav_icon_$index"
+                        ) { isActive ->
+                            Icon(
+                                imageVector = item.second,
+                                contentDescription = item.first,
+                                modifier = Modifier.size(
+                                    if (isActive) 25.dp else 23.dp
+                                ),
+                                tint = if (isActive) {
+                                    MaterialTheme.colorScheme.onSurface
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                }
+                            )
+                        }
 
-                        Spacer(Modifier.height(4.dp))
+                        Spacer(Modifier.height(3.dp))
 
                         Text(
                             text = item.first,
@@ -968,7 +985,7 @@ private fun PixelChatNavigation(
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant
                             },
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = if (active) {
                                 FontWeight.Bold
                             } else {
@@ -981,7 +998,6 @@ private fun PixelChatNavigation(
         }
     }
 }
-
 @Composable
 private fun ChatsTab(
     chats: List<ChatItem>,
