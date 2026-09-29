@@ -17,7 +17,8 @@ data class PixelSession(
     val username: String,
     val bio: String = "",
     val birthDate: String = "",
-    val photoUri: String = ""
+    val photoUri: String = "",
+    val backgroundUri: String = ""
 )
 
 class SessionStore(
@@ -32,6 +33,7 @@ class SessionStore(
         val BIO = stringPreferencesKey("bio")
         val BIRTH_DATE = stringPreferencesKey("birth_date")
         val PHOTO_URI = stringPreferencesKey("photo_uri")
+        val BACKGROUND_URI = stringPreferencesKey("background_uri")
     }
 
     suspend fun saveSession(
@@ -40,7 +42,8 @@ class SessionStore(
         username: String,
         bio: String = "",
         birthDate: String = "",
-        photoUri: String = ""
+        photoUri: String = "",
+        backgroundUri: String = ""
     ) {
         context.pixelChatDataStore.edit { preferences ->
             preferences[LOGGED_IN] = true
@@ -50,6 +53,7 @@ class SessionStore(
             preferences[BIO] = bio
             preferences[BIRTH_DATE] = birthDate
             preferences[PHOTO_URI] = photoUri
+            preferences[BACKGROUND_URI] = backgroundUri
         }
     }
 
@@ -68,7 +72,8 @@ class SessionStore(
             username = preferences[USERNAME].orEmpty(),
             bio = preferences[BIO].orEmpty(),
             birthDate = preferences[BIRTH_DATE].orEmpty(),
-            photoUri = preferences[PHOTO_URI].orEmpty()
+            photoUri = preferences[PHOTO_URI].orEmpty(),
+            backgroundUri = preferences[BACKGROUND_URI].orEmpty()
         )
     }
 

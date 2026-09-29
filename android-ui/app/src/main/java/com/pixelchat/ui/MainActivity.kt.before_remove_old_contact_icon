@@ -1,20 +1,58 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 package com.pixelchat.ui
-import androidx.compose.material.icons.outlined.Close
 
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.IconButton
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.animateDpAsState
+import androidx.compose.material3.Badge
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialExpressiveTheme
+import androidx.compose.material3.MotionScheme
+import androidx.compose.material3.Shapes
 
-import android.net.Uri
-import androidx.compose.ui.viewinterop.AndroidView
-import android.widget.VideoView
-import android.media.MediaPlayer
-
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -25,14 +63,7 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.PhotoCamera
-import androidx.compose.material.icons.outlined.Pause
-import androidx.compose.material.icons.outlined.PlayArrow
-import androidx.compose.material.icons.outlined.MusicNote
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Chat
-import androidx.compose.material3.SmallFloatingActionButton
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Contacts
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
@@ -41,7 +72,6 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -49,7 +79,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,73 +88,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import coil.compose.AsyncImage
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.Alignment
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Badge
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.LargeFloatingActionButton
-import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.Typography
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -133,19 +101,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-private val PixelBlue = Color(0xFF000000)
-private val PixelBlueBright = Color(0xFFFFFFFF)
-private val PixelBlueContainer = Color(0xFF2A2A2A)
 
-private val PixelBackground = Color(0xFF000000)
-private val PixelSurface = Color(0xFF151515)
-private val PixelSurfaceHigh = Color(0xFF202020)
-private val PixelOutline = Color(0xFF666666)
+private val PixelBlue = Color(0xFF4D9FFF)
+private val PixelBlueBright = Color(0xFF69B5FF)
+private val PixelBlueContainer = Color(0xFF183B59)
 
-private val PixelText = Color(0xFFFFFFFF)
-private val PixelMuted = Color(0xFFAAAAAA)
-private val PixelSuccess = Color(0xFFFFFFFF)
-private val PixelDanger = Color(0xFFFFFFFF)
+private val PixelBackground = Color(0xFF071018)
+private val PixelSurface = Color(0xFF101B25)
+private val PixelSurfaceHigh = Color(0xFF172532)
+private val PixelOutline = Color(0xFF425565)
+
+private val PixelText = Color(0xFFF4F8FC)
+private val PixelMuted = Color(0xFF97A9B9)
+private val PixelSuccess = Color(0xFF55D6A7)
+private val PixelDanger = Color(0xFFFF6D7A)
 
 private data class ChatItem(
     val name: String,
@@ -177,72 +146,47 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun PixelChatTheme() {
-    val darkScheme = darkColorScheme(
-        primary = Color.White,
-        onPrimary = Color.Black,
-        primaryContainer = Color(0xFF2A2A2A),
-        onPrimaryContainer = Color.White,
-        secondary = Color(0xFFD0D0D0),
-        onSecondary = Color.Black,
-        secondaryContainer = Color(0xFF303030),
-        onSecondaryContainer = Color.White,
-        tertiary = Color(0xFFBDBDBD),
-        onTertiary = Color.Black,
-        tertiaryContainer = Color(0xFF383838),
-        onTertiaryContainer = Color.White,
-        background = Color.Black,
-        onBackground = Color.White,
-        surface = Color.Black,
-        onSurface = Color.White,
-        surfaceVariant = Color(0xFF202020),
-        onSurfaceVariant = Color(0xFFBDBDBD),
-        surfaceContainer = Color(0xFF151515),
-        surfaceContainerHigh = Color(0xFF202020),
-        surfaceContainerHighest = Color(0xFF292929),
-        outline = Color(0xFF666666)
+    val scheme = darkColorScheme(
+        primary = PixelBlueBright,
+        onPrimary = Color(0xFF06213A),
+        primaryContainer = PixelBlueContainer,
+        onPrimaryContainer = Color(0xFFD8EDFF),
+        secondary = Color(0xFFB9CAD9),
+        onSecondary = Color(0xFF172530),
+        secondaryContainer = Color(0xFF2D3D49),
+        onSecondaryContainer = Color(0xFFDCEAF6),
+        tertiary = Color(0xFFD3C0FF),
+        onTertiary = Color(0xFF2C214A),
+        tertiaryContainer = Color(0xFF4B3A68),
+        onTertiaryContainer = Color(0xFFEDDEFF),
+        background = PixelBackground,
+        onBackground = PixelText,
+        surface = PixelBackground,
+        onSurface = PixelText,
+        surfaceVariant = PixelSurfaceHigh,
+        onSurfaceVariant = PixelMuted,
+        surfaceContainer = PixelSurface,
+        surfaceContainerHigh = PixelSurfaceHigh,
+        surfaceContainerHighest = Color(0xFF1E2F3D),
+        outline = PixelOutline
     )
-
-    val lightScheme = lightColorScheme(
-        primary = Color.Black,
-        onPrimary = Color.White,
-        primaryContainer = Color(0xFFE5E5E5),
-        onPrimaryContainer = Color.Black,
-        secondary = Color(0xFF444444),
-        onSecondary = Color.White,
-        secondaryContainer = Color(0xFFE8E8E8),
-        onSecondaryContainer = Color.Black,
-        tertiary = Color(0xFF555555),
-        onTertiary = Color.White,
-        tertiaryContainer = Color(0xFFE0E0E0),
-        onTertiaryContainer = Color.Black,
-        background = Color.White,
-        onBackground = Color.Black,
-        surface = Color.White,
-        onSurface = Color.Black,
-        surfaceVariant = Color(0xFFE8E8E8),
-        onSurfaceVariant = Color(0xFF555555),
-        surfaceContainer = Color(0xFFF4F4F4),
-        surfaceContainerHigh = Color(0xFFECECEC),
-        surfaceContainerHighest = Color(0xFFE2E2E2),
-        outline = Color(0xFF777777)
-    )
-
-    val isDark = isSystemInDarkTheme()
-
-    val scheme = if (isDark) darkScheme else lightScheme
 
     val shapes = Shapes(
         extraSmall = RoundedCornerShape(8.dp),
         small = RoundedCornerShape(12.dp),
         medium = RoundedCornerShape(18.dp),
-        large = RoundedCornerShape(24.dp),
-        extraLarge = RoundedCornerShape(32.dp)
+        large = RoundedCornerShape(28.dp),
+        extraLarge = RoundedCornerShape(32.dp),
+        largeIncreased = RoundedCornerShape(36.dp),
+        extraLargeIncreased = RoundedCornerShape(40.dp)
     )
 
-    MaterialTheme(
+    MaterialExpressiveTheme(
         colorScheme = scheme,
+        motionScheme = MotionScheme.expressive(),
         shapes = shapes
     ) {
         PixelChatApp()
@@ -258,14 +202,11 @@ private fun PixelChatApp() {
     var screen by rememberSaveable { mutableStateOf("splash") }
     var registrationEmail by rememberSaveable { mutableStateOf("") }
     var sessionLoaded by rememberSaveable { mutableStateOf(false) }
-    var savedSession by remember { mutableStateOf<PixelSession?>(null) }
 
     LaunchedEffect(Unit) {
         delay(700)
-
-        savedSession = sessionStore.getSession()
         sessionLoaded = true
-        screen = if (savedSession != null) "home" else "welcome"
+        screen = if (sessionStore.getSession() != null) "home" else "welcome"
     }
 
     if (!sessionLoaded) {
@@ -790,97 +731,9 @@ private fun ProfileSetupScreen(
 
 @Composable
 private fun HomeScreen(onLogout: () -> Unit) {
-    val context = LocalContext.current
-    val sessionStore = remember { SessionStore(context) }
-    val scope = rememberCoroutineScope()
-
     var tab by rememberSaveable { mutableStateOf(0) }
     var openedChat by remember { mutableStateOf<ChatItem?>(null) }
     var showNewChat by remember { mutableStateOf(false) }
-
-    var showEditProfile by remember { mutableStateOf(false) }
-    var profileName by rememberSaveable { mutableStateOf("Pixel User") }
-    var profileUsername by rememberSaveable { mutableStateOf("pixeluser") }
-    var profileBio by rememberSaveable { mutableStateOf("Я в PIXEL CHAT") }
-    var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
-    var profileBackgroundUri by remember { mutableStateOf<Uri?>(null) }
-
-    LaunchedEffect(Unit) {
-        sessionStore.getSession()?.let { session ->
-            profileName = session.displayName
-            profileUsername = session.username
-            profileBio = session.bio
-            profilePhotoUri = session.photoUri
-                .takeIf { it.isNotBlank() }
-                ?.let(Uri::parse)
-
-            profileBackgroundUri = session.backgroundUri
-                .takeIf { it.isNotBlank() }
-                ?.let(Uri::parse)
-        }
-    }
-
-    fun saveProfileData(
-        photoUri: String = profilePhotoUri?.toString().orEmpty(),
-        backgroundUri: String = profileBackgroundUri?.toString().orEmpty()
-    ) {
-        scope.launch {
-            sessionStore.getSession()?.let { session ->
-                sessionStore.saveSession(
-                    email = session.email,
-                    displayName = profileName,
-                    username = profileUsername,
-                    bio = profileBio,
-                    birthDate = session.birthDate,
-                    photoUri = photoUri,
-                    backgroundUri = backgroundUri
-                )
-            }
-        }
-    }
-
-    val profilePhotoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) {
-            profilePhotoUri = uri
-            saveProfileData(photoUri = uri.toString())
-        }
-    }
-
-    val profileBackgroundPhotoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) {
-            try {
-                context.contentResolver.takePersistableUriPermission(
-                    uri,
-                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-            } catch (_: Exception) {
-            }
-
-            profileBackgroundUri = uri
-            saveProfileData(backgroundUri = uri.toString())
-        }
-    }
-
-    val profileBackgroundVideoPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) {
-            try {
-                context.contentResolver.takePersistableUriPermission(
-                    uri,
-                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-                )
-            } catch (_: Exception) {
-            }
-
-            profileBackgroundUri = uri
-            saveProfileData(backgroundUri = uri.toString())
-        }
-    }
 
     val chats = remember {
         listOf(
@@ -907,62 +760,40 @@ private fun HomeScreen(onLogout: () -> Unit) {
         return
     }
 
-    if (showEditProfile) {
-        EditProfileScreen(
-            name = profileName,
-            username = profileUsername,
-            bio = profileBio,
-            birthDate = "",
-            photoUri = profilePhotoUri,
-            onPickPhoto = { profilePhotoPicker.launch("image/*") },
-            onBack = { showEditProfile = false },
-            onSave = { newName, newUsername, newBio ->
-                profileName = newName
-                profileUsername = newUsername
-                profileBio = newBio
-                showEditProfile = false
-            }
-        )
-        return
-    }
-
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         floatingActionButton = {
             AnimatedVisibility(
                 visible = tab == 0,
-                enter = fadeIn() + scaleIn(animationSpec = tween(300)),
-                exit = fadeOut() + scaleOut(animationSpec = tween(300))
+                enter = fadeIn() + scaleIn(animationSpec = MotionScheme.expressive().defaultSpatialSpec()),
+                exit = fadeOut() + scaleOut(animationSpec = MotionScheme.expressive().defaultSpatialSpec())
             ) {
-                SmallFloatingActionButton(
+                LargeFloatingActionButton(
                     onClick = { showNewChat = true },
-                    shape = CircleShape,
+                    shape = MaterialTheme.shapes.largeIncreased,
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                 ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Add,
-                        contentDescription = "Создать"
-                    )
+                    Text("+", fontSize = 28.sp, fontWeight = FontWeight.Bold)
                 }
             }
         },
         bottomBar = {
-            PixelChatNavigation(selected = tab, onSelected = { tab = it })
+            PixelTelegramNavigation(selected = tab, onSelected = { tab = it })
         }
     ) { padding ->
         AnimatedContent(
             targetState = tab,
             modifier = Modifier.fillMaxSize().padding(padding),
             transitionSpec = {
-                fadeIn(animationSpec = tween(250)) +
+                fadeIn(animationSpec = MotionScheme.expressive().defaultEffectsSpec()) +
                     slideInHorizontally(
-                        animationSpec = tween(300),
+                        animationSpec = MotionScheme.expressive().defaultSpatialSpec(),
                         initialOffsetX = { it / 10 }
                     ) togetherWith
-                    fadeOut(animationSpec = tween(180)) +
+                    fadeOut(animationSpec = MotionScheme.expressive().fastEffectsSpec()) +
                     slideOutHorizontally(
-                        animationSpec = tween(180),
+                        animationSpec = MotionScheme.expressive().fastSpatialSpec(),
                         targetOffsetX = { -it / 14 }
                     )
             },
@@ -972,21 +803,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
                 0 -> ChatsTab(chats = chats, onOpen = { openedChat = it })
                 1 -> ContactsTab(onOpen = { openedChat = it })
                 2 -> SettingsTab(onLogout = onLogout)
-                else -> ProfileTab(
-                    name = profileName,
-                    username = profileUsername,
-                    bio = profileBio,
-                    photoUri = profilePhotoUri,
-                    backgroundUri = profileBackgroundUri,
-                    onPickPhoto = { profilePhotoPicker.launch("image/*") },
-                    onPickBackgroundPhoto = {
-                        profileBackgroundPhotoPicker.launch(arrayOf("image/*"))
-                    },
-                    onPickBackgroundVideo = {
-                        profileBackgroundVideoPicker.launch(arrayOf("video/*"))
-                    },
-                    onEdit = { showEditProfile = true }
-                )
+                else -> ProfileTab(onSettings = { tab = 2 })
             }
         }
     }
@@ -1003,7 +820,7 @@ private fun SettingsTab(
 }
 
 @Composable
-private fun PixelChatNavigation(
+private fun PixelTelegramNavigation(
     selected: Int,
     onSelected: (Int) -> Unit
 ) {
@@ -1014,86 +831,65 @@ private fun PixelChatNavigation(
         "Профиль" to Icons.Outlined.Person
     )
 
-    Surface(
+    NavigationBar(
         modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding(),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp,
-        shadowElevation = 3.dp
+            .navigationBarsPadding()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        tonalElevation = 4.dp
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp)
-                .padding(horizontal = 8.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items.forEachIndexed { index, item ->
-                val active = selected == index
-
-                Surface(
-                    onClick = {
-                        if (selected != index) {
-                            onSelected(index)
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    color = Color.Transparent,
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        AnimatedContent(
-                            targetState = active,
-                            transitionSpec = {
-                                (fadeIn(tween(160)) + scaleIn(tween(160))) togetherWith
-                                    (fadeOut(tween(100)) + scaleOut(tween(100)))
+        items.forEachIndexed { index, item ->
+            val active = selected == index
+            NavigationBarItem(
+                selected = active,
+                onClick = { onSelected(index) },
+                icon = {
+                    AnimatedContent(
+                        targetState = active,
+                        label = "nav_$index"
+                    ) { isSelected ->
+                        Surface(
+                            shape = if (isSelected) {
+                                MaterialTheme.shapes.large
+                            } else {
+                                MaterialTheme.shapes.medium
                             },
-                            label = "nav_icon_$index"
-                        ) { isActive ->
+                            color = if (isSelected) {
+                                MaterialTheme.colorScheme.secondaryContainer
+                            } else {
+                                Color.Transparent
+                            }
+                        ) {
                             Icon(
                                 imageVector = item.second,
                                 contentDescription = item.first,
-                                modifier = Modifier.size(
-                                    if (isActive) 25.dp else 23.dp
-                                ),
-                                tint = if (isActive) {
-                                    MaterialTheme.colorScheme.onSurface
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 7.dp),
+                                tint = if (isSelected) {
+                                    MaterialTheme.colorScheme.onSecondaryContainer
                                 } else {
                                     MaterialTheme.colorScheme.onSurfaceVariant
                                 }
                             )
                         }
-
-                        Spacer(Modifier.height(3.dp))
-
-                        Text(
-                            text = item.first,
-                            color = if (active) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = if (active) {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Medium
-                            }
-                        )
                     }
-                }
-            }
+                },
+                label = {
+                    Text(item.first, style = MaterialTheme.typography.labelMedium)
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    indicatorColor = Color.Transparent,
+                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
         }
     }
 }
+
+
+
 @Composable
 private fun ChatsTab(
     chats: List<ChatItem>,
@@ -1101,244 +897,111 @@ private fun ChatsTab(
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableStateOf(0) }
-    var showAccountMenu by rememberSaveable { mutableStateOf(false) }
 
     val filtered = chats.filter { chat ->
-        val matchesSearch =
-            chat.name.contains(query, true) ||
-            chat.message.contains(query, true)
-
+        val matchesSearch = chat.name.contains(query, true) || chat.message.contains(query, true)
         val matchesFilter = when (filter) {
             0 -> true
             1 -> chat.online
             2 -> chat.unread > 0
             else -> true
         }
-
         matchesSearch && matchesFilter
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = 18.dp,
-            bottom = 112.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    Column(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
     ) {
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
+        Spacer(Modifier.height(4.dp))
+
+        LargeTopAppBar(
+            title = {
+                Column {
                     Text(
                         "Чаты",
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.ExtraBold
                     )
-
-                    Spacer(Modifier.height(2.dp))
-
                     Text(
-                        "${filtered.size} ${if (filtered.size == 1) "диалог" else "диалога"}",
-                        style = MaterialTheme.typography.bodyLarge,
+                        "${filtered.size} диалога",
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-
-                Box {
-                    Surface(
-                        onClick = { showAccountMenu = true },
-                        modifier = Modifier.size(52.dp),
-                        shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        tonalElevation = 2.dp
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Add,
-                                contentDescription = "Добавить аккаунт",
-                                modifier = Modifier.size(28.dp),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                    }
-
-                    DropdownMenu(
-                        expanded = showAccountMenu,
-                        onDismissRequest = { showAccountMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Добавить аккаунт") },
-                            onClick = {
-                                showAccountMenu = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Переключить аккаунт") },
-                            onClick = {
-                                showAccountMenu = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Мои аккаунты") },
-                            onClick = {
-                                showAccountMenu = false
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize(),
-                singleLine = true,
-                label = { Text("Поиск") },
-                placeholder = { Text("Люди, @username, группы, каналы и боты") },
-                leadingIcon = {
-                    Text(
-                        "⌕",
-                        fontSize = 25.sp,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                },
-                trailingIcon = {
-                    AnimatedVisibility(
-                        visible = query.isNotEmpty(),
-                        enter = fadeIn() + scaleIn(),
-                        exit = fadeOut() + scaleOut()
-                    ) {
-                        TextButton(
-                            onClick = { query = "" }
-                        ) {
-                            Text("Очистить")
-                        }
-                    }
-                },
-                shape = MaterialTheme.shapes.extraLarge,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor =
-                        MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedContainerColor =
-                        MaterialTheme.colorScheme.surfaceContainerHigh,
-                    focusedBorderColor =
-                        MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor =
-                        MaterialTheme.colorScheme.outline,
-                    focusedTextColor =
-                        MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor =
-                        MaterialTheme.colorScheme.onSurface,
-                    cursorColor =
-                        MaterialTheme.colorScheme.primary
-                )
-            )
-        }
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                PixelFilterChip(
-                    text = "Все",
-                    selected = filter == 0
-                ) { filter = 0 }
-
-                PixelFilterChip(
-                    text = "В сети",
-                    selected = filter == 1
-                ) { filter = 1 }
-
-                PixelFilterChip(
-                    text = "Непрочитанные",
-                    selected = filter == 2
-                ) { filter = 2 }
-            }
-        }
-
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = 4.dp,
-                        bottom = 2.dp
-                    ),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Последние чаты",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(Modifier.weight(1f))
-
-                Text(
-                    "${filtered.size}",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-
-        items(
-            items = filtered,
-            key = { "${it.name}_${it.time}" }
-        ) { chat ->
-            PixelExpressiveChatItem(
-                chat = chat,
-                onClick = { onOpen(chat) }
-            )
-        }
-
-        if (filtered.isEmpty()) {
-            item {
+            },
+            actions = {
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                    tonalElevation = 1.dp
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primaryContainer
                 ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(28.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            "Ничего не найдено",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Spacer(Modifier.height(6.dp))
-
-                        Text(
-                            "Попробуй изменить запрос или фильтр",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                    Text(
+                        "P",
+                        modifier = Modifier.padding(12.dp),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        fontWeight = FontWeight.ExtraBold
+                    )
                 }
+            },
+            colors = TopAppBarDefaults.largeTopAppBarColors(
+                containerColor = MaterialTheme.colorScheme.background,
+                titleContentColor = MaterialTheme.colorScheme.onBackground
+            )
+        )
+
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth().animateContentSize(),
+            singleLine = true,
+            label = { Text("Поиск") },
+            placeholder = { Text("Чаты и сообщения") },
+            leadingIcon = {
+                Text("⌕", fontSize = 25.sp, color = MaterialTheme.colorScheme.primary)
+            },
+            trailingIcon = {
+                AnimatedVisibility(
+                    visible = query.isNotEmpty(),
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
+                ) {
+                    TextButton(onClick = { query = "" }) { Text("Очистить") }
+                }
+            },
+            shape = MaterialTheme.shapes.large,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                cursorColor = MaterialTheme.colorScheme.primary
+            )
+        )
+
+        Spacer(Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            PixelFilterChip("Все", filter == 0) { filter = 0 }
+            PixelFilterChip("В сети", filter == 1) { filter = 1 }
+            PixelFilterChip("Непрочитанные", filter == 2) { filter = 2 }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+            contentPadding = PaddingValues(bottom = 96.dp)
+        ) {
+            items(
+                items = filtered,
+                key = { "${it.name}_${it.time}" }
+            ) { chat ->
+                PixelExpressiveChatItem(chat = chat, onClick = { onOpen(chat) })
             }
         }
     }
@@ -1356,19 +1019,10 @@ private fun PixelFilterChip(
         label = {
             Text(
                 text,
-                fontWeight = if (selected) {
-                    FontWeight.Bold
-                } else {
-                    FontWeight.Medium
-                }
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium
             )
         },
-        shape = if (selected) {
-            MaterialTheme.shapes.largeIncreased
-        } else {
-            MaterialTheme.shapes.large
-        },
-        modifier = Modifier.animateContentSize()
+        shape = if (selected) MaterialTheme.shapes.large else MaterialTheme.shapes.medium
     )
 }
 
@@ -1382,7 +1036,7 @@ private fun PixelExpressiveChatItem(
 
     val elevation by animateDpAsState(
         targetValue = if (pressed) 6.dp else 1.dp,
-        animationSpec = tween(250),
+        animationSpec = MotionScheme.expressive().defaultEffectsSpec(),
         label = "chat_elevation"
     )
 
@@ -1497,12 +1151,7 @@ private fun ContactsTab(onOpen: (ChatItem) -> Unit) {
                         Text("${contacts.size} контактов • $onlineCount в сети", color = PixelMuted, fontSize = 12.sp)
                     }
                     Surface(shape = CircleShape, color = PixelBlueContainer) {
-                        Icon(
-    imageVector = Icons.Outlined.Person,
-    contentDescription = "Контакт",
-    modifier = Modifier.padding(12.dp),
-    tint = PixelBlueBright
-)
+                        Text("◎", modifier = Modifier.padding(12.dp), color = PixelBlueBright, fontSize = 19.sp)
                     }
                 }
             }
@@ -1707,712 +1356,185 @@ private fun CallsTab() {
     }
 }
 @Composable
-private fun EditProfileScreen(
-    name: String,
-    username: String,
-    bio: String,
-    birthDate: String,
-    photoUri: Uri?,
-    onPickPhoto: () -> Unit,
-    onBack: () -> Unit,
-    onSave: (String, String, String) -> Unit
+private fun ProfileTab(
+    onSettings: () -> Unit
 ) {
-    var editedName by rememberSaveable { mutableStateOf(name) }
-    var editedUsername by rememberSaveable { mutableStateOf(username) }
-    var editedBio by rememberSaveable { mutableStateOf(bio) }
-    var editedBirthDate by rememberSaveable { mutableStateOf(birthDate) }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(horizontal = 14.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            TextButton(onClick = onBack) {
-                Text("Отмена")
-            }
+        Spacer(Modifier.height(10.dp))
 
-            Text(
-                text = "Редактировать профиль",
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Center,
-                color = PixelText,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
+        Text(
+            text = "Профиль",
+            color = PixelText,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Black,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
 
-            TextButton(
-                onClick = {
-                    onSave(
-                        editedName.trim(),
-                        editedUsername.trim(),
-                        editedBio.trim()
-                    )
-                },
-                enabled = editedName.isNotBlank() && editedUsername.isNotBlank()
-            ) {
-                Text("Сохранить")
-            }
-        }
-
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(12.dp))
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
             color = PixelSurface,
             shape = RoundedCornerShape(28.dp),
-            tonalElevation = 2.dp
+            tonalElevation = 4.dp
         ) {
             Column(
                 modifier = Modifier.padding(20.dp)
             ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    AppAvatar(
-                        initials = editedName
-                            .trim()
-                            .firstOrNull()
-                            ?.uppercase()
-                            ?: "P",
-                        size = 104.dp,
-                        photoUri = photoUri
-                    )
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                TextButton(onClick = onPickPhoto) {
-                    Text("Изменить фото")
-                }
-
-                Spacer(Modifier.height(24.dp))
-
-                OutlinedTextField(
-                    value = editedName,
-                    onValueChange = { editedName = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Имя") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(18.dp)
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = editedUsername,
-                    onValueChange = {
-                        editedUsername = it
-                            .removePrefix("@")
-                            .replace(" ", "")
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Username") },
-                    prefix = { Text("@") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(18.dp)
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = editedBirthDate,
-                    onValueChange = { editedBirthDate = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("Дата рождения") },
-                    placeholder = { Text("ДД.ММ.ГГГГ") },
-                    singleLine = true,
-                    shape = RoundedCornerShape(18.dp)
-                )
-
-                Spacer(Modifier.height(12.dp))
-
-                OutlinedTextField(
-                    value = editedBio,
-                    onValueChange = { editedBio = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    label = { Text("О себе") },
-                    minLines = 3,
-                    maxLines = 4,
-                    shape = RoundedCornerShape(18.dp)
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ProfileTab(
-    name: String,
-    username: String,
-    bio: String,
-    photoUri: Uri?,
-    backgroundUri: Uri?,
-    onPickPhoto: () -> Unit,
-    onPickBackgroundPhoto: () -> Unit,
-    onPickBackgroundVideo: () -> Unit,
-    onEdit: () -> Unit
-) {
-    var musicPanelVisible by rememberSaveable { mutableStateOf(false) }
-    var selectedMusicUri by rememberSaveable { mutableStateOf<String?>(null) }
-    var selectedMusicName by rememberSaveable { mutableStateOf<String?>(null) }
-    var musicPlaying by rememberSaveable { mutableStateOf(false) }
-    var profileMenuExpanded by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-
-    val musicPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) {
-            selectedMusicUri = uri.toString()
-            musicPlaying = false
-            selectedMusicName = context.contentResolver.query(
-                uri,
-                arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
-                null,
-                null,
-                null
-            )?.use { cursor ->
-                if (cursor.moveToFirst()) cursor.getString(0) else null
-            } ?: "Выбранный трек"
-        }
-    }
-
-    val mediaPlayer = remember(selectedMusicUri) {
-        selectedMusicUri?.let { uriString ->
-            MediaPlayer.create(context, Uri.parse(uriString))
-        }
-    }
-
-    DisposableEffect(mediaPlayer) {
-        onDispose {
-            mediaPlayer?.release()
-        }
-    }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 24.dp)
-    ) {
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-                    .background(Color(0xFF111111))
-            ) {
-                if (backgroundUri != null) {
-                    val mimeType = remember(backgroundUri) {
-                        context.contentResolver.getType(backgroundUri)
-                    }
-
-                    if (mimeType?.startsWith("video/") == true) {
-                        AndroidView(
-                            factory = { ctx ->
-                                VideoView(ctx).apply {
-                                    setVideoURI(backgroundUri)
-                                    setOnPreparedListener { player ->
-                                        player.isLooping = true
-                                        start()
-                                    }
-                                }
-                            },
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        AsyncImage(
-                            model = backgroundUri,
-                            contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.38f))
-                    )
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 20.dp, vertical = 18.dp),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column {
-                            Text(
-                                "PIXEL",
-                                color = Color.White,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 7.sp
-                            )
-                            Text(
-                                "CHAT PROFILE",
-                                color = Color(0xFF8E8E8E),
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 4.sp
-                            )
-                        }
-
-                        Box {
-                            IconButton(
-                                onClick = {
-                                    profileMenuExpanded = !profileMenuExpanded
-                                }
-                            ) {
-                                Icon(
-                                    Icons.Outlined.Settings,
-                                    contentDescription = "Меню профиля",
-                                    tint = Color.White
-                                )
-                            }
-
-                            DropdownMenu(
-                                expanded = profileMenuExpanded,
-                                onDismissRequest = {
-                                    profileMenuExpanded = false
-                                }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Изменить фото") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onPickPhoto()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Settings,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text("Фон — фото") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onPickBackgroundPhoto()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Settings,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text("Фон — видео") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onPickBackgroundVideo()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Settings,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text("Изменить имя") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onEdit()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Edit,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text("Редактировать профиль") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onEdit()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Person,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(Color.White.copy(alpha = 0.08f))
-                    )
-                }
-            }
-        }
-
-        item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-            ) {
-                Spacer(Modifier.height(12.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset(y = (-62).dp),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    AppAvatar(
-                        initials = name.trim().firstOrNull()?.uppercase() ?: "P",
-                        size = 118.dp,
-                        photoUri = photoUri
-                    )
-                }
-
-                Spacer(Modifier.height((-42).dp))
-
-                Text(
-                    text = name.ifBlank { "Pixel User" },
-                    color = PixelText,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Black
-                )
-
-                Spacer(Modifier.height(3.dp))
-
-                Text(
-                    text = "@${username.ifBlank { "pixeluser" }}",
-                    color = PixelMuted,
-                    fontSize = 15.sp
-                )
-
-                Spacer(Modifier.height(8.dp))
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Surface(
-                        modifier = Modifier.size(9.dp),
-                        shape = CircleShape,
-                        color = PixelText
-                    ) {}
-
-                    Spacer(Modifier.width(7.dp))
-
-                    Text(
-                        "В сети",
-                        color = PixelMuted,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-
-                Spacer(Modifier.height(18.dp))
-
-                Button(
-                    onClick = onEdit,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Icon(
-                        Icons.Outlined.Edit,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
+                    AppAvatar(
+                        initials = "P",
+                        size = 86.dp
                     )
 
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(16.dp))
 
-                    Text(
-                        "Изменить",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Spacer(Modifier.height(14.dp))
-
-                if (bio.isNotBlank()) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = PixelSurface,
-                        shape = RoundedCornerShape(22.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(17.dp)
-                        ) {
-                            Text(
-                                "О себе",
-                                color = PixelMuted,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(Modifier.height(5.dp))
-
-                            Text(
-                                bio,
-                                color = PixelText,
-                                fontSize = 15.sp,
-                                lineHeight = 21.sp
-                            )
-                        }
-                    }
-
-                    Spacer(Modifier.height(12.dp))
-                }
-
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = PixelSurface,
-                    shape = RoundedCornerShape(22.dp)
-                ) {
                     Column(
-                        modifier = Modifier.padding(
-                            horizontal = 17.dp,
-                            vertical = 10.dp
-                        )
+                        modifier = Modifier.weight(1f)
                     ) {
-                        ProfileInfoRow(
-                            "Телефон",
-                            "Не указан"
+                        Text(
+                            text = "Pixel User",
+                            color = PixelText,
+                            fontSize = 23.sp,
+                            fontWeight = FontWeight.ExtraBold
                         )
 
-                        ProfileInfoRow(
-                            "Имя пользователя",
-                            "@${username.ifBlank { "pixeluser" }}"
-                        )
-
-                        ProfileInfoRow(
-                            "Дата рождения",
-                            "Не указана"
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(14.dp))
-
-                Surface(
-                    onClick = {
-                        musicPanelVisible = true
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    color = PixelSurface,
-                    shape = RoundedCornerShape(22.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = 16.dp,
-                                vertical = 14.dp
-                            ),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(46.dp)
-                                .clip(RoundedCornerShape(15.dp))
-                                .background(PixelBlueContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Outlined.MusicNote,
-                                contentDescription = null,
-                                tint = PixelBlueBright,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-
-                        Spacer(Modifier.width(13.dp))
-
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                if (selectedMusicUri == null) {
-                                    "Музыка профиля"
-                                } else {
-                                    selectedMusicName ?: "Выбранный трек"
-                                },
-                                color = PixelText,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            Spacer(Modifier.height(3.dp))
-
-                            Text(
-                                if (selectedMusicUri == null) {
-                                    "Музыка пока не добавлена"
-                                } else {
-                                    "Нажми, чтобы открыть плеер"
-                                },
-                                color = PixelMuted,
-                                fontSize = 12.sp
-                            )
-                        }
+                        Spacer(Modifier.height(4.dp))
 
                         Text(
-                            "›",
+                            text = "@pixeluser",
                             color = PixelBlueBright,
-                            fontSize = 22.sp
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(18.dp))
-            }
-        }
-    }
-
-    if (musicPanelVisible) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                musicPanelVisible = false
-                musicPlaying = false
-                mediaPlayer?.pause()
-            },
-            containerColor = PixelSurface,
-            contentColor = PixelText
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        horizontal = 20.dp,
-                        vertical = 8.dp
-                    )
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        "Музыка профиля",
-                        color = PixelText,
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.ExtraBold
-                    )
-
-                    IconButton(
-                        onClick = {
-                            musicPanelVisible = false
-                        }
-                    ) {
-                        Icon(
-                            Icons.Outlined.Close,
-                            contentDescription = "Закрыть"
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(190.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(Color(0xFF111111)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Outlined.MusicNote,
-                        contentDescription = null,
-                        tint = PixelBlueBright,
-                        modifier = Modifier.size(64.dp)
-                    )
-                }
-
-                Spacer(Modifier.height(12.dp))
-
-                Text(
-                    if (selectedMusicUri == null) {
-                        "Музыка пока не добавлена"
-                    } else {
-                        selectedMusicName ?: "Выбранный трек"
-                    },
-                    color = PixelText,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(Modifier.height(14.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        onClick = {
-                            musicPicker.launch("audio/*")
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(18.dp)
-                    ) {
-                        Text(
-                            "＋ Добавить",
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold
                         )
-                    }
 
-                    IconButton(
-                        onClick = {
-                            mediaPlayer?.let { player ->
-                                if (musicPlaying) {
-                                    player.pause()
-                                    musicPlaying = false
-                                } else {
-                                    player.start()
-                                    musicPlaying = true
-                                }
-                            }
-                        },
-                        enabled = mediaPlayer != null
+                        Spacer(Modifier.height(5.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(8.dp),
+                                shape = CircleShape,
+                                color = PixelSuccess
+                            ) {}
+
+                            Spacer(Modifier.width(6.dp))
+
+                            Text(
+                                text = "в сети",
+                                color = PixelSuccess,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(18.dp))
+
+                ProfileInfoRow(
+                    title = "Gmail",
+                    subtitle = "Подтверждённый аккаунт"
+                )
+
+                ProfileInfoRow(
+                    title = "О себе",
+                    subtitle = "Я в PIXEL CHAT"
+                )
+            }
+        }
+
+        Spacer(Modifier.height(10.dp))
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = PixelBlueContainer,
+            shape = RoundedCornerShape(22.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Surface(
+                    modifier = Modifier.size(48.dp),
+                    shape = CircleShape,
+                    color = PixelBlue
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            if (musicPlaying) {
-                                Icons.Outlined.Pause
-                            } else {
-                                Icons.Outlined.PlayArrow
-                            },
-                            contentDescription = if (musicPlaying) {
-                                "Пауза"
-                            } else {
-                                "Воспроизвести"
-                            }
+                        Text(
+                            text = "★",
+                            color = Color.White,
+                            fontSize = 20.sp
                         )
                     }
                 }
 
-                Spacer(Modifier.height(22.dp))
+                Spacer(Modifier.width(12.dp))
+
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = "Подарки",
+                        color = PixelText,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(Modifier.height(3.dp))
+
+                    Text(
+                        text = "Пиксельные подарки • звёзды • кристаллы",
+                        color = PixelMuted,
+                        fontSize = 12.sp
+                    )
+                }
+
+                Text(
+                    text = "›",
+                    color = PixelBlueBright,
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
+
+        Spacer(Modifier.height(8.dp))
+
+        ProfileAction(
+            title = "Изменить профиль",
+            subtitle = "Имя, username и аватар"
+        )
+
+        ProfileAction(
+            title = "QR-профиль",
+            subtitle = "Поделиться своим профилем"
+        )
+
+        ProfileAction(
+            title = "Активные сессии",
+            subtitle = "Устройства, где открыт аккаунт"
+        )
+
+        ProfileAction(
+            title = "Безопасность",
+            subtitle = "Шифрование и защита аккаунта"
+        )
     }
 }
+
+
 
 @Composable
 private fun ProfileInfoRow(title: String, subtitle: String) {
@@ -2424,13 +1546,8 @@ private fun ProfileInfoRow(title: String, subtitle: String) {
 }
 
 @Composable
-private fun ProfileAction(
-    title: String,
-    subtitle: String,
-    onClick: () -> Unit = {}
-) {
+private fun ProfileAction(title: String, subtitle: String) {
     Surface(
-        onClick = onClick,
         modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
         color = PixelSurface,
         shape = RoundedCornerShape(21.dp)
@@ -2500,7 +1617,7 @@ private fun SettingsScreen(
             item { SettingAction("Конфиденциальность", "Блокировки, онлайн-статус и права") }
             item { SettingAction("Безопасность", "Сессии, ключи и шифрование") }
             item { SettingAction("Устройства", "Активные подключения PIXEL CHAT") }
-            item { SettingAction("О PIXEL CHAT", "Material 3 • Server 10.0") }
+            item { SettingAction("О PIXEL CHAT", "Material 3 Expressive • Server 10.0") }
 
             item {
                 Spacer(Modifier.height(8.dp))
@@ -2578,7 +1695,7 @@ private fun ChatScreen(
         mutableStateListOf(
             "Привет! Это PIXEL CHAT.",
             "Дизайн уже обновили.",
-            "Как дела?"
+            "Скоро подключим настоящий сервер."
         )
     }
 
@@ -2910,17 +2027,10 @@ private fun NewChatScreen(
             }
         }
     }
-
-
 }
 
-    
-    @Composable
-private fun AppAvatar(
-    initials: String,
-    size: Dp,
-    photoUri: Uri? = null
-) {
+@Composable
+private fun AppAvatar(initials: String, size: Dp) {
     Surface(
         modifier = Modifier.size(size),
         shape = CircleShape,
@@ -2928,23 +2038,12 @@ private fun AppAvatar(
         tonalElevation = 2.dp
     ) {
         Box(contentAlignment = Alignment.Center) {
-            if (photoUri != null) {
-                AsyncImage(
-                    model = photoUri,
-                    contentDescription = "Фото профиля",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                Text(
-                    initials.take(2).uppercase(),
-                    color = PixelBlueBright,
-                    fontSize = (size.value * 0.29f).sp,
-                    fontWeight = FontWeight.ExtraBold
-                )
-            }
+            Text(
+                initials.take(2).uppercase(),
+                color = PixelBlueBright,
+                fontSize = (size.value * 0.29f).sp,
+                fontWeight = FontWeight.ExtraBold
+            )
         }
     }
 }

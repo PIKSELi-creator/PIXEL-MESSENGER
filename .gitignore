@@ -33,3 +33,9 @@ data/*.p12
 crypto-keys/*_private.pem
 crypto-keys/
 crypto-keys/*.key
+
+# Secrets and local credentials
+**/client_secret_*.json
+**/StoredCredential
+**/__pycache__/
+*.pyc

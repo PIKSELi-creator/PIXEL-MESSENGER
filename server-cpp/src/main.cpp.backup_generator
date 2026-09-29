@@ -1,0 +1,36 @@
+#include "UserStore.h"
+
+#include <iostream>
+#include <string>
+
+int main() {
+    UserStore store;
+
+    std::cout << "PIXEL CHAT C++ SERVER\n";
+    std::cout << "Type username to search.\n";
+    std::cout << "Type exit to stop.\n\n";
+
+    while (true) {
+        std::cout << "@";
+
+        std::string username;
+        std::cin >> username;
+
+        if (username == "exit") {
+            break;
+        }
+
+        auto user = store.findByUsername(username);
+
+        if (user.has_value()) {
+            std::cout << "\nUser found!\n";
+            std::cout << "ID: " << user->id << "\n";
+            std::cout << "Username: @" << user->username << "\n";
+            std::cout << "Name: " << user->name << "\n\n";
+        } else {
+            std::cout << "\nUser not found.\n\n";
+        }
+    }
+
+    return 0;
+}
