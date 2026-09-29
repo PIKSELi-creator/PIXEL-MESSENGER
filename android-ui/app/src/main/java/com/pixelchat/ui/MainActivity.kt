@@ -1772,7 +1772,10 @@ private fun ProfileTab(
 ) {
     var musicPanelVisible by rememberSaveable { mutableStateOf(false) }
     var selectedMusicUri by rememberSaveable { mutableStateOf<String?>(null) }
+    var selectedMusicName by rememberSaveable { mutableStateOf<String?>(null) }
     var musicPlaying by rememberSaveable { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     val musicPicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -1780,10 +1783,22 @@ private fun ProfileTab(
         if (uri != null) {
             selectedMusicUri = uri.toString()
             musicPlaying = false
+
+            selectedMusicName = context.contentResolver.query(
+                uri,
+                arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    cursor.getString(0)
+                } else {
+                    null
+                }
+            } ?: "Выбранный трек"
         }
     }
-
-    val context = LocalContext.current
 
     val mediaPlayer = remember(selectedMusicUri) {
         selectedMusicUri?.let { uriString ->
@@ -2154,7 +2169,11 @@ private fun ProfileTab(
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
-                                if (selectedMusicUri == null) "Музыка профиля" else "Музыка добавлена",
+                                if (selectedMusicUri == null) {
+                                    "Музыка профиля"
+                                } else {
+                                    selectedMusicName ?: "Выбранный трек"
+                                },
                                 color = PixelText,
                                 fontWeight = FontWeight.Bold
                             )
