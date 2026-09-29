@@ -1,10 +1,18 @@
 package com.pixelchat.ui
+import androidx.compose.material.icons.outlined.Close
+
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.IconButton
 
 import android.net.Uri
+import android.media.MediaPlayer
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -16,6 +24,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.Pause
+import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Chat
@@ -823,6 +833,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
             name = profileName,
             username = profileUsername,
             bio = profileBio,
+            birthDate = "",
             photoUri = profilePhotoUri,
             onPickPhoto = { profilePhotoPicker.launch("image/*") },
             onBack = { showEditProfile = false },
@@ -888,8 +899,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
                     bio = profileBio,
                     photoUri = profilePhotoUri,
                     onPickPhoto = { profilePhotoPicker.launch("image/*") },
-                    onEdit = { showEditProfile = true },
-                    onSettings = { tab = 2 }
+                    onEdit = { showEditProfile = true }
                 )
             }
         }
@@ -1005,6 +1015,7 @@ private fun ChatsTab(
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableStateOf(0) }
+    var showAccountMenu by rememberSaveable { mutableStateOf(false) }
 
     val filtered = chats.filter { chat ->
         val matchesSearch =
@@ -1057,20 +1068,47 @@ private fun ChatsTab(
                     )
                 }
 
-                Surface(
-                    modifier = Modifier.size(52.dp),
-                    shape = MaterialTheme.shapes.largeIncreased,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    tonalElevation = 2.dp
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center
+                Box {
+                    Surface(
+                        onClick = { showAccountMenu = true },
+                        modifier = Modifier.size(52.dp),
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        tonalElevation = 2.dp
                     ) {
-                        Text(
-                            "P",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        Box(
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Add,
+                                contentDescription = "Добавить аккаунт",
+                                modifier = Modifier.size(28.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = showAccountMenu,
+                        onDismissRequest = { showAccountMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Добавить аккаунт") },
+                            onClick = {
+                                showAccountMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Переключить аккаунт") },
+                            onClick = {
+                                showAccountMenu = false
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Мои аккаунты") },
+                            onClick = {
+                                showAccountMenu = false
+                            }
                         )
                     }
                 }
@@ -1086,7 +1124,7 @@ private fun ChatsTab(
                     .animateContentSize(),
                 singleLine = true,
                 label = { Text("Поиск") },
-                placeholder = { Text("Чаты и сообщения") },
+                placeholder = { Text("Люди, @username, группы, каналы и боты") },
                 leadingIcon = {
                     Text(
                         "⌕",
@@ -1587,6 +1625,7 @@ private fun EditProfileScreen(
     name: String,
     username: String,
     bio: String,
+    birthDate: String,
     photoUri: Uri?,
     onPickPhoto: () -> Unit,
     onBack: () -> Unit,
@@ -1595,6 +1634,7 @@ private fun EditProfileScreen(
     var editedName by rememberSaveable { mutableStateOf(name) }
     var editedUsername by rememberSaveable { mutableStateOf(username) }
     var editedBio by rememberSaveable { mutableStateOf(bio) }
+    var editedBirthDate by rememberSaveable { mutableStateOf(birthDate) }
 
     Column(
         modifier = Modifier
@@ -1695,6 +1735,18 @@ private fun EditProfileScreen(
                 Spacer(Modifier.height(12.dp))
 
                 OutlinedTextField(
+                    value = editedBirthDate,
+                    onValueChange = { editedBirthDate = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("Дата рождения") },
+                    placeholder = { Text("ДД.ММ.ГГГГ") },
+                    singleLine = true,
+                    shape = RoundedCornerShape(18.dp)
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                OutlinedTextField(
                     value = editedBio,
                     onValueChange = { editedBio = it },
                     modifier = Modifier.fillMaxWidth(),
@@ -1708,6 +1760,7 @@ private fun EditProfileScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProfileTab(
     name: String,
@@ -1715,9 +1768,39 @@ private fun ProfileTab(
     bio: String,
     photoUri: Uri?,
     onPickPhoto: () -> Unit,
-    onEdit: () -> Unit,
-    onSettings: () -> Unit
+    onEdit: () -> Unit
 ) {
+    var musicPanelVisible by rememberSaveable { mutableStateOf(false) }
+    var selectedMusicUri by rememberSaveable { mutableStateOf<String?>(null) }
+    var musicPlaying by rememberSaveable { mutableStateOf(false) }
+
+    val musicPicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            selectedMusicUri = uri.toString()
+            musicPlaying = false
+        }
+    }
+
+    val context = LocalContext.current
+
+    val mediaPlayer = remember(selectedMusicUri) {
+        selectedMusicUri?.let { uriString ->
+            MediaPlayer.create(
+                context,
+                Uri.parse(uriString)
+            )
+        }
+    }
+
+    DisposableEffect(mediaPlayer) {
+        onDispose {
+            mediaPlayer?.release()
+        }
+    }
+    var profileMenuExpanded by remember { mutableStateOf(false) }
+
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 24.dp)
@@ -1758,20 +1841,72 @@ private fun ProfileTab(
                             )
                         }
 
-                        Surface(
-                            color = Color.White.copy(alpha = 0.08f),
-                            shape = RoundedCornerShape(14.dp)
-                        ) {
-                            Text(
-                                "•••",
-                                color = Color.White,
-                                modifier = Modifier.padding(
-                                    horizontal = 12.dp,
-                                    vertical = 7.dp
-                                ),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
+                        Box {
+                            Surface(
+                                onClick = {
+                                    profileMenuExpanded = true
+                                },
+                                color = Color.White.copy(alpha = 0.08f),
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text(
+                                    "•••",
+                                    color = Color.White,
+                                    modifier = Modifier.padding(
+                                        horizontal = 12.dp,
+                                        vertical = 7.dp
+                                    ),
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+
+                            DropdownMenu(
+                                expanded = profileMenuExpanded,
+                                onDismissRequest = {
+                                    profileMenuExpanded = false
+                                }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Изменить фото") },
+                                    onClick = {
+                                        profileMenuExpanded = false
+                                        onPickPhoto()
+                                    }
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text("Изменить имя") },
+                                    onClick = {
+                                        profileMenuExpanded = false
+                                        onEdit()
+                                    }
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text("Изменить username") },
+                                    onClick = {
+                                        profileMenuExpanded = false
+                                        onEdit()
+                                    }
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text("Дата рождения") },
+                                    onClick = {
+                                        profileMenuExpanded = false
+                                        onEdit()
+                                    }
+                                )
+
+                                DropdownMenuItem(
+                                    text = { Text("Редактировать профиль") },
+                                    onClick = {
+                                        profileMenuExpanded = false
+                                        onEdit()
+                                    }
+                                )
+                            }
                         }
                     }
 
@@ -1922,80 +2057,6 @@ private fun ProfileTab(
                         )
                     }
 
-                    Button(
-                        onClick = onSettings,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(18.dp),
-                        contentPadding = PaddingValues(
-                            horizontal = 10.dp,
-                            vertical = 10.dp
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Settings,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            "Настройки",
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(14.dp))
-
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = PixelSurface,
-                    shape = RoundedCornerShape(20.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 13.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Surface(
-                            modifier = Modifier.size(38.dp),
-                            color = PixelBlueContainer,
-                            shape = RoundedCornerShape(12.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Outlined.MusicNote,
-                                    contentDescription = null,
-                                    tint = PixelBlueBright
-                                )
-                            }
-                        }
-
-                        Spacer(Modifier.width(11.dp))
-
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                "Музыка профиля",
-                                color = PixelText,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 13.sp
-                            )
-
-                            Text(
-                                "Музыка пока не добавлена",
-                                color = PixelMuted,
-                                fontSize = 12.sp
-                            )
-                        }
-
-                        Text(
-                            "›",
-                            color = PixelMuted,
-                            fontSize = 24.sp
-                        )
-                    }
                 }
 
                 Spacer(Modifier.height(14.dp))
@@ -2058,7 +2119,169 @@ private fun ProfileTab(
                     }
                 }
 
+                Spacer(Modifier.height(14.dp))
+
+                Surface(
+                    onClick = { musicPanelVisible = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    color = PixelSurface,
+                    shape = RoundedCornerShape(22.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(46.dp)
+                                .clip(RoundedCornerShape(15.dp))
+                                .background(PixelBlueContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.MusicNote,
+                                contentDescription = null,
+                                tint = PixelBlueBright,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+
+                        Spacer(Modifier.width(13.dp))
+
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                if (selectedMusicUri == null) "Музыка профиля" else "Музыка добавлена",
+                                color = PixelText,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            Spacer(Modifier.height(3.dp))
+
+                            Text(
+                                if (selectedMusicUri == null) {
+                                    "Музыка пока не добавлена"
+                                } else {
+                                    "Нажми, чтобы открыть плеер"
+                                },
+                                color = PixelMuted,
+                                fontSize = 12.sp
+                            )
+                        }
+
+                        Text(
+                            "›",
+                            color = PixelBlueBright,
+                            fontSize = 22.sp
+                        )
+                    }
+                }
+
                 Spacer(Modifier.height(18.dp))
+            }
+        }
+
+
+    }
+
+    if (musicPanelVisible) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                musicPanelVisible = false
+                musicPlaying = false
+                mediaPlayer?.pause()
+            },
+            containerColor = PixelSurface,
+            contentColor = PixelText
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 8.dp)
+            ) {
+                Text(
+                    "Музыка профиля",
+                    color = PixelText,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.ExtraBold
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(190.dp)
+                        .clip(RoundedCornerShape(24.dp))
+                        .background(Color(0xFF111111)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.MusicNote,
+                        contentDescription = null,
+                        tint = PixelBlueBright,
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
+
+                Spacer(Modifier.height(12.dp))
+
+                Text(
+                    if (selectedMusicUri == null) {
+                        "Музыка пока не добавлена"
+                    } else {
+                        "Выбранный трек"
+                    },
+                    color = PixelText,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(Modifier.height(14.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = {
+                            musicPicker.launch("audio/*")
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(18.dp)
+                    ) {
+                        Text("＋ Добавить", fontWeight = FontWeight.Bold)
+                    }
+
+                    IconButton(
+                        onClick = {
+                            mediaPlayer?.let { player ->
+                                if (musicPlaying) {
+                                    player.pause()
+                                    musicPlaying = false
+                                } else {
+                                    player.start()
+                                    musicPlaying = true
+                                }
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (musicPlaying) {
+                                Icons.Outlined.Pause
+                            } else {
+                                Icons.Outlined.PlayArrow
+                            },
+                            contentDescription = null
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(22.dp))
             }
         }
     }
@@ -2560,9 +2783,12 @@ private fun NewChatScreen(
             }
         }
     }
+
+
 }
 
-@Composable
+    
+    @Composable
 private fun AppAvatar(
     initials: String,
     size: Dp,
