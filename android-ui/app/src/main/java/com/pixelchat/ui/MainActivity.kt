@@ -7,6 +7,8 @@ import androidx.compose.material3.IconButton
 
 import android.net.Uri
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Brush
 import android.widget.VideoView
 import android.media.MediaPlayer
 
@@ -120,6 +122,7 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.graphicsLayer
@@ -1860,41 +1863,35 @@ private fun ProfileTab(
     onPickBackgroundVideo: () -> Unit,
     onEdit: () -> Unit
 ) {
-    var musicPanelVisible by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+
     var selectedMusicUri by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedMusicName by rememberSaveable { mutableStateOf<String?>(null) }
     var musicPlaying by rememberSaveable { mutableStateOf(false) }
-    var profileMenuExpanded by remember { mutableStateOf(false) }
-
-    val context = LocalContext.current
+    var menuExpanded by remember { mutableStateOf(false) }
 
     val musicPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null) {
             selectedMusicUri = uri.toString()
             musicPlaying = false
 
-            selectedMusicName = context.contentResolver.query(
-                uri,
-                arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
-                null,
-                null,
-                null
-            )?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    cursor.getString(0)
-                } else {
+            selectedMusicName =
+                context.contentResolver.query(
+                    uri,
+                    arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
+                    null,
+                    null,
                     null
-                }
-            } ?: "Выбранный трек"
+                )?.use { cursor ->
+                    if (cursor.moveToFirst()) cursor.getString(0) else null
+                } ?: "Музыка профиля"
         }
     }
 
     val mediaPlayer = remember(selectedMusicUri) {
-        selectedMusicUri?.let {
-            MediaPlayer.create(context, Uri.parse(it))
-        }
+        selectedMusicUri?.let { MediaPlayer.create(context, Uri.parse(it)) }
     }
 
     DisposableEffect(mediaPlayer) {
@@ -1904,307 +1901,278 @@ private fun ProfileTab(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 32.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        contentPadding = PaddingValues(bottom = 24.dp)
     ) {
-
-        // HEADER
         item {
+            // ===== HEADER =====
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(270.dp)
-                    .background(Color(0xFF050606))
+                    .height(348.dp)
+                    .background(Color(0xFF020708))
             ) {
+                // Глубокий фон
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.linearGradient(
+                                listOf(
+                                    Color(0xFF031817),
+                                    Color(0xFF020708),
+                                    Color.Black
+                                )
+                            )
+                        )
+                )
+
+                // Декоративные диагональные панели
+                Box(
+                    modifier = Modifier
+                        .width(330.dp)
+                        .height(150.dp)
+                        .align(Alignment.Center)
+                        .offset(x = 80.dp, y = (-35).dp)
+                        .rotate(-43f)
+                        .background(Color(0xFF0B2928).copy(alpha = 0.65f))
+                )
+
+                Box(
+                    modifier = Modifier
+                        .width(330.dp)
+                        .height(2.dp)
+                        .align(Alignment.Center)
+                        .offset(x = 80.dp, y = 35.dp)
+                        .rotate(-43f)
+                        .background(Color(0xFF123C3A))
+                )
+
+                // Верхняя панель
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 36.dp,
+                            end = 24.dp,
+                            top = 18.dp
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "PIXEL",
+                        color = Color.White,
+                        fontSize = 29.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 2.sp
+                    )
+
+                    Text(
+                        " CHAT",
+                        color = Color(0xFF18D7C2),
+                        fontSize = 29.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 4.sp
+                    )
+
+                    Spacer(Modifier.weight(1f))
+
+                    Box {
+                        Text(
+                            "⋮",
+                            color = Color.White.copy(alpha = 0.9f),
+                            fontSize = 31.sp,
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .clickable { menuExpanded = true }
+                                .padding(horizontal = 8.dp)
+                        )
+
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Изменить аватар") },
+                                onClick = {
+                                    menuExpanded = false
+                                    onPickPhoto()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.Person,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Фон — фото") },
+                                onClick = {
+                                    menuExpanded = false
+                                    onPickBackgroundPhoto()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.Settings,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Фон — видео") },
+                                onClick = {
+                                    menuExpanded = false
+                                    onPickBackgroundVideo()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.Settings,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+
+                            DropdownMenuItem(
+                                text = { Text("Редактировать") },
+                                onClick = {
+                                    menuExpanded = false
+                                    onEdit()
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Outlined.Edit,
+                                        contentDescription = null
+                                    )
+                                }
+                            )
+                        }
+                    }
+                }
+
+                // Текст справа
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 56.dp, top = 32.dp)
+                ) {
+                    Text(
+                        "Б О Л Ь Ш Е",
+                        color = Color.White.copy(alpha = 0.55f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 5.sp
+                    )
+
+                    Text(
+                        "Ч Е М  П Р О С Т О",
+                        color = Color.White.copy(alpha = 0.55f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 4.sp
+                    )
+
+                    Text(
+                        "Ч А Т",
+                        color = Color.White.copy(alpha = 0.55f),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 5.sp
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Box(
+                        Modifier
+                            .width(35.dp)
+                            .height(2.dp)
+                            .background(Color(0xFF18D7C2))
+                    )
+                }
+
+                // Если пользователь поставил фон — показываем его поверх
                 if (backgroundUri != null) {
-                    val mimeType = remember(backgroundUri) {
+                    val mime = remember(backgroundUri) {
                         context.contentResolver.getType(backgroundUri)
                     }
 
-                    if (mimeType?.startsWith("video/") == true) {
+                    if (mime?.startsWith("video/") == true) {
                         AndroidView(
                             factory = { ctx ->
                                 VideoView(ctx).apply {
                                     setVideoURI(backgroundUri)
-                                    setOnPreparedListener { player ->
-                                        player.isLooping = true
+                                    setOnPreparedListener {
+                                        it.isLooping = true
                                         start()
                                     }
                                 }
                             },
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .alpha(0.42f)
                         )
                     } else {
                         AsyncImage(
                             model = backgroundUri,
                             contentDescription = null,
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .alpha(0.42f),
                             contentScale = ContentScale.Crop
                         )
                     }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.52f))
-                    )
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color(0xFF061211))
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .size(260.dp)
-                            .align(Alignment.Center)
-                            .clip(CircleShape)
-                            .background(Color(0xFF0A5C52).copy(alpha = 0.18f))
-                    )
-                }
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 20.dp, vertical = 18.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                "PIXEL",
-                                color = Color.White,
-                                fontSize = 19.sp,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 6.sp
-                            )
-
-                            Spacer(Modifier.width(8.dp))
-
-                            Text(
-                                "CHAT",
-                                color = Color(0xFF19D6C0),
-                                fontSize = 19.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 4.sp
-                            )
-                        }
-
-                        Box {
-                            Text(
-                                text = "⋮",
-                                color = Color.White,
-                                fontSize = 30.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .clickable {
-                                        profileMenuExpanded = true
-                                    }
-                                    .padding(horizontal = 10.dp, vertical = 2.dp)
-                            )
-
-                            DropdownMenu(
-                                expanded = profileMenuExpanded,
-                                onDismissRequest = {
-                                    profileMenuExpanded = false
-                                }
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text("Изменить аватар") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onPickPhoto()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Person,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text("Фон — фото") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onPickBackgroundPhoto()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Settings,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text("Фон — видео") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onPickBackgroundVideo()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Settings,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-
-                                DropdownMenuItem(
-                                    text = { Text("Редактировать профиль") },
-                                    onClick = {
-                                        profileMenuExpanded = false
-                                        onEdit()
-                                    },
-                                    leadingIcon = {
-                                        Icon(
-                                            Icons.Outlined.Edit,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    Spacer(Modifier.weight(1f))
-
-                    Text(
-                        "БОЛЬШЕ",
-                        color = Color.White.copy(alpha = 0.72f),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 5.sp
-                    )
-
-                    Text(
-                        "ЧЕМ ПРОСТО",
-                        color = Color.White.copy(alpha = 0.72f),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 5.sp
-                    )
-
-                    Text(
-                        "ЧАТ",
-                        color = Color.White.copy(alpha = 0.72f),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 5.sp
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .width(36.dp)
-                            .height(2.dp)
-                            .background(Color(0xFF19D6C0))
-                    )
                 }
             }
         }
 
-        // PROFILE
         item {
+            // ===== PROFILE HEADER =====
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
+                    .padding(horizontal = 38.dp)
             ) {
-                Box(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .offset(y = (-58).dp)
+                        .offset(y = (-105).dp),
+                    verticalAlignment = Alignment.Bottom
                 ) {
                     Box {
                         AppAvatar(
-                            initials = name.trim()
+                            initials = name
+                                .trim()
                                 .firstOrNull()
                                 ?.uppercase() ?: "P",
-                            size = 112.dp,
+                            size = 174.dp,
                             photoUri = photoUri
                         )
 
                         Box(
                             modifier = Modifier
-                                .size(18.dp)
+                                .size(25.dp)
                                 .align(Alignment.BottomEnd)
-                                .offset(x = (-3).dp, y = (-5).dp)
+                                .offset(x = (-7).dp, y = (-9).dp)
                                 .clip(CircleShape)
                                 .background(Color(0xFF19D6C0))
-                                .border(
-                                    3.dp,
-                                    Color.Black,
-                                    CircleShape
-                                )
+                                .border(4.dp, Color.Black, CircleShape)
                         )
                     }
-                }
 
-                Spacer(Modifier.height((-42).dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = name.ifBlank { "Pixel User" },
-                            color = PixelText,
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Black
-                        )
-
-                        Spacer(Modifier.height(3.dp))
-
-                        Text(
-                            text = "@${username.ifBlank { "pixeluser" }}",
-                            color = PixelMuted,
-                            fontSize = 15.sp
-                        )
-
-                        Spacer(Modifier.height(6.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF19D6C0))
-                            )
-
-                            Spacer(Modifier.width(7.dp))
-
-                            Text(
-                                "В сети",
-                                color = PixelMuted,
-                                fontSize = 13.sp
-                            )
-                        }
-                    }
+                    Spacer(Modifier.weight(1f))
 
                     Surface(
                         onClick = onEdit,
-                        color = Color(0xFF151817),
-                        shape = RoundedCornerShape(18.dp)
+                        color = Color(0xFF111317),
+                        shape = RoundedCornerShape(24.dp)
                     ) {
                         Row(
                             modifier = Modifier.padding(
-                                horizontal = 18.dp,
-                                vertical = 13.dp
+                                horizontal = 27.dp,
+                                vertical = 18.dp
                             ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -2212,106 +2180,138 @@ private fun ProfileTab(
                                 Icons.Outlined.Edit,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(19.dp)
+                                modifier = Modifier.size(24.dp)
                             )
 
-                            Spacer(Modifier.width(7.dp))
+                            Spacer(Modifier.width(10.dp))
 
                             Text(
                                 "Изменить",
                                 color = Color.White,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                     }
                 }
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height((-82).dp))
 
-                // ACTIONS
+                Text(
+                    name.ifBlank { "pixel chat" },
+                    color = Color.White,
+                    fontSize = 31.sp,
+                    fontWeight = FontWeight.Black
+                )
+
+                Spacer(Modifier.height(4.dp))
+
+                Text(
+                    "@${username.ifBlank { "pixel" }}",
+                    color = Color.White.copy(alpha = 0.58f),
+                    fontSize = 18.sp
+                )
+
+                Spacer(Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        Modifier
+                            .size(12.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF19D6C0))
+                    )
+
+                    Spacer(Modifier.width(9.dp))
+
+                    Text(
+                        "В сети",
+                        color = Color.White.copy(alpha = 0.58f),
+                        fontSize = 15.sp
+                    )
+                }
+
+                Spacer(Modifier.height(25.dp))
+
+                // ===== ACTIONS =====
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    ProfileActionCard(
+                    PixelProfileAction(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Outlined.Chat,
                         title = "Написать"
                     )
 
-                    ProfileActionCard(
+                    PixelProfileAction(
                         modifier = Modifier.weight(1f),
-                        icon = null,
+                        icon = Icons.Outlined.Settings,
                         title = "Звонок"
                     )
 
-                    ProfileActionCard(
+                    PixelProfileAction(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Outlined.Person,
                         title = "Добавить"
                     )
 
-                    ProfileActionCard(
+                    PixelProfileAction(
                         modifier = Modifier.weight(1f),
                         icon = Icons.Outlined.Settings,
                         title = "Ещё"
                     )
                 }
 
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(18.dp))
 
-                // ABOUT
+                // ===== INFO =====
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color(0xFF141615),
-                    shape = RoundedCornerShape(24.dp)
+                    color = Color(0xFF111316),
+                    shape = RoundedCornerShape(26.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(
-                            horizontal = 18.dp,
-                            vertical = 15.dp
+                            horizontal = 27.dp,
+                            vertical = 22.dp
                         )
                     ) {
-                        Text(
-                            "О себе",
-                            color = PixelMuted,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                        PixelProfileInfo(
+                            icon = Icons.Outlined.Person,
+                            title = "О себе",
+                            value = bio.ifBlank {
+                                "О себе пока ничего не указано"
+                            }
                         )
 
-                        Spacer(Modifier.height(6.dp))
+                        PixelDivider()
 
-                        Text(
-                            bio.ifBlank { "О себе пока ничего не указано" },
-                            color = PixelText,
-                            fontSize = 15.sp,
-                            lineHeight = 21.sp
+                        PixelProfileInfo(
+                            icon = Icons.Outlined.Person,
+                            title = "Имя пользователя",
+                            value = "@${username.ifBlank { "pixel" }}"
                         )
 
-                        Spacer(Modifier.height(14.dp))
+                        PixelDivider()
 
-                        ProfileInfoRow(
-                            "Имя пользователя",
-                            "@${username.ifBlank { "pixeluser" }}"
-                        )
-
-                        ProfileInfoRow(
-                            "Дата рождения",
-                            "Не указана"
+                        PixelProfileInfo(
+                            icon = Icons.Outlined.Settings,
+                            title = "Дата рождения",
+                            value = "Не указана"
                         )
                     }
                 }
 
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(18.dp))
 
-                // MUSIC
+                // ===== MUSIC =====
                 Surface(
-                    onClick = {
-                        musicPanelVisible = true
-                    },
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color(0xFF141615),
-                    shape = RoundedCornerShape(24.dp)
+                    color = Color(0xFF111316),
+                    shape = RoundedCornerShape(26.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(14.dp)
@@ -2321,20 +2321,20 @@ private fun ProfileTab(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(70.dp)
-                                    .clip(RoundedCornerShape(18.dp))
-                                    .background(Color(0xFF202322)),
+                                    .size(112.dp)
+                                    .clip(RoundedCornerShape(19.dp))
+                                    .background(Color(0xFF202326)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     Icons.Outlined.MusicNote,
                                     contentDescription = null,
                                     tint = Color(0xFF19D6C0),
-                                    modifier = Modifier.size(28.dp)
+                                    modifier = Modifier.size(39.dp)
                                 )
                             }
 
-                            Spacer(Modifier.width(13.dp))
+                            Spacer(Modifier.width(20.dp))
 
                             Column(
                                 modifier = Modifier.weight(1f)
@@ -2342,22 +2342,21 @@ private fun ProfileTab(
                                 Text(
                                     selectedMusicName
                                         ?: "Музыка профиля",
-                                    color = PixelText,
-                                    fontSize = 16.sp,
+                                    color = Color.White,
+                                    fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1
                                 )
 
-                                Spacer(Modifier.height(4.dp))
+                                Spacer(Modifier.height(6.dp))
 
                                 Text(
-                                    if (selectedMusicUri == null) {
+                                    if (selectedMusicUri == null)
                                         "Музыка пока не добавлена"
-                                    } else {
-                                        "PIXEL CHAT • профиль"
-                                    },
-                                    color = PixelMuted,
-                                    fontSize = 12.sp
+                                    else
+                                        "PIXEL CHAT",
+                                    color = Color.White.copy(alpha = 0.55f),
+                                    fontSize = 15.sp
                                 )
                             }
 
@@ -2365,224 +2364,237 @@ private fun ProfileTab(
                                 onClick = {
                                     if (selectedMusicUri == null) {
                                         musicPicker.launch("audio/*")
+                                    } else if (musicPlaying) {
+                                        mediaPlayer?.pause()
+                                        musicPlaying = false
                                     } else {
-                                        if (musicPlaying) {
-                                            mediaPlayer?.pause()
-                                            musicPlaying = false
-                                        } else {
-                                            mediaPlayer?.start()
-                                            musicPlaying = true
-                                        }
+                                        mediaPlayer?.start()
+                                        musicPlaying = true
                                     }
                                 },
-                                modifier = Modifier.size(48.dp),
+                                modifier = Modifier.size(57.dp),
                                 shape = CircleShape,
-                                color = Color(0xFF19D6C0)
+                                color = Color(0xFF1C2425)
                             ) {
-                                Box(
-                                    contentAlignment = Alignment.Center
-                                ) {
+                                Box(contentAlignment = Alignment.Center) {
                                     Text(
                                         if (selectedMusicUri == null) "＋" else "▶",
-                                        color = Color.Black,
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Black
+                                        color = Color.White,
+                                        fontSize = 24.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
                         }
 
-                        Spacer(Modifier.height(13.dp))
+                        Spacer(Modifier.height(14.dp))
+
+                        Box(
+                            Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(Color.White.copy(alpha = 0.08f))
+                        )
+
+                        Spacer(Modifier.height(14.dp))
 
                         Row(
-                            verticalAlignment = Alignment.CenterVertically
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable {
+                                musicPicker.launch("audio/*")
+                            }
                         ) {
                             Surface(
-                                onClick = {
-                                    musicPicker.launch("audio/*")
-                                },
-                                shape = RoundedCornerShape(14.dp),
-                                color = Color(0xFF202322)
+                                modifier = Modifier.size(34.dp),
+                                shape = CircleShape,
+                                color = Color(0xFF19D6C0)
                             ) {
-                                Text(
-                                    "＋  Добавить музыку",
-                                    color = Color(0xFF19D6C0),
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(
-                                        horizontal = 14.dp,
-                                        vertical = 10.dp
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        "+",
+                                        color = Color.Black,
+                                        fontSize = 22.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
-                                )
+                                }
                             }
+
+                            Spacer(Modifier.width(14.dp))
+
+                            Text(
+                                "Добавить музыку",
+                                color = Color(0xFF19D6C0),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     }
                 }
 
-                Spacer(Modifier.height(14.dp))
+                Spacer(Modifier.height(18.dp))
 
-                // PROFILE SETTINGS
+                // ===== SETTINGS =====
                 Surface(
                     onClick = onEdit,
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color(0xFF141615),
-                    shape = RoundedCornerShape(22.dp)
+                    color = Color(0xFF111316),
+                    shape = RoundedCornerShape(24.dp)
                 ) {
                     Row(
-                        modifier = Modifier.padding(17.dp),
+                        modifier = Modifier.padding(
+                            horizontal = 23.dp,
+                            vertical = 20.dp
+                        ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(44.dp)
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(Color(0xFF202322)),
+                                .size(53.dp)
+                                .clip(RoundedCornerShape(17.dp))
+                                .background(Color(0xFF202326)),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 Icons.Outlined.Settings,
                                 contentDescription = null,
-                                tint = Color(0xFF19D6C0)
+                                tint = Color.White,
+                                modifier = Modifier.size(30.dp)
                             )
                         }
 
-                        Spacer(Modifier.width(13.dp))
+                        Spacer(Modifier.width(18.dp))
 
                         Column(
                             modifier = Modifier.weight(1f)
                         ) {
                             Text(
                                 "Настройки профиля",
-                                color = PixelText,
+                                color = Color.White,
+                                fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
 
-                            Spacer(Modifier.height(3.dp))
+                            Spacer(Modifier.height(5.dp))
 
                             Text(
-                                "Фон, аватар, имя и другое",
-                                color = PixelMuted,
-                                fontSize = 12.sp
+                                "Фон, аватар, оформление и другое",
+                                color = Color.White.copy(alpha = 0.5f),
+                                fontSize = 14.sp
                             )
                         }
 
                         Text(
                             "›",
-                            color = PixelMuted,
-                            fontSize = 27.sp
+                            color = Color.White.copy(alpha = 0.65f),
+                            fontSize = 34.sp
                         )
                     }
                 }
 
-                Spacer(Modifier.height(20.dp))
-            }
-        }
-    }
-
-    // MUSIC PLAYER
-    if (musicPanelVisible) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                musicPanelVisible = false
-                mediaPlayer?.pause()
-                musicPlaying = false
-            },
-            containerColor = Color(0xFF101211),
-            contentColor = PixelText
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 30.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(190.dp)
-                        .clip(RoundedCornerShape(28.dp))
-                        .background(Color(0xFF202322)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Outlined.MusicNote,
-                        contentDescription = null,
-                        tint = Color(0xFF19D6C0),
-                        modifier = Modifier.size(64.dp)
-                    )
-                }
-
-                Spacer(Modifier.height(18.dp))
-
-                Text(
-                    selectedMusicName ?: "Музыка профиля",
-                    color = Color.White,
-                    fontSize = 19.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1
-                )
-
-                Spacer(Modifier.height(5.dp))
-
-                Text(
-                    "PIXEL CHAT",
-                    color = PixelMuted,
-                    fontSize = 13.sp
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                Surface(
-                    onClick = {
-                        if (selectedMusicUri == null) {
-                            musicPicker.launch("audio/*")
-                        } else if (musicPlaying) {
-                            mediaPlayer?.pause()
-                            musicPlaying = false
-                        } else {
-                            mediaPlayer?.start()
-                            musicPlaying = true
-                        }
-                    },
-                    modifier = Modifier.size(64.dp),
-                    shape = CircleShape,
-                    color = Color(0xFF19D6C0)
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            if (selectedMusicUri == null) "＋" else "▶",
-                            color = Color.Black,
-                            fontSize = 25.sp,
-                            fontWeight = FontWeight.Black
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(18.dp))
-
-                Surface(
-                    onClick = {
-                        musicPicker.launch("audio/*")
-                    },
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color(0xFF202322)
-                ) {
-                    Text(
-                        "＋  Добавить в профиль",
-                        color = Color(0xFF19D6C0),
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(
-                            horizontal = 18.dp,
-                            vertical = 12.dp
-                        )
-                    )
-                }
+                Spacer(Modifier.height(30.dp))
             }
         }
     }
 }
 
+@Composable
+private fun PixelProfileAction(
+    modifier: Modifier,
+    icon: ImageVector,
+    title: String
+) {
+    Surface(
+        modifier = modifier,
+        color = Color(0xFF111316),
+        shape = RoundedCornerShape(22.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 17.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(29.dp)
+            )
+
+            Spacer(Modifier.height(9.dp))
+
+            Text(
+                title,
+                color = Color.White,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+private fun PixelProfileInfo(
+    icon: ImageVector,
+    title: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier
+                .size(31.dp)
+                .padding(top = 2.dp)
+        )
+
+        Spacer(Modifier.width(22.dp))
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                title,
+                color = Color.White.copy(alpha = 0.5f),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(Modifier.height(7.dp))
+
+            Text(
+                value,
+                color = Color.White,
+                fontSize = 17.sp,
+                lineHeight = 23.sp
+            )
+        }
+
+        Text(
+            "›",
+            color = Color.White.copy(alpha = 0.55f),
+            fontSize = 30.sp
+        )
+    }
+}
+
+@Composable
+private fun PixelDivider() {
+    Spacer(Modifier.height(17.dp))
+
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(Color.White.copy(alpha = 0.08f))
+    )
+
+    Spacer(Modifier.height(17.dp))
+}
 
 @Composable
 private fun ProfileActionCard(
