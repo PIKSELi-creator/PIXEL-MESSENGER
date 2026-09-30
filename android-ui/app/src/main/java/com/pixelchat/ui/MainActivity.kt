@@ -1891,7 +1891,9 @@ private fun ProfileTab(
     }
 
     val mediaPlayer = remember(selectedMusicUri) {
-        selectedMusicUri?.let { MediaPlayer.create(context, Uri.parse(it)) }
+        selectedMusicUri?.let {
+            MediaPlayer.create(context, Uri.parse(it))
+        }
     }
 
     DisposableEffect(mediaPlayer) {
@@ -1904,17 +1906,15 @@ private fun ProfileTab(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black),
-        contentPadding = PaddingValues(bottom = 24.dp)
+        contentPadding = PaddingValues(bottom = 32.dp)
     ) {
         item {
-            // ===== HEADER =====
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(348.dp)
+                    .height(300.dp)
                     .background(Color(0xFF020708))
             ) {
-                // Глубокий фон
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -1929,42 +1929,40 @@ private fun ProfileTab(
                         )
                 )
 
-                // Декоративные диагональные панели
                 Box(
                     modifier = Modifier
-                        .width(330.dp)
-                        .height(150.dp)
+                        .width(340.dp)
+                        .height(145.dp)
                         .align(Alignment.Center)
-                        .offset(x = 80.dp, y = (-35).dp)
+                        .offset(x = 75.dp, y = (-18).dp)
                         .rotate(-43f)
                         .background(Color(0xFF0B2928).copy(alpha = 0.65f))
                 )
 
                 Box(
                     modifier = Modifier
-                        .width(330.dp)
+                        .width(340.dp)
                         .height(2.dp)
                         .align(Alignment.Center)
-                        .offset(x = 80.dp, y = 35.dp)
+                        .offset(x = 75.dp, y = 45.dp)
                         .rotate(-43f)
                         .background(Color(0xFF123C3A))
                 )
 
-                // Верхняя панель
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            start = 36.dp,
-                            end = 24.dp,
-                            top = 18.dp
+                            start = 28.dp,
+                            end = 22.dp,
+                            top = 22.dp
                         ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         "PIXEL",
                         color = Color.White,
-                        fontSize = 29.sp,
+                        fontSize = 28.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 2.sp
                     )
@@ -1972,7 +1970,7 @@ private fun ProfileTab(
                     Text(
                         " CHAT",
                         color = Color(0xFF18D7C2),
-                        fontSize = 29.sp,
+                        fontSize = 28.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 4.sp
                     )
@@ -1982,7 +1980,7 @@ private fun ProfileTab(
                     Box {
                         Text(
                             "⋮",
-                            color = Color.White.copy(alpha = 0.9f),
+                            color = Color.White,
                             fontSize = 31.sp,
                             modifier = Modifier
                                 .clip(CircleShape)
@@ -1992,7 +1990,9 @@ private fun ProfileTab(
 
                         DropdownMenu(
                             expanded = menuExpanded,
-                            onDismissRequest = { menuExpanded = false }
+                            onDismissRequest = {
+                                menuExpanded = false
+                            }
                         ) {
                             DropdownMenuItem(
                                 text = { Text("Изменить аватар") },
@@ -2053,16 +2053,18 @@ private fun ProfileTab(
                     }
                 }
 
-                // Текст справа
                 Column(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .padding(end = 56.dp, top = 32.dp)
+                        .padding(
+                            end = 34.dp,
+                            top = 34.dp
+                        )
                 ) {
                     Text(
                         "Б О Л Ь Ш Е",
                         color = Color.White.copy(alpha = 0.55f),
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 5.sp
                     )
@@ -2070,7 +2072,7 @@ private fun ProfileTab(
                     Text(
                         "Ч Е М  П Р О С Т О",
                         color = Color.White.copy(alpha = 0.55f),
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 4.sp
                     )
@@ -2078,22 +2080,21 @@ private fun ProfileTab(
                     Text(
                         "Ч А Т",
                         color = Color.White.copy(alpha = 0.55f),
-                        fontSize = 14.sp,
+                        fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 5.sp
                     )
 
-                    Spacer(Modifier.height(16.dp))
+                    Spacer(Modifier.height(14.dp))
 
                     Box(
                         Modifier
-                            .width(35.dp)
+                            .width(38.dp)
                             .height(2.dp)
                             .background(Color(0xFF18D7C2))
                     )
                 }
 
-                // Если пользователь поставил фон — показываем его поверх
                 if (backgroundUri != null) {
                     val mime = remember(backgroundUri) {
                         context.contentResolver.getType(backgroundUri)
@@ -2129,25 +2130,27 @@ private fun ProfileTab(
         }
 
         item {
-            // ===== PROFILE HEADER =====
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 38.dp)
+                    .padding(horizontal = 24.dp)
             ) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .offset(y = (-105).dp),
-                    verticalAlignment = Alignment.Bottom
+                        .height(112.dp)
                 ) {
-                    Box {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .offset(y = (-58).dp)
+                    ) {
                         AppAvatar(
                             initials = name
                                 .trim()
                                 .firstOrNull()
                                 ?.uppercase() ?: "P",
-                            size = 174.dp,
+                            size = 150.dp,
                             photoUri = photoUri
                         )
 
@@ -2155,24 +2158,32 @@ private fun ProfileTab(
                             modifier = Modifier
                                 .size(25.dp)
                                 .align(Alignment.BottomEnd)
-                                .offset(x = (-7).dp, y = (-9).dp)
+                                .offset(
+                                    x = (-4).dp,
+                                    y = (-8).dp
+                                )
                                 .clip(CircleShape)
                                 .background(Color(0xFF19D6C0))
-                                .border(4.dp, Color.Black, CircleShape)
+                                .border(
+                                    4.dp,
+                                    Color.Black,
+                                    CircleShape
+                                )
                         )
                     }
 
-                    Spacer(Modifier.weight(1f))
-
                     Surface(
                         onClick = onEdit,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .offset(y = (-10).dp),
                         color = Color(0xFF111317),
-                        shape = RoundedCornerShape(24.dp)
+                        shape = RoundedCornerShape(22.dp)
                     ) {
                         Row(
                             modifier = Modifier.padding(
-                                horizontal = 27.dp,
-                                vertical = 18.dp
+                                horizontal = 22.dp,
+                                vertical = 15.dp
                             ),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -2180,46 +2191,46 @@ private fun ProfileTab(
                                 Icons.Outlined.Edit,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(22.dp)
                             )
 
-                            Spacer(Modifier.width(10.dp))
+                            Spacer(Modifier.width(9.dp))
 
                             Text(
                                 "Изменить",
                                 color = Color.White,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                softWrap = false
                             )
                         }
                     }
                 }
 
-                Spacer(Modifier.height((-82).dp))
-
                 Text(
-                    name.ifBlank { "pixel chat" },
+                    name.ifBlank { "PIXEL CHAT" },
                     color = Color.White,
-                    fontSize = 31.sp,
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Black
                 )
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(6.dp))
 
                 Text(
-                    "@${username.ifBlank { "pixel" }}",
-                    color = Color.White.copy(alpha = 0.58f),
-                    fontSize = 18.sp
+                    "@${username.ifBlank { "pixelchat" }}",
+                    color = Color.White.copy(alpha = 0.55f),
+                    fontSize = 17.sp
                 )
 
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(10.dp))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         Modifier
-                            .size(12.dp)
+                            .size(10.dp)
                             .clip(CircleShape)
                             .background(Color(0xFF19D6C0))
                     )
@@ -2228,17 +2239,16 @@ private fun ProfileTab(
 
                     Text(
                         "В сети",
-                        color = Color.White.copy(alpha = 0.58f),
+                        color = Color.White.copy(alpha = 0.55f),
                         fontSize = 15.sp
                     )
                 }
 
-                Spacer(Modifier.height(25.dp))
+                Spacer(Modifier.height(30.dp))
 
-                // ===== ACTIONS =====
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(9.dp)
                 ) {
                     PixelProfileAction(
                         modifier = Modifier.weight(1f),
@@ -2265,18 +2275,17 @@ private fun ProfileTab(
                     )
                 }
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(24.dp))
 
-                // ===== INFO =====
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = Color(0xFF111316),
-                    shape = RoundedCornerShape(26.dp)
+                    shape = RoundedCornerShape(25.dp)
                 ) {
                     Column(
                         modifier = Modifier.padding(
-                            horizontal = 27.dp,
-                            vertical = 22.dp
+                            horizontal = 24.dp,
+                            vertical = 24.dp
                         )
                     ) {
                         PixelProfileInfo(
@@ -2292,7 +2301,7 @@ private fun ProfileTab(
                         PixelProfileInfo(
                             icon = Icons.Outlined.Person,
                             title = "Имя пользователя",
-                            value = "@${username.ifBlank { "pixel" }}"
+                            value = "@${username.ifBlank { "pixelchat" }}"
                         )
 
                         PixelDivider()
@@ -2305,24 +2314,24 @@ private fun ProfileTab(
                     }
                 }
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(22.dp))
 
-                // ===== MUSIC =====
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = Color(0xFF111316),
-                    shape = RoundedCornerShape(26.dp)
+                    shape = RoundedCornerShape(25.dp)
                 ) {
                     Column(
-                        modifier = Modifier.padding(14.dp)
+                        modifier = Modifier.padding(15.dp)
                     ) {
                         Row(
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(112.dp)
-                                    .clip(RoundedCornerShape(19.dp))
+                                    .size(108.dp)
+                                    .clip(RoundedCornerShape(20.dp))
                                     .background(Color(0xFF202326)),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -2330,35 +2339,37 @@ private fun ProfileTab(
                                     Icons.Outlined.MusicNote,
                                     contentDescription = null,
                                     tint = Color(0xFF19D6C0),
-                                    modifier = Modifier.size(39.dp)
+                                    modifier = Modifier.size(40.dp)
                                 )
                             }
 
-                            Spacer(Modifier.width(20.dp))
+                            Spacer(Modifier.width(18.dp))
 
                             Column(
                                 modifier = Modifier.weight(1f)
                             ) {
                                 Text(
-                                    selectedMusicName
-                                        ?: "Музыка профиля",
+                                    selectedMusicName ?: "Музыка",
                                     color = Color.White,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1
                                 )
 
-                                Spacer(Modifier.height(6.dp))
+                                Spacer(Modifier.height(7.dp))
 
                                 Text(
                                     if (selectedMusicUri == null)
                                         "Музыка пока не добавлена"
                                     else
                                         "PIXEL CHAT",
-                                    color = Color.White.copy(alpha = 0.55f),
-                                    fontSize = 15.sp
+                                    color = Color.White.copy(alpha = 0.5f),
+                                    fontSize = 14.sp,
+                                    maxLines = 2
                                 )
                             }
+
+                            Spacer(Modifier.width(8.dp))
 
                             Surface(
                                 onClick = {
@@ -2372,31 +2383,38 @@ private fun ProfileTab(
                                         musicPlaying = true
                                     }
                                 },
-                                modifier = Modifier.size(57.dp),
+                                modifier = Modifier.size(54.dp),
                                 shape = CircleShape,
                                 color = Color(0xFF1C2425)
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
+                                Box(
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Text(
-                                        if (selectedMusicUri == null) "＋" else "▶",
+                                        if (selectedMusicUri == null)
+                                            "+"
+                                        else
+                                            "▶",
                                         color = Color.White,
-                                        fontSize = 24.sp,
+                                        fontSize = 23.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
                         }
 
-                        Spacer(Modifier.height(14.dp))
+                        Spacer(Modifier.height(16.dp))
 
                         Box(
                             Modifier
                                 .fillMaxWidth()
                                 .height(1.dp)
-                                .background(Color.White.copy(alpha = 0.08f))
+                                .background(
+                                    Color.White.copy(alpha = 0.08f)
+                                )
                         )
 
-                        Spacer(Modifier.height(14.dp))
+                        Spacer(Modifier.height(16.dp))
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -2409,17 +2427,19 @@ private fun ProfileTab(
                                 shape = CircleShape,
                                 color = Color(0xFF19D6C0)
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
+                                Box(
+                                    contentAlignment = Alignment.Center
+                                ) {
                                     Text(
                                         "+",
                                         color = Color.Black,
-                                        fontSize = 22.sp,
+                                        fontSize = 21.sp,
                                         fontWeight = FontWeight.Bold
                                     )
                                 }
                             }
 
-                            Spacer(Modifier.width(14.dp))
+                            Spacer(Modifier.width(13.dp))
 
                             Text(
                                 "Добавить музыку",
@@ -2431,26 +2451,25 @@ private fun ProfileTab(
                     }
                 }
 
-                Spacer(Modifier.height(18.dp))
+                Spacer(Modifier.height(22.dp))
 
-                // ===== SETTINGS =====
                 Surface(
                     onClick = onEdit,
                     modifier = Modifier.fillMaxWidth(),
                     color = Color(0xFF111316),
-                    shape = RoundedCornerShape(24.dp)
+                    shape = RoundedCornerShape(25.dp)
                 ) {
                     Row(
                         modifier = Modifier.padding(
-                            horizontal = 23.dp,
+                            horizontal = 22.dp,
                             vertical = 20.dp
                         ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(53.dp)
-                                .clip(RoundedCornerShape(17.dp))
+                                .size(52.dp)
+                                .clip(RoundedCornerShape(16.dp))
                                 .background(Color(0xFF202326)),
                             contentAlignment = Alignment.Center
                         ) {
@@ -2458,11 +2477,11 @@ private fun ProfileTab(
                                 Icons.Outlined.Settings,
                                 contentDescription = null,
                                 tint = Color.White,
-                                modifier = Modifier.size(30.dp)
+                                modifier = Modifier.size(29.dp)
                             )
                         }
 
-                        Spacer(Modifier.width(18.dp))
+                        Spacer(Modifier.width(17.dp))
 
                         Column(
                             modifier = Modifier.weight(1f)
@@ -2474,7 +2493,7 @@ private fun ProfileTab(
                                 fontWeight = FontWeight.Bold
                             )
 
-                            Spacer(Modifier.height(5.dp))
+                            Spacer(Modifier.height(6.dp))
 
                             Text(
                                 "Фон, аватар, оформление и другое",
@@ -2485,13 +2504,13 @@ private fun ProfileTab(
 
                         Text(
                             "›",
-                            color = Color.White.copy(alpha = 0.65f),
-                            fontSize = 34.sp
+                            color = Color.White.copy(alpha = 0.6f),
+                            fontSize = 32.sp
                         )
                     }
                 }
 
-                Spacer(Modifier.height(30.dp))
+                Spacer(Modifier.height(32.dp))
             }
         }
     }
