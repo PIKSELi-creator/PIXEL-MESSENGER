@@ -957,7 +957,9 @@ private fun HomeScreen(onLogout: () -> Unit) {
     ) { padding ->
         AnimatedContent(
             targetState = tab,
-            modifier = Modifier.fillMaxSize().padding(padding),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = padding.calculateTopPadding()),
             transitionSpec = {
                 fadeIn(animationSpec = tween(250)) +
                     slideInHorizontally(
