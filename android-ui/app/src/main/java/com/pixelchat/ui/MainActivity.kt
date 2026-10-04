@@ -569,7 +569,7 @@ private fun AuthField(
         placeholder = { Text(placeholder) },
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-        shape = RoundedCornerShape(18.dp)
+        shape = RoundedCornerShape(14.dp)
     )
 }
 
@@ -627,7 +627,7 @@ private fun RegisterScreen(
             onClick = { codeScreen = true },
             enabled = email.isNotBlank(),
             modifier = Modifier.fillMaxWidth().height(54.dp),
-            shape = RoundedCornerShape(18.dp)
+            shape = RoundedCornerShape(14.dp)
         ) {
             Text("Получить код", fontWeight = FontWeight.Bold)
         }
@@ -690,14 +690,14 @@ private fun VerificationScreen(
                         placeholder = { Text("••••••") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        shape = RoundedCornerShape(18.dp)
+                        shape = RoundedCornerShape(14.dp)
                     )
                     Spacer(Modifier.height(14.dp))
                     Button(
                         onClick = onVerified,
                         enabled = code.length == 6,
                         modifier = Modifier.fillMaxWidth().height(54.dp),
-                        shape = RoundedCornerShape(18.dp)
+                        shape = RoundedCornerShape(14.dp)
                     ) {
                         Text("Подтвердить", fontWeight = FontWeight.Bold)
                     }
@@ -762,7 +762,7 @@ private fun ProfileSetupScreen(
                 label = { Text("Имя") },
                 placeholder = { Text("Pixel User") },
                 singleLine = true,
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(14.dp)
             )
             Spacer(Modifier.height(12.dp))
             OutlinedTextField(
@@ -773,7 +773,7 @@ private fun ProfileSetupScreen(
                 prefix = { Text("@") },
                 placeholder = { Text("pixeluser") },
                 singleLine = true,
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(14.dp)
             )
             Spacer(Modifier.height(8.dp))
             Text(email, color = PixelMuted, fontSize = 12.sp)
@@ -784,7 +784,7 @@ private fun ProfileSetupScreen(
                 },
                 enabled = name.isNotBlank() && username.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().height(54.dp),
-                shape = RoundedCornerShape(18.dp)
+                shape = RoundedCornerShape(14.dp)
             ) {
                 Text("Открыть PIXEL CHAT", fontWeight = FontWeight.Bold)
             }
@@ -1018,86 +1018,48 @@ private fun PixelChatNavigation(
         "Профиль" to Icons.Outlined.Person
     )
 
-    Surface(
+    NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
+            .height(68.dp)
             .navigationBarsPadding(),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp,
-        shadowElevation = 3.dp
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(72.dp)
-                .padding(horizontal = 8.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items.forEachIndexed { index, item ->
-                val active = selected == index
+        items.forEachIndexed { index, item ->
+            val active = selected == index
 
-                Surface(
-                    onClick = {
-                        if (selected != index) {
-                            onSelected(index)
-                        }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    color = Color.Transparent,
-                    shape = RoundedCornerShape(18.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        AnimatedContent(
-                            targetState = active,
-                            transitionSpec = {
-                                (fadeIn(tween(160)) + scaleIn(tween(160))) togetherWith
-                                    (fadeOut(tween(100)) + scaleOut(tween(100)))
-                            },
-                            label = "nav_icon_$index"
-                        ) { isActive ->
-                            Icon(
-                                imageVector = item.second,
-                                contentDescription = item.first,
-                                modifier = Modifier.size(
-                                    if (isActive) 25.dp else 23.dp
-                                ),
-                                tint = if (isActive) {
-                                    MaterialTheme.colorScheme.onSurface
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                }
-                            )
-                        }
-
-                        Spacer(Modifier.height(3.dp))
-
-                        Text(
-                            text = item.first,
-                            color = if (active) {
-                                MaterialTheme.colorScheme.onSurface
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = if (active) {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Medium
-                            }
-                        )
-                    }
-                }
-            }
+            NavigationBarItem(
+                selected = active,
+                onClick = {
+                    if (!active) onSelected(index)
+                },
+                icon = {
+                    Icon(
+                        imageVector = item.second,
+                        contentDescription = item.first,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                label = {
+                    Text(
+                        text = item.first,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                },
+                alwaysShowLabel = true,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    selectedTextColor = MaterialTheme.colorScheme.primary,
+                    indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
         }
     }
 }
+
 @Composable
 private fun ChatsTab(
     chats: List<ChatItem>,
@@ -1803,7 +1765,7 @@ private fun EditProfileScreen(
                     modifier = Modifier.fillMaxWidth(),
                     label = { Text("Имя") },
                     singleLine = true,
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RoundedCornerShape(14.dp)
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -1819,7 +1781,7 @@ private fun EditProfileScreen(
                     label = { Text("Username") },
                     prefix = { Text("@") },
                     singleLine = true,
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RoundedCornerShape(14.dp)
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -1831,7 +1793,7 @@ private fun EditProfileScreen(
                     label = { Text("Дата рождения") },
                     placeholder = { Text("ДД.ММ.ГГГГ") },
                     singleLine = true,
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RoundedCornerShape(14.dp)
                 )
 
                 Spacer(Modifier.height(12.dp))
@@ -1843,7 +1805,7 @@ private fun EditProfileScreen(
                     label = { Text("О себе") },
                     minLines = 3,
                     maxLines = 4,
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RoundedCornerShape(14.dp)
                 )
             }
         }
@@ -2624,7 +2586,7 @@ private fun ProfileActionCard(
     Surface(
         modifier = modifier,
         color = Color(0xFF141615),
-        shape = RoundedCornerShape(18.dp)
+        shape = RoundedCornerShape(14.dp)
     ) {
         Column(
             modifier = Modifier.padding(
