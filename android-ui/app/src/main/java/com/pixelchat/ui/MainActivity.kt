@@ -1023,15 +1023,15 @@ private fun PixelChatNavigation(
             .fillMaxWidth()
             .navigationBarsPadding(),
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp,
-        shadowElevation = 3.dp
+        tonalElevation = 2.dp,
+        shadowElevation = 2.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(72.dp)
-                .padding(horizontal = 8.dp, vertical = 6.dp),
-            horizontalArrangement = Arrangement.SpaceEvenly,
+                .height(68.dp)
+                .padding(horizontal = 10.dp, vertical = 5.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             items.forEachIndexed { index, item ->
@@ -1039,49 +1039,40 @@ private fun PixelChatNavigation(
 
                 Surface(
                     onClick = {
-                        if (selected != index) {
-                            onSelected(index)
-                        }
+                        if (!active) onSelected(index)
                     },
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
-                    color = Color.Transparent,
-                    shape = RoundedCornerShape(18.dp)
+                    shape = RoundedCornerShape(18.dp),
+                    color = if (active) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                    } else {
+                        Color.Transparent
+                    }
                 ) {
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        AnimatedContent(
-                            targetState = active,
-                            transitionSpec = {
-                                (fadeIn(tween(160)) + scaleIn(tween(160))) togetherWith
-                                    (fadeOut(tween(100)) + scaleOut(tween(100)))
-                            },
-                            label = "nav_icon_$index"
-                        ) { isActive ->
-                            Icon(
-                                imageVector = item.second,
-                                contentDescription = item.first,
-                                modifier = Modifier.size(
-                                    if (isActive) 25.dp else 23.dp
-                                ),
-                                tint = if (isActive) {
-                                    MaterialTheme.colorScheme.onSurface
-                                } else {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                }
-                            )
-                        }
+                        Icon(
+                            imageVector = item.second,
+                            contentDescription = item.first,
+                            modifier = Modifier.size(if (active) 24.dp else 22.dp),
+                            tint = if (active) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            }
+                        )
 
-                        Spacer(Modifier.height(3.dp))
+                        Spacer(Modifier.height(2.dp))
 
                         Text(
                             text = item.first,
                             color = if (active) {
-                                MaterialTheme.colorScheme.onSurface
+                                MaterialTheme.colorScheme.primary
                             } else {
                                 MaterialTheme.colorScheme.onSurfaceVariant
                             },
@@ -1090,7 +1081,8 @@ private fun PixelChatNavigation(
                                 FontWeight.Bold
                             } else {
                                 FontWeight.Medium
-                            }
+                            },
+                            maxLines = 1
                         )
                     }
                 }
@@ -1098,6 +1090,7 @@ private fun PixelChatNavigation(
         }
     }
 }
+
 @Composable
 private fun ChatsTab(
     chats: List<ChatItem>,
