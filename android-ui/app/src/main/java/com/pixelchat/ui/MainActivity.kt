@@ -1021,10 +1021,13 @@ private fun PixelChatNavigation(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .navigationBarsPadding(),
+            .padding(horizontal = 12.dp)
+            .navigationBarsPadding()
+            .padding(bottom = 8.dp),
+        shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
-        shadowElevation = 2.dp
+        tonalElevation = 3.dp,
+        shadowElevation = 6.dp
     ) {
         Row(
             modifier = Modifier
