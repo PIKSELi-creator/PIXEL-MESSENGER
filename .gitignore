@@ -39,3 +39,9 @@ crypto-keys/*.key
 **/StoredCredential
 **/__pycache__/
 *.pyc
+
+# Local PIXEL CHAT diagnostics and backups
+.pixel-dev/
+android-ui/.kotlin/
+pixel_dev_bot.py.prebuild.*
+server-java-full/.env

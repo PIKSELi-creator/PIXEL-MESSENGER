@@ -1,0 +1,134 @@
+{
+  "src/main/java/com/pixelchat/server/model/Account.java": {
+    "sha256": "af03dc288e44acbd25ca6058a86a45ef3463e61e7fb91649532ddcec86b65df6",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/model/SessionEntity.java": {
+    "sha256": "fcc94999049a765c61e4ccb086e7f7201e1d6f4d9337396f65dd075c44e4387e",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/model/EmailVerificationCode.java": {
+    "sha256": "44926a7467f160b472873088c0f6b7b5ce3e2e1c82e299fd407749c6137a4806",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/model/ContactRelation.java": {
+    "sha256": "510c965f5ab823f9084b79e448709c9512a79474a0f92d5f189701f9729c11e1",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/model/ChatRoom.java": {
+    "sha256": "d4870a8f98f0d917263147b3df38052faedef75158224d69f9e5d74c7c91f63f",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/model/ChatMemberId.java": {
+    "sha256": "7f0913c0a37e327eb6508039fbc36f02d16bf7ce097fb09f2f0c384f6cb97ed3",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/model/ChatMember.java": {
+    "sha256": "5839daf192efafa534846065ef1206d5ff2defecded0ccb0cc9e999a3826b8e6",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/model/ChatMessage.java": {
+    "sha256": "2d1a8117ee66dbdaa92a88771e3d1daaefb8529b8bd7de86b29762be382444c1",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/repository/AccountRepository.java": {
+    "sha256": "ce197dcc51b425a05fe00a9b2bad3a304a1e4634c78d9fa1de23e57160adc687",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/repository/SessionRepository.java": {
+    "sha256": "6e67043a312b27944800dcea556f90703e67e19d374de304931e106282f275a6",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/repository/EmailVerificationCodeRepository.java": {
+    "sha256": "30c206492f92c4cb63546947bf020af7ddad029685696e175d48e9de146c865b",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/repository/ContactRelationRepository.java": {
+    "sha256": "7a9e9b14cb30b71e597eb648290071b53ae751546a757275d517cbf0be3f2af8",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/repository/ChatRoomRepository.java": {
+    "sha256": "fda3a5b03b939582a5539f95e3c9bd2079d478c15cf45d8a5d50ef421d19b42a",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/repository/ChatMemberRepository.java": {
+    "sha256": "2e626d123279987dec0fd7259b11a7f532ca5dee29697228915788c54e266a7b",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/repository/MessageReceiptService.java": {
+    "sha256": "3f14becf750d03ca2210bc1366ba479cbfeaffaaac936fe2956c06e3dcef1525",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/repository/ChatMessageRepository.java": {
+    "sha256": "0f7255d63400fe2089b28399a0b0c6ed304aa6786fe41b99fd7c4f271d2d3c81",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/security/SessionTokenService.java": {
+    "sha256": "5cc638d5916a282fa89d793da24a937d14f58390e963f19c189aee3dab832ab6",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/security/BearerTokenFilter.java": {
+    "sha256": "3930ce125f7560b20369a32608945b2077079b178ced18fe8fb80283761e5e5b",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/security/AuthContext.java": {
+    "sha256": "5b076617fb5d5d003103db744c830d94e3ac387bf606f570064e4a8c8f9930c4",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/service/EmailDeliveryService.java": {
+    "sha256": "a9859923f4d0cc4bfa5035dac310f2326858836986a04ff97a029c02cc4f64de",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/service/AuthService.java": {
+    "sha256": "023dfd33f57a431e33e99a42cf6286d7f0d70b2ba15938c35ad9759eeee6769b",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/api/AuthController.java": {
+    "sha256": "420602da6d5b7aea7a13b5a9d3fedee222bbca76bc5b12273149db4ddfa61ea6",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/api/ProfileController.java": {
+    "sha256": "22062f502e0e3d5b3db520f32d4264b1ba92876203f2a36ede8b48d47d9c3f1c",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/api/UsersController.java": {
+    "sha256": "3df041da6cf9a4422c767902241085319258d1e6aa8c6925cb946044d10e894c",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/api/ContactsController.java": {
+    "sha256": "84f3eefebbea0d70f571c66e7b5886adc8a94bbcabab43051df9c838597100ee",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/api/ChatController.java": {
+    "sha256": "1cf9f670daf1bf1bcff757a906019735c9e47a97ab735d664347bc259847176b",
+    "generator_version": "1.0.1"
+  },
+  "src/main/java/com/pixelchat/server/config/SecurityConfig.java": {
+    "sha256": "877b6c42839a780c63d9a78fdf3fabb201422571a08db04e12878b35b23e606c",
+    "generator_version": "1.0.1"
+  },
+  "src/main/resources/db/migration/V2__master_mvp_services.sql": {
+    "sha256": "6633cc489dbc7eadb94fbaa0253861bf43527c9bb489a49ba5894676e3a4b704",
+    "generator_version": "1.0.1"
+  },
+  ".env.example": {
+    "sha256": "4bc306dba6b80268339c581dc3d032eb9efe2701a48f29fcd14cd149f134efef",
+    "generator_version": "1.0.1"
+  },
+  "README.md": {
+    "sha256": "5b87c488a19bc5cbcddbc743a7cdb4f0c8173076842ad09b4038f3b1a12ca67f",
+    "generator_version": "1.0.1"
+  },
+  "docs/FEATURE_ROADMAP.md": {
+    "sha256": "e82b1c5e733e64ceac37196b457668c138c4e67c8d67dc3ce6d7fba10734b328",
+    "generator_version": "1.0.1"
+  },
+  "pom.xml": {
+    "sha256": "c3ac2496557ad0ed65e9349c2392a69408db04fa2b71b4682dc586e998c9eed9",
+    "generator_version": "1.0.1"
+  },
+  "src/main/resources/application.yml": {
+    "sha256": "765c6412e533f6df373370d3d5ce5d6bc234fcc60e4894a4b5d0ce99033bf0fc",
+    "generator_version": "1.0.1"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "android-ui/app/build.gradle.kts": {
+    "sha256": "c948511a9750759b7a4c24e2c492e1ad839a170b8a2da8e2d7a005afcce776af",
+    "generator_version": "1.0.0"
+  },
+  "android-ui/app/src/main/AndroidManifest.xml": {
+    "sha256": "779892fc7cdcdb07403780789412057d3c7820ac6ec816c8777a5002049236cd",
+    "generator_version": "1.0.0"
+  },
+  "android-ui/app/src/main/java/com/pixelchat/ui/network/PixelChatApi.kt": {
+    "sha256": "ecefce5a3d87a92fb71b9de4dfa0cdf5f403997b46b14f9638bdb156c43c84a2",
+    "generator_version": "1.0.0"
+  },
+  "android-ui/app/src/main/java/com/pixelchat/ui/design/PixelChatDesignSystem.kt": {
+    "sha256": "a27932b3fea87aacf87578ba20d7bb2e7167f68dcfc09ae19fa8b1c10efd543d",
+    "generator_version": "1.0.0"
+  },
+  "android-ui/app/src/main/java/com/pixelchat/ui/design/PixelChatComponents.kt": {
+    "sha256": "819e2e7a71217a57e2d40c8fa80753f343721b51d06c0d7cf5435eb79597d849",
+    "generator_version": "1.0.0"
+  },
+  "android-ui/PIXEL_CHAT_ULTIMATE.md": {
+    "sha256": "c6fe4d22c60d61b52d6e4bf07b5634ffcd73b3cbf4fccde9beea73fb32323fff",
+    "generator_version": "1.0.0"
+  }
+}
