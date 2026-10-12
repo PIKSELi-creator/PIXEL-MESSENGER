@@ -340,7 +340,7 @@ private fun SplashScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            PixelLogo(112.dp)
+            PixelChatSplashLogo()
             Spacer(Modifier.height(18.dp))
             Text(
                 "PIXEL CHAT",
