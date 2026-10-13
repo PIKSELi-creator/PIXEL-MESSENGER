@@ -183,71 +183,25 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun PixelChatTheme() {
-    val darkScheme = darkColorScheme(
-        primary = Color.White,
-        onPrimary = Color.Black,
-        primaryContainer = Color(0xFF2A2A2A),
-        onPrimaryContainer = Color.White,
-        secondary = Color(0xFFD0D0D0),
-        onSecondary = Color.Black,
-        secondaryContainer = Color(0xFF303030),
-        onSecondaryContainer = Color.White,
-        tertiary = Color(0xFFBDBDBD),
-        onTertiary = Color.Black,
-        tertiaryContainer = Color(0xFF383838),
-        onTertiaryContainer = Color.White,
-        background = Color.Black,
-        onBackground = Color.White,
-        surface = Color.Black,
-        onSurface = Color.White,
-        surfaceVariant = Color(0xFF202020),
-        onSurfaceVariant = Color(0xFFBDBDBD),
-        surfaceContainer = Color(0xFF151515),
-        surfaceContainerHigh = Color(0xFF202020),
-        surfaceContainerHighest = Color(0xFF292929),
-        outline = Color(0xFF666666)
-    )
-
-    val lightScheme = lightColorScheme(
-        primary = Color.Black,
-        onPrimary = Color.White,
-        primaryContainer = Color(0xFFE5E5E5),
-        onPrimaryContainer = Color.Black,
-        secondary = Color(0xFF444444),
-        onSecondary = Color.White,
-        secondaryContainer = Color(0xFFE8E8E8),
-        onSecondaryContainer = Color.Black,
-        tertiary = Color(0xFF555555),
-        onTertiary = Color.White,
-        tertiaryContainer = Color(0xFFE0E0E0),
-        onTertiaryContainer = Color.Black,
-        background = Color.White,
-        onBackground = Color.Black,
-        surface = Color.White,
-        onSurface = Color.Black,
-        surfaceVariant = Color(0xFFE8E8E8),
-        onSurfaceVariant = Color(0xFF555555),
-        surfaceContainer = Color(0xFFF4F4F4),
-        surfaceContainerHigh = Color(0xFFECECEC),
-        surfaceContainerHighest = Color(0xFFE2E2E2),
-        outline = Color(0xFF777777)
-    )
-
+    val context = androidx.compose.ui.platform.LocalContext.current
     val isDark = isSystemInDarkTheme()
 
-    val scheme = if (isDark) darkScheme else lightScheme
-
-    val shapes = Shapes(
-        extraSmall = RoundedCornerShape(8.dp),
-        small = RoundedCornerShape(12.dp),
-        medium = RoundedCornerShape(18.dp),
-        large = RoundedCornerShape(24.dp),
-        extraLarge = RoundedCornerShape(32.dp)
-    )
+    val scheme = if (android.os.Build.VERSION.SDK_INT >=
+        android.os.Build.VERSION_CODES.S
+    ) {
+        if (isDark) {
+            androidx.compose.material3.dynamicDarkColorScheme(context)
+        } else {
+            androidx.compose.material3.dynamicLightColorScheme(context)
+        }
+    } else {
+        if (isDark) darkColorScheme() else lightColorScheme()
+    }
 
     MaterialTheme(
         colorScheme = scheme,
-        shapes = shapes
+        typography = Typography(),
+        shapes = Shapes()
     ) {
         PixelChatApp()
     }
