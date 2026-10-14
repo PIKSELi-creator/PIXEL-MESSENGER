@@ -1,4 +1,13 @@
 package com.pixelchat.ui
+
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.Image
+import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.outlined.Close
 
 import androidx.compose.runtime.DisposableEffect
@@ -137,20 +146,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-private val PixelBlue = Color(0xFF000000)
-private val PixelBlueBright = Color(0xFFFFFFFF)
-private val PixelBlueContainer = Color(0xFF2A2A2A)
-
-private val PixelBackground = Color(0xFF000000)
-private val PixelSurface = Color(0xFF151515)
-private val PixelSurfaceHigh = Color(0xFF202020)
-private val PixelOutline = Color(0xFF666666)
-
-private val PixelText = Color(0xFFFFFFFF)
-private val PixelMuted = Color(0xFFAAAAAA)
-private val PixelSuccess = Color(0xFFFFFFFF)
-private val PixelDanger = Color(0xFFFFFFFF)
-
 private data class ChatItem(
     val name: String,
     val message: String,
@@ -289,25 +284,17 @@ private fun SplashScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column(
+        Box(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            contentAlignment = Alignment.Center
         ) {
-            PixelChatSplashLogo()
-            Spacer(Modifier.height(18.dp))
-            Text(
-                "PIXEL CHAT",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 27.sp,
-                fontWeight = FontWeight.ExtraBold,
-                letterSpacing = 1.sp
-            )
-            Spacer(Modifier.height(5.dp))
-            Text(
-                "Твой мир. Твои чаты.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 13.sp
+            Image(
+                painter = painterResource(id = R.drawable.pixel_bubble),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth(0.82f)
+                    .aspectRatio(1f),
+                contentScale = ContentScale.Fit
             )
         }
     }
@@ -334,7 +321,7 @@ private fun PixelLogo(size: Dp) {
         ) {
             Text(
                 "P",
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = (size.value * 0.30f).sp,
                 fontWeight = FontWeight.Black
             )
@@ -353,7 +340,7 @@ private fun PixelLogo(size: Dp) {
                 .align(Alignment.BottomEnd)
                 .offset(-size * 0.17f, -size * 0.13f)
                 .clip(CircleShape)
-                .background(Color(0xFF8A77FF))
+                .background(MaterialTheme.colorScheme.primary)
         )
     }
 }
@@ -1802,7 +1789,7 @@ private fun ProfileTab(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(MaterialTheme.colorScheme.background),
         contentPadding = PaddingValues(bottom = 32.dp)
     ) {
         item {
@@ -1810,7 +1797,7 @@ private fun ProfileTab(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)
-                    .background(Color(0xFF020708))
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 Box(
                     modifier = Modifier
@@ -1818,9 +1805,9 @@ private fun ProfileTab(
                         .background(
                             Brush.linearGradient(
                                 listOf(
-                                    Color(0xFF031817),
-                                    Color(0xFF020708),
-                                    Color.Black
+                                    MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    MaterialTheme.colorScheme.background,
+                                    MaterialTheme.colorScheme.background
                                 )
                             )
                         )
@@ -1833,7 +1820,7 @@ private fun ProfileTab(
                         .align(Alignment.Center)
                         .offset(x = 75.dp, y = (-18).dp)
                         .rotate(-43f)
-                        .background(Color(0xFF0B2928).copy(alpha = 0.65f))
+                        .background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.65f))
                 )
 
                 Box(
@@ -1843,7 +1830,7 @@ private fun ProfileTab(
                         .align(Alignment.Center)
                         .offset(x = 75.dp, y = 45.dp)
                         .rotate(-43f)
-                        .background(Color(0xFF123C3A))
+                        .background(MaterialTheme.colorScheme.primaryContainer)
                 )
 
                 Row(
@@ -1858,7 +1845,7 @@ private fun ProfileTab(
                 ) {
                     Text(
                         "PIXEL",
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 2.sp
@@ -1866,7 +1853,7 @@ private fun ProfileTab(
 
                     Text(
                         " CHAT",
-                        color = Color(0xFF18D7C2),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 4.sp
@@ -1877,7 +1864,7 @@ private fun ProfileTab(
                     Box {
                         Text(
                             "⋮",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 31.sp,
                             modifier = Modifier
                                 .clip(CircleShape)
@@ -1960,7 +1947,7 @@ private fun ProfileTab(
                 ) {
                     Text(
                         "Б О Л Ь Ш Е",
-                        color = Color.White.copy(alpha = 0.55f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 5.sp
@@ -1968,7 +1955,7 @@ private fun ProfileTab(
 
                     Text(
                         "Ч Е М  П Р О С Т О",
-                        color = Color.White.copy(alpha = 0.55f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 4.sp
@@ -1976,7 +1963,7 @@ private fun ProfileTab(
 
                     Text(
                         "Ч А Т",
-                        color = Color.White.copy(alpha = 0.55f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 5.sp
@@ -1988,7 +1975,7 @@ private fun ProfileTab(
                         Modifier
                             .width(38.dp)
                             .height(2.dp)
-                            .background(Color(0xFF18D7C2))
+                            .background(MaterialTheme.colorScheme.primary)
                     )
                 }
 
@@ -2060,10 +2047,10 @@ private fun ProfileTab(
                                     y = (-8).dp
                                 )
                                 .clip(CircleShape)
-                                .background(Color(0xFF19D6C0))
+                                .background(MaterialTheme.colorScheme.primary)
                                 .border(
                                     4.dp,
-                                    Color.Black,
+                                    MaterialTheme.colorScheme.background,
                                     CircleShape
                                 )
                         )
@@ -2074,7 +2061,7 @@ private fun ProfileTab(
                         modifier = Modifier
                             .align(Alignment.CenterEnd)
                             .offset(y = (-10).dp),
-                        color = Color(0xFF111317),
+                        color = MaterialTheme.colorScheme.surface,
                         shape = RoundedCornerShape(22.dp)
                     ) {
                         Row(
@@ -2087,7 +2074,7 @@ private fun ProfileTab(
                             Icon(
                                 Icons.Outlined.Edit,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(22.dp)
                             )
 
@@ -2095,7 +2082,7 @@ private fun ProfileTab(
 
                             Text(
                                 "Изменить",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold,
                                 maxLines = 1,
@@ -2107,7 +2094,7 @@ private fun ProfileTab(
 
                 Text(
                     name.ifBlank { "PIXEL CHAT" },
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 30.sp,
                     fontWeight = FontWeight.Black
                 )
@@ -2116,7 +2103,7 @@ private fun ProfileTab(
 
                 Text(
                     "@${username.ifBlank { "pixelchat" }}",
-                    color = Color.White.copy(alpha = 0.55f),
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                     fontSize = 17.sp
                 )
 
@@ -2129,14 +2116,14 @@ private fun ProfileTab(
                         Modifier
                             .size(10.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF19D6C0))
+                            .background(MaterialTheme.colorScheme.primary)
                     )
 
                     Spacer(Modifier.width(9.dp))
 
                     Text(
                         "В сети",
-                        color = Color.White.copy(alpha = 0.55f),
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
                         fontSize = 15.sp
                     )
                 }
@@ -2176,7 +2163,7 @@ private fun ProfileTab(
 
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color(0xFF111316),
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(25.dp)
                 ) {
                     Column(
@@ -2215,7 +2202,7 @@ private fun ProfileTab(
 
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color(0xFF111316),
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(25.dp)
                 ) {
                     Column(
@@ -2229,13 +2216,13 @@ private fun ProfileTab(
                                 modifier = Modifier
                                     .size(108.dp)
                                     .clip(RoundedCornerShape(20.dp))
-                                    .background(Color(0xFF202326)),
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     Icons.Outlined.MusicNote,
                                     contentDescription = null,
-                                    tint = Color(0xFF19D6C0),
+                                    tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(40.dp)
                                 )
                             }
@@ -2247,7 +2234,7 @@ private fun ProfileTab(
                             ) {
                                 Text(
                                     selectedMusicName ?: "Музыка",
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
                                     maxLines = 1
@@ -2260,7 +2247,7 @@ private fun ProfileTab(
                                         "Музыка пока не добавлена"
                                     else
                                         "PIXEL CHAT",
-                                    color = Color.White.copy(alpha = 0.5f),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                                     fontSize = 14.sp,
                                     maxLines = 2
                                 )
@@ -2282,7 +2269,7 @@ private fun ProfileTab(
                                 },
                                 modifier = Modifier.size(54.dp),
                                 shape = CircleShape,
-                                color = Color(0xFF1C2425)
+                                color = MaterialTheme.colorScheme.surfaceContainer
                             ) {
                                 Box(
                                     contentAlignment = Alignment.Center
@@ -2292,7 +2279,7 @@ private fun ProfileTab(
                                             "+"
                                         else
                                             "▶",
-                                        color = Color.White,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = 23.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -2307,7 +2294,7 @@ private fun ProfileTab(
                                 .fillMaxWidth()
                                 .height(1.dp)
                                 .background(
-                                    Color.White.copy(alpha = 0.08f)
+                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
                                 )
                         )
 
@@ -2322,14 +2309,14 @@ private fun ProfileTab(
                             Surface(
                                 modifier = Modifier.size(34.dp),
                                 shape = CircleShape,
-                                color = Color(0xFF19D6C0)
+                                color = MaterialTheme.colorScheme.primary
                             ) {
                                 Box(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
                                         "+",
-                                        color = Color.Black,
+                                        color = MaterialTheme.colorScheme.background,
                                         fontSize = 21.sp,
                                         fontWeight = FontWeight.Bold
                                     )
@@ -2340,7 +2327,7 @@ private fun ProfileTab(
 
                             Text(
                                 "Добавить музыку",
-                                color = Color(0xFF19D6C0),
+                                color = MaterialTheme.colorScheme.primary,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -2353,7 +2340,7 @@ private fun ProfileTab(
                 Surface(
                     onClick = onEdit,
                     modifier = Modifier.fillMaxWidth(),
-                    color = Color(0xFF111316),
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(25.dp)
                 ) {
                     Row(
@@ -2367,13 +2354,13 @@ private fun ProfileTab(
                             modifier = Modifier
                                 .size(52.dp)
                                 .clip(RoundedCornerShape(16.dp))
-                                .background(Color(0xFF202326)),
+                                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 Icons.Outlined.Settings,
                                 contentDescription = null,
-                                tint = Color.White,
+                                tint = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(29.dp)
                             )
                         }
@@ -2385,7 +2372,7 @@ private fun ProfileTab(
                         ) {
                             Text(
                                 "Настройки профиля",
-                                color = Color.White,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold
                             )
@@ -2394,14 +2381,14 @@ private fun ProfileTab(
 
                             Text(
                                 "Фон, аватар, оформление и другое",
-                                color = Color.White.copy(alpha = 0.5f),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                                 fontSize = 14.sp
                             )
                         }
 
                         Text(
                             "›",
-                            color = Color.White.copy(alpha = 0.6f),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                             fontSize = 32.sp
                         )
                     }
@@ -2421,7 +2408,7 @@ private fun PixelProfileAction(
 ) {
     Surface(
         modifier = modifier,
-        color = Color(0xFF111316),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(22.dp)
     ) {
         Column(
@@ -2433,7 +2420,7 @@ private fun PixelProfileAction(
             Icon(
                 icon,
                 contentDescription = null,
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(29.dp)
             )
 
@@ -2441,7 +2428,7 @@ private fun PixelProfileAction(
 
             Text(
                 title,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -2462,7 +2449,7 @@ private fun PixelProfileInfo(
         Icon(
             icon,
             contentDescription = null,
-            tint = Color.White,
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .size(31.dp)
                 .padding(top = 2.dp)
@@ -2475,7 +2462,7 @@ private fun PixelProfileInfo(
         ) {
             Text(
                 title,
-                color = Color.White.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -2484,7 +2471,7 @@ private fun PixelProfileInfo(
 
             Text(
                 value,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 17.sp,
                 lineHeight = 23.sp
             )
@@ -2492,7 +2479,7 @@ private fun PixelProfileInfo(
 
         Text(
             "›",
-            color = Color.White.copy(alpha = 0.55f),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
             fontSize = 30.sp
         )
     }
@@ -2506,7 +2493,7 @@ private fun PixelDivider() {
         Modifier
             .fillMaxWidth()
             .height(1.dp)
-            .background(Color.White.copy(alpha = 0.08f))
+            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
     )
 
     Spacer(Modifier.height(17.dp))
@@ -2520,7 +2507,7 @@ private fun ProfileActionCard(
 ) {
     Surface(
         modifier = modifier,
-        color = Color(0xFF141615),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
         shape = RoundedCornerShape(18.dp)
     ) {
         Column(
@@ -2534,13 +2521,13 @@ private fun ProfileActionCard(
                 Icon(
                     icon,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(23.dp)
                 )
             } else {
                 Text(
                     "☎",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -2550,7 +2537,7 @@ private fun ProfileActionCard(
 
             Text(
                 title,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 maxLines = 1
@@ -2930,7 +2917,7 @@ private fun ChatScreen(
                     ) {
                         Text(
                             text = "➤",
-                            color = Color.White,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
