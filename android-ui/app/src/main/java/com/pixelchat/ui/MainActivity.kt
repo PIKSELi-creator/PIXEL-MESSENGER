@@ -183,10 +183,10 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun PixelChatTheme() {
-    val context = androidx.compose.ui.platform.LocalContext.current
+    val context = LocalContext.current
     val isDark = isSystemInDarkTheme()
 
-    val scheme = if (android.os.Build.VERSION.SDK_INT >=
+    val colorScheme = if (android.os.Build.VERSION.SDK_INT >=
         android.os.Build.VERSION_CODES.S
     ) {
         if (isDark) {
@@ -199,7 +199,7 @@ private fun PixelChatTheme() {
     }
 
     MaterialTheme(
-        colorScheme = scheme,
+        colorScheme = colorScheme,
         typography = Typography(),
         shapes = Shapes()
     ) {
@@ -287,7 +287,7 @@ private fun PixelChatApp() {
 private fun SplashScreen() {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = PixelBackground
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -298,7 +298,7 @@ private fun SplashScreen() {
             Spacer(Modifier.height(18.dp))
             Text(
                 "PIXEL CHAT",
-                color = PixelText,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 27.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 1.sp
@@ -306,7 +306,7 @@ private fun SplashScreen() {
             Spacer(Modifier.height(5.dp))
             Text(
                 "Твой мир. Твои чаты.",
-                color = PixelMuted,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp
             )
         }
@@ -323,13 +323,13 @@ private fun PixelLogo(size: Dp) {
             modifier = Modifier
                 .size(size * 0.66f)
                 .clip(RoundedCornerShape(size * 0.20f))
-                .background(PixelBlueContainer)
+                .background(MaterialTheme.colorScheme.secondaryContainer)
         )
         Box(
             modifier = Modifier
                 .size(size * 0.44f)
                 .clip(RoundedCornerShape(size * 0.16f))
-                .background(PixelBlue),
+                .background(MaterialTheme.colorScheme.primary),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -345,7 +345,7 @@ private fun PixelLogo(size: Dp) {
                 .align(Alignment.TopStart)
                 .offset(size * 0.28f, size * 0.08f)
                 .clip(CircleShape)
-                .background(PixelBlueBright)
+                .background(MaterialTheme.colorScheme.onSecondaryContainer)
         )
         Box(
             modifier = Modifier
@@ -362,7 +362,7 @@ private fun PixelLogo(size: Dp) {
 private fun WelcomeScreen(onStart: () -> Unit) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = PixelBackground
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -379,7 +379,7 @@ private fun WelcomeScreen(onStart: () -> Unit) {
 
             Text(
                 "PIXEL CHAT",
-                color = PixelText,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Black
             )
@@ -388,7 +388,7 @@ private fun WelcomeScreen(onStart: () -> Unit) {
 
             Text(
                 "Общайся. Звони. Отправляй подарки.",
-                color = PixelMuted,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center
             )
@@ -397,7 +397,7 @@ private fun WelcomeScreen(onStart: () -> Unit) {
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = PixelSurface,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(28.dp),
                 tonalElevation = 5.dp
             ) {
@@ -407,14 +407,14 @@ private fun WelcomeScreen(onStart: () -> Unit) {
                 ) {
                     Text(
                         "Твой новый чат",
-                        color = PixelText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 21.sp,
                         fontWeight = FontWeight.Bold
                     )
 
                     Text(
                         "PIXEL CHAT объединяет сообщения, контакты, звонки и профиль в одном приложении.",
-                        color = PixelMuted,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 13.sp,
                         lineHeight = 19.sp
                     )
@@ -424,7 +424,7 @@ private fun WelcomeScreen(onStart: () -> Unit) {
 • Голосовые звонки
 • Профиль и подарки
 • Защита сообщений""",
-                        color = PixelText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 13.sp,
                         lineHeight = 20.sp
                     )
@@ -451,7 +451,7 @@ private fun WelcomeScreen(onStart: () -> Unit) {
 
             Text(
                 "Для создания аккаунта понадобится только email",
-                color = PixelMuted,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 11.sp,
                 textAlign = TextAlign.Center
             )
@@ -468,7 +468,7 @@ private fun AuthCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = PixelBackground
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -476,12 +476,12 @@ private fun AuthCard(
                 .padding(18.dp)
         ) {
             TextButton(onClick = onBack) {
-                Text("‹", color = PixelBlueBright, fontSize = 30.sp)
+                Text("‹", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 30.sp)
             }
             Spacer(Modifier.height(8.dp))
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = PixelSurface,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(30.dp),
                 tonalElevation = 4.dp
             ) {
@@ -490,14 +490,14 @@ private fun AuthCard(
                     Spacer(Modifier.height(14.dp))
                     Text(
                         title,
-                        color = PixelText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
                     Spacer(Modifier.height(5.dp))
                     Text(
                         subtitle,
-                        color = PixelMuted,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 14.sp
                     )
                     Spacer(Modifier.height(20.dp))
@@ -558,19 +558,19 @@ private fun RegisterScreen(
         Spacer(Modifier.height(14.dp))
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = PixelBlueContainer,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             shape = RoundedCornerShape(20.dp)
         ) {
             Column(Modifier.padding(15.dp)) {
                 Text(
                     "Подтверждение email",
-                    color = PixelText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     "Код будет отправлен на указанную почту сервером PIXEL CHAT.",
-                    color = PixelMuted,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     lineHeight = 18.sp
                 )
@@ -598,18 +598,18 @@ private fun VerificationScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = PixelBackground
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier.statusBarsPadding().padding(18.dp)
         ) {
             TextButton(onClick = onBack) {
-                Text("‹ Изменить Gmail", color = PixelBlueBright)
+                Text("‹ Изменить Gmail", color = MaterialTheme.colorScheme.onSecondaryContainer)
             }
             Spacer(Modifier.height(12.dp))
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = PixelSurface,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = RoundedCornerShape(30.dp)
             ) {
                 Column(Modifier.padding(20.dp)) {
@@ -617,22 +617,22 @@ private fun VerificationScreen(
                         modifier = Modifier
                             .size(62.dp)
                             .clip(CircleShape)
-                            .background(PixelBlueContainer),
+                            .background(MaterialTheme.colorScheme.secondaryContainer),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("✉", color = PixelBlueBright, fontSize = 27.sp)
+                        Text("✉", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 27.sp)
                     }
                     Spacer(Modifier.height(18.dp))
                     Text(
                         "Введите код",
-                        color = PixelText,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 30.sp,
                         fontWeight = FontWeight.ExtraBold
                     )
                     Spacer(Modifier.height(5.dp))
-                    Text("Код отправлен на", color = PixelMuted, fontSize = 13.sp)
+                    Text("Код отправлен на", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
                     Spacer(Modifier.height(3.dp))
-                    Text(email, color = PixelBlueBright, fontWeight = FontWeight.Bold)
+                    Text(email, color = MaterialTheme.colorScheme.onSecondaryContainer, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(18.dp))
                     OutlinedTextField(
                         value = code,
@@ -673,7 +673,7 @@ private fun ProfileSetupScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = PixelBackground
+        color = MaterialTheme.colorScheme.background
     ) {
         Column(
             modifier = Modifier
@@ -682,18 +682,18 @@ private fun ProfileSetupScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(20.dp))
-            Text("Последний шаг", color = PixelMuted, fontSize = 13.sp)
+            Text("Последний шаг", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 13.sp)
             Spacer(Modifier.height(5.dp))
             Text(
                 "Настройте профиль",
-                color = PixelText,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 30.sp,
                 fontWeight = FontWeight.ExtraBold
             )
             Spacer(Modifier.height(5.dp))
             Text(
                 "Имя и username будут видны контактам.",
-                color = PixelMuted,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp
             )
             Spacer(Modifier.height(20.dp))
@@ -701,10 +701,10 @@ private fun ProfileSetupScreen(
             Surface(
                 modifier = Modifier.size(94.dp),
                 shape = CircleShape,
-                color = PixelBlueContainer
+                color = MaterialTheme.colorScheme.secondaryContainer
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    Text("P", color = PixelBlueBright, fontSize = 34.sp, fontWeight = FontWeight.Black)
+                    Text("P", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 34.sp, fontWeight = FontWeight.Black)
                 }
             }
 
@@ -730,7 +730,7 @@ private fun ProfileSetupScreen(
                 shape = RoundedCornerShape(18.dp)
             )
             Spacer(Modifier.height(8.dp))
-            Text(email, color = PixelMuted, fontSize = 12.sp)
+            Text(email, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             Spacer(Modifier.height(18.dp))
             Button(
                 onClick = {
@@ -974,78 +974,34 @@ private fun PixelChatNavigation(
         "Профиль" to Icons.Outlined.Person
     )
 
-    Surface(
+    NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp)
-            .navigationBarsPadding()
-            .padding(bottom = 8.dp),
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 3.dp,
-        shadowElevation = 6.dp
+            .navigationBarsPadding(),
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        tonalElevation = 3.dp
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(68.dp)
-                .padding(horizontal = 10.dp, vertical = 5.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            items.forEachIndexed { index, item ->
-                val active = selected == index
-
-                Surface(
-                    onClick = {
-                        if (!active) onSelected(index)
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight(),
-                    shape = RoundedCornerShape(18.dp),
-                    color = if (active) {
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
-                    } else {
-                        Color.Transparent
-                    }
-                ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Icon(
-                            imageVector = item.second,
-                            contentDescription = item.first,
-                            modifier = Modifier.size(if (active) 24.dp else 22.dp),
-                            tint = if (active) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            }
-                        )
-
-                        Spacer(Modifier.height(2.dp))
-
-                        Text(
-                            text = item.first,
-                            color = if (active) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = if (active) {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Medium
-                            },
-                            maxLines = 1
-                        )
-                    }
-                }
-            }
+        items.forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = selected == index,
+                onClick = { if (selected != index) onSelected(index) },
+                icon = {
+                    Icon(
+                        imageVector = item.second,
+                        contentDescription = item.first
+                    )
+                },
+                label = { Text(item.first, maxLines = 1) },
+                alwaysShowLabel = true,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
         }
     }
 }
@@ -1336,15 +1292,11 @@ private fun PixelExpressiveChatItem(
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
 
-    val elevation by animateDpAsState(
-        targetValue = if (pressed) 6.dp else 1.dp,
-        animationSpec = tween(250),
-        label = "chat_elevation"
-    )
-
     ListItem(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth().animateContentSize(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(),
         leadingContent = {
             Box {
                 AppAvatar(chat.initials, 56.dp)
@@ -1389,20 +1341,15 @@ private fun PixelExpressiveChatItem(
                 }
             }
         },
-        shapes = ListItemDefaults.shapes(),
         colors = ListItemDefaults.colors(
             containerColor = if (pressed) {
                 MaterialTheme.colorScheme.surfaceContainerHigh
             } else {
-                MaterialTheme.colorScheme.surfaceContainer
+                Color.Transparent
             },
             headlineColor = MaterialTheme.colorScheme.onSurface,
             supportingColor = MaterialTheme.colorScheme.onSurfaceVariant,
             trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        elevation = ListItemDefaults.elevation(
-            elevation = elevation,
-            draggedElevation = 8.dp
         ),
         interactionSource = interaction
     ) {
@@ -1415,8 +1362,6 @@ private fun PixelExpressiveChatItem(
         )
     }
 }
-
-
 
 @Composable
 private fun ContactsTab(onOpen: (ChatItem) -> Unit) {
@@ -1441,23 +1386,23 @@ private fun ContactsTab(onOpen: (ChatItem) -> Unit) {
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = PixelSurface,
+            color = MaterialTheme.colorScheme.surfaceContainer,
             shape = RoundedCornerShape(28.dp),
             tonalElevation = 2.dp
         ) {
             Column(Modifier.padding(17.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
-                        Text("Контакты", color = PixelText, fontSize = 31.sp, fontWeight = FontWeight.Black)
+                        Text("Контакты", color = MaterialTheme.colorScheme.onSurface, fontSize = 31.sp, fontWeight = FontWeight.Black)
                         Spacer(Modifier.height(3.dp))
-                        Text("${contacts.size} контактов • $onlineCount в сети", color = PixelMuted, fontSize = 12.sp)
+                        Text("${contacts.size} контактов • $onlineCount в сети", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                     }
-                    Surface(shape = CircleShape, color = PixelBlueContainer) {
+                    Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
                         Icon(
     imageVector = Icons.Outlined.Person,
     contentDescription = "Контакт",
     modifier = Modifier.padding(12.dp),
-    tint = PixelBlueBright
+    tint = MaterialTheme.colorScheme.onSecondaryContainer
 )
                     }
                 }
@@ -1472,7 +1417,7 @@ private fun ContactsTab(onOpen: (ChatItem) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             placeholder = { Text("Поиск по имени или username") },
-            leadingIcon = { Text("⌕", color = PixelMuted, fontSize = 23.sp) },
+            leadingIcon = { Text("⌕", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 23.sp) },
             trailingIcon = {
                 if (query.isNotEmpty()) {
                     TextButton(onClick = { query = "" }) { Text("×", fontSize = 20.sp) }
@@ -1514,7 +1459,7 @@ private fun ContactRow(contact: ContactItem, onClick: () -> Unit) {
 
     Surface(
         modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-        color = if (pressed) PixelSurfaceHigh else PixelSurface,
+        color = if (pressed) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer,
         shape = RoundedCornerShape(21.dp)
     ) {
         Row(
@@ -1537,7 +1482,7 @@ private fun ContactRow(contact: ContactItem, onClick: () -> Unit) {
                             .size(13.dp)
                             .align(Alignment.BottomEnd)
                             .clip(CircleShape)
-                            .background(PixelSuccess)
+                            .background(MaterialTheme.colorScheme.tertiary)
                     )
                 }
             }
@@ -1545,20 +1490,20 @@ private fun ContactRow(contact: ContactItem, onClick: () -> Unit) {
             Spacer(Modifier.width(12.dp))
 
             Column(Modifier.weight(1f)) {
-                Text(contact.name, color = PixelText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(contact.name, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                 Spacer(Modifier.height(3.dp))
                 Text(
                     if (contact.online) "в сети • ${contact.username}" else contact.username,
-                    color = if (contact.online) PixelSuccess else PixelMuted,
+                    color = if (contact.online) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp
                 )
             }
 
-            Surface(shape = RoundedCornerShape(14.dp), color = PixelBlueContainer) {
+            Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
                 Text(
                     "Чат",
                     modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
-                    color = PixelBlueBright,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontWeight = FontWeight.Bold,
                     fontSize = 12.sp
                 )
@@ -1583,17 +1528,17 @@ private fun CallsTab() {
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = PixelSurface,
+            color = MaterialTheme.colorScheme.surfaceContainer,
             shape = RoundedCornerShape(28.dp)
         ) {
             Row(Modifier.padding(17.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("Звонки", color = PixelText, fontSize = 31.sp, fontWeight = FontWeight.Black)
+                    Text("Звонки", color = MaterialTheme.colorScheme.onSurface, fontSize = 31.sp, fontWeight = FontWeight.Black)
                     Spacer(Modifier.height(3.dp))
-                    Text("История голосовых и видеозвонков", color = PixelMuted, fontSize = 12.sp)
+                    Text("История голосовых и видеозвонков", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
-                Surface(shape = CircleShape, color = PixelBlueContainer) {
-                    Text("☎", modifier = Modifier.padding(12.dp), color = PixelBlueBright, fontSize = 19.sp)
+                Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
+                    Text("☎", modifier = Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 19.sp)
                 }
             }
         }
@@ -1602,15 +1547,15 @@ private fun CallsTab() {
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = PixelBlueContainer,
+            color = MaterialTheme.colorScheme.secondaryContainer,
             shape = RoundedCornerShape(22.dp)
         ) {
             Row(Modifier.padding(15.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("CALL", color = PixelBlueBright, fontSize = 11.sp, fontWeight = FontWeight.Black)
+                Text("CALL", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 11.sp, fontWeight = FontWeight.Black)
                 Spacer(Modifier.width(10.dp))
                 Text(
                     "Сигналинг и WebRTC подключим к серверу позже.",
-                    color = PixelText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 12.sp
                 )
             }
@@ -1628,7 +1573,7 @@ private fun CallsTab() {
 
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    color = if (pressed) PixelSurfaceHigh else PixelSurface,
+                    color = if (pressed) MaterialTheme.colorScheme.surfaceContainerHigh else MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(21.dp)
                 ) {
                     Row(
@@ -1645,17 +1590,17 @@ private fun CallsTab() {
                         AppAvatar(call.initials, 54.dp)
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
-                            Text(call.name, color = PixelText, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(call.name, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 16.sp)
                             Spacer(Modifier.height(3.dp))
                             Text(
                                 if (call.missed) "Пропущенный звонок" else "Исходящий звонок",
-                                color = if (call.missed) PixelDanger else PixelMuted,
+                                color = if (call.missed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 12.sp
                             )
                             Spacer(Modifier.height(2.dp))
-                            Text(call.time, color = PixelMuted, fontSize = 11.sp)
+                            Text(call.time, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                         }
-                        Text("☎", color = PixelBlueBright, fontSize = 21.sp)
+                        Text("☎", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 21.sp)
                     }
                 }
             }
@@ -1696,7 +1641,7 @@ private fun EditProfileScreen(
                 text = "Редактировать профиль",
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
-                color = PixelText,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
@@ -1719,7 +1664,7 @@ private fun EditProfileScreen(
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = PixelSurface,
+            color = MaterialTheme.colorScheme.surfaceContainer,
             shape = RoundedCornerShape(28.dp),
             tonalElevation = 2.dp
         ) {
@@ -2618,9 +2563,9 @@ private fun ProfileActionCard(
 @Composable
 private fun ProfileInfoRow(title: String, subtitle: String) {
     Column(Modifier.fillMaxWidth().padding(vertical = 6.dp)) {
-        Text(title, color = PixelMuted, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+        Text(title, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(2.dp))
-        Text(subtitle, color = PixelText, fontSize = 14.sp)
+        Text(subtitle, color = MaterialTheme.colorScheme.onSurface, fontSize = 14.sp)
     }
 }
 
@@ -2633,23 +2578,23 @@ private fun ProfileAction(
     Surface(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
-        color = PixelSurface,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         shape = RoundedCornerShape(21.dp)
     ) {
         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                modifier = Modifier.size(43.dp).clip(RoundedCornerShape(15.dp)).background(PixelBlueContainer),
+                modifier = Modifier.size(43.dp).clip(RoundedCornerShape(15.dp)).background(MaterialTheme.colorScheme.secondaryContainer),
                 contentAlignment = Alignment.Center
             ) {
-                Text("•", color = PixelBlueBright, fontSize = 24.sp)
+                Text("•", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 24.sp)
             }
             Spacer(Modifier.width(13.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, color = PixelText, fontWeight = FontWeight.Bold)
+                Text(title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(3.dp))
-                Text(subtitle, color = PixelMuted, fontSize = 12.sp)
+                Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
-            Text("›", color = PixelBlueBright, fontSize = 22.sp)
+            Text("›", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 22.sp)
         }
     }
 }
@@ -2672,11 +2617,11 @@ private fun SettingsScreen(
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             TextButton(onClick = onBack) {
-                Text("‹", color = PixelBlueBright, fontSize = 30.sp)
+                Text("‹", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 30.sp)
             }
             Column {
-                Text("Настройки", color = PixelText, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
-                Text("PIXEL NIGHT", color = PixelMuted, fontSize = 11.sp)
+                Text("Настройки", color = MaterialTheme.colorScheme.onSurface, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
+                Text("PIXEL NIGHT", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
             }
         }
 
@@ -2684,19 +2629,19 @@ private fun SettingsScreen(
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(3.dp)) {
             item {
-                Text("Интерфейс", color = PixelBlueBright, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
+                Text("Интерфейс", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
             }
             item { SettingSwitch("Анимации", "Плавные переходы экранов", animations) { animations = it } }
             item { SettingSwitch("Компактный режим", "Меньше отступов в списках", compact) { compact = it } }
 
             item {
-                Text("Уведомления", color = PixelBlueBright, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
+                Text("Уведомления", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
             }
             item { SettingSwitch("Новые сообщения", "Показывать уведомления чатов", notifications) { notifications = it } }
             item { SettingSwitch("Предпросмотр", "Показывать текст сообщения", previews) { previews = it } }
 
             item {
-                Text("Аккаунт и безопасность", color = PixelBlueBright, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
+                Text("Аккаунт и безопасность", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
             }
             item { SettingAction("Конфиденциальность", "Блокировки, онлайн-статус и права") }
             item { SettingAction("Безопасность", "Сессии, ключи и шифрование") }
@@ -2709,7 +2654,7 @@ private fun SettingsScreen(
                     onClick = onLogout,
                     modifier = Modifier.fillMaxWidth().height(54.dp),
                     shape = RoundedCornerShape(19.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = PixelDanger)
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                 ) {
                     Text("Выйти из аккаунта", fontWeight = FontWeight.Bold)
                 }
@@ -2729,7 +2674,7 @@ private fun SettingSwitch(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = PixelSurface,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         shape = RoundedCornerShape(19.dp)
     ) {
         Row(
@@ -2737,9 +2682,9 @@ private fun SettingSwitch(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(Modifier.weight(1f)) {
-                Text(title, color = PixelText, fontWeight = FontWeight.Bold)
+                Text(title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(3.dp))
-                Text(subtitle, color = PixelMuted, fontSize = 12.sp)
+                Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
             Switch(checked = checked, onCheckedChange = onCheckedChange)
         }
@@ -2750,20 +2695,20 @@ private fun SettingSwitch(
 private fun SettingAction(title: String, subtitle: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = PixelSurface,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         shape = RoundedCornerShape(19.dp)
     ) {
         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Surface(shape = RoundedCornerShape(13.dp), color = PixelBlueContainer) {
-                Text("•", modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp), color = PixelBlueBright, fontSize = 18.sp)
+            Surface(shape = RoundedCornerShape(13.dp), color = MaterialTheme.colorScheme.secondaryContainer) {
+                Text("•", modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp), color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 18.sp)
             }
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
-                Text(title, color = PixelText, fontWeight = FontWeight.Bold)
+                Text(title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
                 Spacer(Modifier.height(3.dp))
-                Text(subtitle, color = PixelMuted, fontSize = 12.sp)
+                Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
-            Text("›", color = PixelBlueBright, fontSize = 22.sp)
+            Text("›", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 22.sp)
         }
     }
 }
@@ -2793,10 +2738,10 @@ private fun ChatScreen(
     }
 
     Scaffold(
-        containerColor = PixelBackground,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Surface(
-                color = PixelBackground,
+                color = MaterialTheme.colorScheme.background,
                 tonalElevation = 0.dp
             ) {
                 Row(
@@ -2812,7 +2757,7 @@ private fun ChatScreen(
                     ) {
                         Text(
                             text = "‹",
-                            color = PixelBlueBright,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontSize = 32.sp
                         )
                     }
@@ -2829,7 +2774,7 @@ private fun ChatScreen(
                     ) {
                         Text(
                             text = chat.name,
-                            color = PixelText,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
@@ -2845,9 +2790,9 @@ private fun ChatScreen(
                                 "был недавно"
                             },
                             color = if (chat.online) {
-                                PixelSuccess
+                                MaterialTheme.colorScheme.tertiary
                             } else {
-                                PixelMuted
+                                MaterialTheme.colorScheme.onSurfaceVariant
                             },
                             fontSize = 11.sp
                         )
@@ -2860,7 +2805,7 @@ private fun ChatScreen(
                     ) {
                         Text(
                             text = "☎",
-                            color = PixelBlueBright,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontSize = 22.sp
                         )
                     }
@@ -2903,7 +2848,7 @@ private fun ChatScreen(
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = PixelSurface
+                color = MaterialTheme.colorScheme.surfaceContainer
             ) {
                 Row(
                     modifier = Modifier
@@ -2928,7 +2873,7 @@ private fun ChatScreen(
                     ) {
                         Text(
                             text = "+",
-                            color = PixelBlueBright,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -2945,7 +2890,7 @@ private fun ChatScreen(
                         placeholder = {
                             Text(
                                 text = "Сообщение",
-                                color = PixelMuted
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
                         singleLine = true,
@@ -2960,9 +2905,9 @@ private fun ChatScreen(
                             .clip(CircleShape)
                             .background(
                                 if (input.isNotBlank()) {
-                                    PixelBlue
+                                    MaterialTheme.colorScheme.primary
                                 } else {
-                                    PixelBlueContainer
+                                    MaterialTheme.colorScheme.secondaryContainer
                                 }
                             )
                             .clickable {
@@ -3012,9 +2957,9 @@ private fun PixelChatMessage(
         Surface(
             modifier = Modifier.widthIn(max = 310.dp),
             color = if (outgoing) {
-                PixelBlueContainer
+                MaterialTheme.colorScheme.secondaryContainer
             } else {
-                PixelSurfaceHigh
+                MaterialTheme.colorScheme.surfaceContainerHigh
             },
             shape = RoundedCornerShape(
                 topStart = 18.dp,
@@ -3031,7 +2976,7 @@ private fun PixelChatMessage(
             ) {
                 Text(
                     text = text,
-                    color = PixelText,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 14.sp
                 )
 
@@ -3039,7 +2984,7 @@ private fun PixelChatMessage(
 
                 Text(
                     text = "сейчас",
-                    color = PixelMuted,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 10.sp,
                     modifier = Modifier.align(Alignment.End)
                 )
@@ -3068,10 +3013,10 @@ private fun NewChatScreen(
 
     Column(Modifier.fillMaxSize().statusBarsPadding().padding(14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = onBack) { Text("‹", color = PixelBlueBright, fontSize = 30.sp) }
+            TextButton(onClick = onBack) { Text("‹", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 30.sp) }
             Column {
-                Text("Новый чат", color = PixelText, fontSize = 25.sp, fontWeight = FontWeight.ExtraBold)
-                Text("Выбери контакт", color = PixelMuted, fontSize = 11.sp)
+                Text("Новый чат", color = MaterialTheme.colorScheme.onSurface, fontSize = 25.sp, fontWeight = FontWeight.ExtraBold)
+                Text("Выбери контакт", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
             }
         }
 
@@ -3083,7 +3028,7 @@ private fun NewChatScreen(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             placeholder = { Text("Поиск контакта") },
-            leadingIcon = { Text("⌕", color = PixelMuted, fontSize = 23.sp) },
+            leadingIcon = { Text("⌕", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 23.sp) },
             shape = RoundedCornerShape(21.dp)
         )
 
@@ -3125,7 +3070,7 @@ private fun AppAvatar(
     Surface(
         modifier = Modifier.size(size),
         shape = CircleShape,
-        color = PixelBlueContainer,
+        color = MaterialTheme.colorScheme.secondaryContainer,
         tonalElevation = 2.dp
     ) {
         Box(contentAlignment = Alignment.Center) {
@@ -3141,7 +3086,7 @@ private fun AppAvatar(
             } else {
                 Text(
                     initials.take(2).uppercase(),
-                    color = PixelBlueBright,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
                     fontSize = (size.value * 0.29f).sp,
                     fontWeight = FontWeight.ExtraBold
                 )
