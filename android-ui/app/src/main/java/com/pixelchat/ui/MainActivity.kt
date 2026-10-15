@@ -2798,10 +2798,10 @@ private fun ChatScreen(
                             // Позже подключим настоящий звонок.
                         }
                     ) {
-                        Text(
-                            text = "☎",
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            fontSize = 22.sp
+                        Image(
+                            painter = painterResource(id = R.drawable.nav_calls),
+                            contentDescription = "Позвонить",
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
