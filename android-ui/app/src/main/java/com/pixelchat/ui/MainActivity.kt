@@ -292,7 +292,7 @@ private fun SplashScreen() {
                 painter = painterResource(id = R.drawable.pixel_bubble),
                 contentDescription = null,
                 modifier = Modifier
-                    .fillMaxWidth(0.82f)
+                    .fillMaxWidth(0.24f)
                     .aspectRatio(1f),
                 contentScale = ContentScale.Fit
             )
@@ -1525,7 +1525,11 @@ private fun CallsTab() {
                     Text("История голосовых и видеозвонков", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
                 }
                 Surface(shape = CircleShape, color = MaterialTheme.colorScheme.secondaryContainer) {
-                    Text("☎", modifier = Modifier.padding(12.dp), color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 19.sp)
+                    Image(
+                        painter = painterResource(id = R.drawable.nav_calls),
+                        contentDescription = "Звонки",
+                        modifier = Modifier.padding(12.dp).size(24.dp)
+                    )
                 }
             }
         }
@@ -1587,7 +1591,11 @@ private fun CallsTab() {
                             Spacer(Modifier.height(2.dp))
                             Text(call.time, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
                         }
-                        Text("☎", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 21.sp)
+                        Image(
+                            painter = painterResource(id = R.drawable.nav_calls),
+                            contentDescription = "Позвонить",
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                 }
             }
