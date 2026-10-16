@@ -747,6 +747,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
     var profileName by rememberSaveable { mutableStateOf("Pixel User") }
     var profileUsername by rememberSaveable { mutableStateOf("pixeluser") }
     var profileBio by rememberSaveable { mutableStateOf("Я в PIXEL CHAT") }
+    var profileBirthDate by rememberSaveable { mutableStateOf("") }
     var profilePhotoUri by remember { mutableStateOf<Uri?>(null) }
     var profileBackgroundUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -755,6 +756,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
             profileName = session.displayName
             profileUsername = session.username
             profileBio = session.bio
+            profileBirthDate = session.birthDate
             profilePhotoUri = session.photoUri
                 .takeIf { it.isNotBlank() }
                 ?.let(Uri::parse)
@@ -776,7 +778,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
                     displayName = profileName,
                     username = profileUsername,
                     bio = profileBio,
-                    birthDate = session.birthDate,
+                    birthDate = profileBirthDate,
                     photoUri = photoUri,
                     backgroundUri = backgroundUri
                 )
@@ -857,15 +859,17 @@ private fun HomeScreen(onLogout: () -> Unit) {
             name = profileName,
             username = profileUsername,
             bio = profileBio,
-            birthDate = "",
+            birthDate = profileBirthDate,
             photoUri = profilePhotoUri,
             onPickPhoto = { profilePhotoPicker.launch("image/*") },
             onBack = { showEditProfile = false },
-            onSave = { newName, newUsername, newBio ->
+            onSave = { newName, newUsername, newBio, newBirthDate ->
                 profileName = newName
                 profileUsername = newUsername
                 profileBio = newBio
+                profileBirthDate = newBirthDate
                 showEditProfile = false
+                saveProfileData()
             }
         )
         return
@@ -923,6 +927,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
                     name = profileName,
                     username = profileUsername,
                     bio = profileBio,
+                    birthDate = profileBirthDate,
                     photoUri = profilePhotoUri,
                     backgroundUri = profileBackgroundUri,
                     onPickPhoto = { profilePhotoPicker.launch("image/*") },
@@ -932,6 +937,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
                     onPickBackgroundVideo = {
                         profileBackgroundVideoPicker.launch(arrayOf("video/*"))
                     },
+                    onBack = { tab = 0 },
                     onEdit = { showEditProfile = true }
                 )
             }
@@ -1611,7 +1617,7 @@ private fun EditProfileScreen(
     photoUri: Uri?,
     onPickPhoto: () -> Unit,
     onBack: () -> Unit,
-    onSave: (String, String, String) -> Unit
+    onSave: (String, String, String, String) -> Unit
 ) {
     var editedName by rememberSaveable { mutableStateOf(name) }
     var editedUsername by rememberSaveable { mutableStateOf(username) }
@@ -1646,7 +1652,8 @@ private fun EditProfileScreen(
                     onSave(
                         editedName.trim(),
                         editedUsername.trim(),
-                        editedBio.trim()
+                        editedBio.trim(),
+                        editedBirthDate.trim()
                     )
                 },
                 enabled = editedName.isNotBlank() && editedUsername.isNotBlank()
@@ -1748,49 +1755,50 @@ private fun ProfileTab(
     name: String,
     username: String,
     bio: String,
+    birthDate: String,
     photoUri: Uri?,
     backgroundUri: Uri?,
     onPickPhoto: () -> Unit,
     onPickBackgroundPhoto: () -> Unit,
     onPickBackgroundVideo: () -> Unit,
+    onBack: () -> Unit,
     onEdit: () -> Unit
 ) {
     val context = LocalContext.current
-
     var selectedMusicUri by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedMusicName by rememberSaveable { mutableStateOf<String?>(null) }
     var musicPlaying by rememberSaveable { mutableStateOf(false) }
     var menuExpanded by remember { mutableStateOf(false) }
+    var infoDialogTitle by rememberSaveable { mutableStateOf<String?>(null) }
 
     val musicPicker = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null) {
             selectedMusicUri = uri.toString()
             musicPlaying = false
-
-            selectedMusicName =
-                context.contentResolver.query(
-                    uri,
-                    arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
-                    null,
-                    null,
-                    null
-                )?.use { cursor ->
-                    if (cursor.moveToFirst()) cursor.getString(0) else null
-                } ?: "Музыка профиля"
+            selectedMusicName = context.contentResolver.query(
+                uri,
+                arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) cursor.getString(0) else null
+            } ?: "Музыка профиля"
         }
     }
 
     val mediaPlayer = remember(selectedMusicUri) {
-        selectedMusicUri?.let {
-            MediaPlayer.create(context, Uri.parse(it))
-        }
+        selectedMusicUri?.let { MediaPlayer.create(context, Uri.parse(it)) }
     }
 
     DisposableEffect(mediaPlayer) {
         onDispose {
-            mediaPlayer?.release()
+            try {
+                mediaPlayer?.release()
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -1798,148 +1806,211 @@ private fun ProfileTab(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background),
-        contentPadding = PaddingValues(bottom = 32.dp)
+        contentPadding = PaddingValues(bottom = 28.dp)
     ) {
         item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .background(MaterialTheme.colorScheme.background)
-            ) {
+            Column {
+                // Cover photo/video, with the controls kept above the media layer.
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.linearGradient(
-                                listOf(
-                                    MaterialTheme.colorScheme.surfaceContainerHigh,
-                                    MaterialTheme.colorScheme.background,
-                                    MaterialTheme.colorScheme.background
-                                )
-                            )
-                        )
-                )
-
-                Box(
-                    modifier = Modifier
-                        .width(340.dp)
-                        .height(145.dp)
-                        .align(Alignment.Center)
-                        .offset(x = 75.dp, y = (-18).dp)
-                        .rotate(-43f)
-                        .background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.65f))
-                )
-
-                Box(
-                    modifier = Modifier
-                        .width(340.dp)
-                        .height(2.dp)
-                        .align(Alignment.Center)
-                        .offset(x = 75.dp, y = 45.dp)
-                        .rotate(-43f)
-                        .background(MaterialTheme.colorScheme.primaryContainer)
-                )
-
-                Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            start = 28.dp,
-                            end = 22.dp,
-                            top = 22.dp
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
+                        .height(286.dp)
                 ) {
-                    Text(
-                        "PIXEL",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 2.sp
-                    )
-
-                    Text(
-                        " CHAT",
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 4.sp
-                    )
-
-                    Spacer(Modifier.weight(1f))
-
-                    Box {
-                        Text(
-                            "⋮",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 31.sp,
+                    if (backgroundUri == null) {
+                        Box(
                             modifier = Modifier
-                                .clip(CircleShape)
-                                .clickable { menuExpanded = true }
-                                .padding(horizontal = 8.dp)
+                                .fillMaxSize()
+                                .background(
+                                    Brush.linearGradient(
+                                        listOf(
+                                            MaterialTheme.colorScheme.primaryContainer,
+                                            MaterialTheme.colorScheme.surfaceContainerHigh,
+                                            MaterialTheme.colorScheme.background
+                                        )
+                                    )
+                                )
                         )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(1.35f)
+                                .height(150.dp)
+                                .align(Alignment.Center)
+                                .rotate(-18f)
+                                .background(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                                    RoundedCornerShape(44.dp)
+                                )
+                        )
+                    } else {
+                        val mime = remember(backgroundUri) {
+                            context.contentResolver.getType(backgroundUri)
+                        }
+                        if (mime?.startsWith("video/") == true) {
+                            AndroidView(
+                                factory = { ctx ->
+                                    VideoView(ctx).apply {
+                                        setVideoURI(backgroundUri)
+                                        setOnPreparedListener { player ->
+                                            player.isLooping = true
+                                            player.setVolume(0f, 0f)
+                                            start()
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        } else {
+                            AsyncImage(
+                                model = backgroundUri,
+                                contentDescription = "Обложка профиля",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+                    }
 
-                        DropdownMenu(
-                            expanded = menuExpanded,
-                            onDismissRequest = {
-                                menuExpanded = false
-                            }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.40f),
+                                        androidx.compose.ui.graphics.Color.Transparent,
+                                        MaterialTheme.colorScheme.background.copy(alpha = 0.94f)
+                                    )
+                                )
+                            )
+                    )
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = onBack,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("Изменить аватар") },
-                                onClick = {
-                                    menuExpanded = false
-                                    onPickPhoto()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Outlined.Person,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
+                            Icon(Icons.Outlined.ArrowBack, contentDescription = "Назад")
+                        }
 
-                            DropdownMenuItem(
-                                text = { Text("Фон — фото") },
-                                onClick = {
-                                    menuExpanded = false
-                                    onPickBackgroundPhoto()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Outlined.Settings,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
+                        Spacer(Modifier.weight(1f))
 
-                            DropdownMenuItem(
-                                text = { Text("Фон — видео") },
-                                onClick = {
-                                    menuExpanded = false
-                                    onPickBackgroundVideo()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Outlined.Settings,
-                                        contentDescription = null
-                                    )
-                                }
-                            )
+                        IconButton(
+                            onClick = { infoDialogTitle = "Видеозвонок" },
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
+                        ) {
+                            Icon(Icons.Outlined.Videocam, contentDescription = "Видеозвонок")
+                        }
 
-                            DropdownMenuItem(
-                                text = { Text("Редактировать") },
-                                onClick = {
-                                    menuExpanded = false
-                                    onEdit()
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Outlined.Edit,
-                                        contentDescription = null
-                                    )
-                                }
+                        Spacer(Modifier.width(8.dp))
+
+                        Box {
+                            IconButton(
+                                onClick = { menuExpanded = true },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
+                            ) {
+                                Icon(Icons.Outlined.MoreVert, contentDescription = "Меню профиля")
+                            }
+
+                            DropdownMenu(
+                                expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Изменить аватар") },
+                                    leadingIcon = {
+                                        Icon(Icons.Outlined.Person, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        menuExpanded = false
+                                        onPickPhoto()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Обложка — фото") },
+                                    leadingIcon = {
+                                        Icon(Icons.Outlined.PhotoCamera, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        menuExpanded = false
+                                        onPickBackgroundPhoto()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Обложка — видео") },
+                                    leadingIcon = {
+                                        Icon(Icons.Outlined.Movie, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        menuExpanded = false
+                                        onPickBackgroundVideo()
+                                    }
+                                )
+                                DropdownMenuItem(
+                                    text = { Text("Редактировать профиль") },
+                                    leadingIcon = {
+                                        Icon(Icons.Outlined.Edit, contentDescription = null)
+                                    },
+                                    onClick = {
+                                        menuExpanded = false
+                                        onEdit()
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(y = 52.dp)
+                            .padding(end = 24.dp)
+                            .size(122.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surface)
+                                .border(
+                                    width = 3.dp,
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AppAvatar(
+                                initials = name.trim().firstOrNull()?.uppercase() ?: "P",
+                                size = 116.dp,
+                                photoUri = photoUri
+                            )
+                        }
+
+                        IconButton(
+                            onClick = onPickPhoto,
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary)
+                        ) {
+                            Icon(
+                                Icons.Outlined.PhotoCamera,
+                                contentDescription = "Изменить аватар",
+                                tint = MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
@@ -1947,323 +2018,84 @@ private fun ProfileTab(
 
                 Column(
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(
-                            end = 34.dp,
-                            top = 34.dp
-                        )
-                ) {
-                    Text(
-                        "Б О Л Ь Ш Е",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 5.sp
-                    )
-
-                    Text(
-                        "Ч Е М  П Р О С Т О",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 4.sp
-                    )
-
-                    Text(
-                        "Ч А Т",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 5.sp
-                    )
-
-                    Spacer(Modifier.height(14.dp))
-
-                    Box(
-                        Modifier
-                            .width(38.dp)
-                            .height(2.dp)
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
-                }
-
-                if (backgroundUri != null) {
-                    val mime = remember(backgroundUri) {
-                        context.contentResolver.getType(backgroundUri)
-                    }
-
-                    if (mime?.startsWith("video/") == true) {
-                        AndroidView(
-                            factory = { ctx ->
-                                VideoView(ctx).apply {
-                                    setVideoURI(backgroundUri)
-                                    setOnPreparedListener {
-                                        it.isLooping = true
-                                        start()
-                                    }
-                                }
-                            },
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .alpha(0.42f)
-                        )
-                    } else {
-                        AsyncImage(
-                            model = backgroundUri,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .alpha(0.42f),
-                            contentScale = ContentScale.Crop
-                        )
-                    }
-                }
-            }
-        }
-
-        item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-            ) {
-                Box(
-                    modifier = Modifier
                         .fillMaxWidth()
-                        .height(112.dp)
+                        .padding(horizontal = 24.dp)
                 ) {
-                    Box(
+                    // The name stays to the left of the avatar, as in the approved mockup.
+                    Row(
                         modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .offset(y = (-58).dp)
+                            .fillMaxWidth()
+                            .padding(top = 38.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        AppAvatar(
-                            initials = name
-                                .trim()
-                                .firstOrNull()
-                                ?.uppercase() ?: "P",
-                            size = 150.dp,
-                            photoUri = photoUri
+                        Text(
+                            text = name.ifBlank { "PIXEL CHAT" },
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-
-                        Box(
-                            modifier = Modifier
-                                .size(25.dp)
-                                .align(Alignment.BottomEnd)
-                                .offset(
-                                    x = (-4).dp,
-                                    y = (-8).dp
-                                )
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
-                                .border(
-                                    4.dp,
-                                    MaterialTheme.colorScheme.background,
-                                    CircleShape
-                                )
-                        )
+                        Spacer(Modifier.width(104.dp))
                     }
 
+                    Spacer(Modifier.height(18.dp))
+
+                    // Music appears before username, birthday, and biography as requested.
                     Surface(
-                        onClick = onEdit,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .offset(y = (-10).dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        shape = RoundedCornerShape(22.dp)
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        shape = RoundedCornerShape(28.dp),
+                        tonalElevation = 1.dp
                     ) {
                         Row(
-                            modifier = Modifier.padding(
-                                horizontal = 22.dp,
-                                vertical = 15.dp
-                            ),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 15.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                Icons.Outlined.Edit,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(22.dp)
-                            )
-
-                            Spacer(Modifier.width(9.dp))
-
-                            Text(
-                                "Изменить",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                softWrap = false
-                            )
-                        }
-                    }
-                }
-
-                Text(
-                    name.ifBlank { "PIXEL CHAT" },
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 30.sp,
-                    fontWeight = FontWeight.Black
-                )
-
-                Spacer(Modifier.height(6.dp))
-
-                Text(
-                    "@${username.ifBlank { "pixelchat" }}",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                    fontSize = 17.sp
-                )
-
-                Spacer(Modifier.height(10.dp))
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        Modifier
-                            .size(10.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
-
-                    Spacer(Modifier.width(9.dp))
-
-                    Text(
-                        "В сети",
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                        fontSize = 15.sp
-                    )
-                }
-
-                Spacer(Modifier.height(30.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(9.dp)
-                ) {
-                    PixelProfileAction(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Outlined.Chat,
-                        title = "Написать"
-                    )
-
-                    PixelProfileAction(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Outlined.Settings,
-                        title = "Звонок"
-                    )
-
-                    PixelProfileAction(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Outlined.Person,
-                        title = "Добавить"
-                    )
-
-                    PixelProfileAction(
-                        modifier = Modifier.weight(1f),
-                        icon = Icons.Outlined.Settings,
-                        title = "Ещё"
-                    )
-                }
-
-                Spacer(Modifier.height(24.dp))
-
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(25.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(
-                            horizontal = 24.dp,
-                            vertical = 24.dp
-                        )
-                    ) {
-                        PixelProfileInfo(
-                            icon = Icons.Outlined.Person,
-                            title = "О себе",
-                            value = bio.ifBlank {
-                                "О себе пока ничего не указано"
-                            }
-                        )
-
-                        PixelDivider()
-
-                        PixelProfileInfo(
-                            icon = Icons.Outlined.Person,
-                            title = "Имя пользователя",
-                            value = "@${username.ifBlank { "pixelchat" }}"
-                        )
-
-                        PixelDivider()
-
-                        PixelProfileInfo(
-                            icon = Icons.Outlined.Settings,
-                            title = "Дата рождения",
-                            value = "Не указана"
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(22.dp))
-
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(25.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(15.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(108.dp)
-                                    .clip(RoundedCornerShape(20.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                                contentAlignment = Alignment.Center
+                            Surface(
+                                modifier = Modifier.size(64.dp),
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primary
                             ) {
-                                Icon(
-                                    Icons.Outlined.MusicNote,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(40.dp)
-                                )
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        Icons.Outlined.MusicNote,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(31.dp)
+                                    )
+                                }
                             }
 
-                            Spacer(Modifier.width(18.dp))
+                            Spacer(Modifier.width(14.dp))
 
                             Column(
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { musicPicker.launch("audio/*") }
                             ) {
                                 Text(
-                                    selectedMusicName ?: "Музыка",
+                                    "Любимая музыка",
                                     color = MaterialTheme.colorScheme.onSurface,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
                                 )
-
-                                Spacer(Modifier.height(7.dp))
-
+                                Spacer(Modifier.height(4.dp))
                                 Text(
-                                    if (selectedMusicUri == null)
-                                        "Музыка пока не добавлена"
-                                    else
-                                        "PIXEL CHAT",
-                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                                    selectedMusicName ?: "Добавить любимый трек",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontSize = 14.sp,
-                                    maxLines = 2
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis
                                 )
                             }
 
-                            Spacer(Modifier.width(8.dp))
-
-                            Surface(
+                            IconButton(
                                 onClick = {
                                     if (selectedMusicUri == null) {
                                         musicPicker.launch("audio/*")
@@ -2271,143 +2103,222 @@ private fun ProfileTab(
                                         mediaPlayer?.pause()
                                         musicPlaying = false
                                     } else {
-                                        mediaPlayer?.start()
-                                        musicPlaying = true
+                                        try {
+                                            mediaPlayer?.start()
+                                            musicPlaying = mediaPlayer != null
+                                        } catch (_: Exception) {
+                                            infoDialogTitle = "Не удалось воспроизвести трек"
+                                        }
                                     }
-                                },
-                                modifier = Modifier.size(54.dp),
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.surfaceContainer
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        if (selectedMusicUri == null)
-                                            "+"
-                                        else
-                                            "▶",
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        fontSize = 23.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
                                 }
-                            }
-                        }
-
-                        Spacer(Modifier.height(16.dp))
-
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(1.dp)
-                                .background(
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+                            ) {
+                                Icon(
+                                    imageVector = when {
+                                        selectedMusicUri == null -> Icons.Outlined.Add
+                                        musicPlaying -> Icons.Outlined.Pause
+                                        else -> Icons.Outlined.PlayArrow
+                                    },
+                                    contentDescription = if (musicPlaying) "Пауза" else "Воспроизвести",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(30.dp)
                                 )
-                        )
-
-                        Spacer(Modifier.height(16.dp))
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable {
-                                musicPicker.launch("audio/*")
-                            }
-                        ) {
-                            Surface(
-                                modifier = Modifier.size(34.dp),
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.primary
-                            ) {
-                                Box(
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        "+",
-                                        color = MaterialTheme.colorScheme.background,
-                                        fontSize = 21.sp,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                }
                             }
 
-                            Spacer(Modifier.width(13.dp))
-
-                            Text(
-                                "Добавить музыку",
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(22.dp))
-
-                Surface(
-                    onClick = onEdit,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surface,
-                    shape = RoundedCornerShape(25.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(
-                            horizontal = 22.dp,
-                            vertical = 20.dp
-                        ),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(52.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
-                            contentAlignment = Alignment.Center
-                        ) {
                             Icon(
-                                Icons.Outlined.Settings,
+                                Icons.Outlined.KeyboardArrowRight,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(29.dp)
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(25.dp)
                             )
                         }
+                    }
 
-                        Spacer(Modifier.width(17.dp))
+                    Spacer(Modifier.height(24.dp))
 
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                "Настройки профиля",
-                                color = MaterialTheme.colorScheme.onSurface,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold
+                    PixelProfileDetail(
+                        icon = Icons.Outlined.Person,
+                        title = "Имя пользователя",
+                        value = "@${username.removePrefix("@").ifBlank { "pixelchat" }}"
+                    )
+
+                    Spacer(Modifier.height(18.dp))
+
+                    PixelProfileDetail(
+                        icon = Icons.Outlined.CalendarToday,
+                        title = "Дата рождения",
+                        value = birthDate.ifBlank { "Не указана" }
+                    )
+
+                    Spacer(Modifier.height(18.dp))
+
+                    PixelProfileDetail(
+                        icon = Icons.Outlined.Person,
+                        title = "О себе",
+                        value = bio.ifBlank { "О себе пока ничего не указано" }
+                    )
+
+                    Spacer(Modifier.height(28.dp))
+
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        shape = RoundedCornerShape(28.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(horizontal = 18.dp)) {
+                            PixelProfileOptionRow(
+                                icon = Icons.Outlined.PhotoLibrary,
+                                title = "Фотографии и видео",
+                                trailing = "›",
+                                onClick = { infoDialogTitle = "Фотографии и видео" }
                             )
-
-                            Spacer(Modifier.height(6.dp))
-
-                            Text(
-                                "Фон, аватар, оформление и другое",
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                fontSize = 14.sp
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+                            PixelProfileOptionRow(
+                                icon = Icons.Outlined.Link,
+                                title = "Ссылки",
+                                trailing = "›",
+                                onClick = { infoDialogTitle = "Ссылки" }
+                            )
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+                            PixelProfileOptionRow(
+                                icon = Icons.Outlined.Lock,
+                                title = "Конфиденциальность",
+                                trailing = "›",
+                                onClick = { infoDialogTitle = "Конфиденциальность" }
                             )
                         }
+                    }
 
+                    Spacer(Modifier.height(28.dp))
+
+                    Button(
+                        onClick = onEdit,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(62.dp),
+                        shape = RoundedCornerShape(31.dp)
+                    ) {
+                        Icon(Icons.Outlined.Edit, contentDescription = null)
+                        Spacer(Modifier.width(10.dp))
                         Text(
-                            "›",
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                            fontSize = 32.sp
+                            "Редактировать профиль",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }
-
-                Spacer(Modifier.height(32.dp))
             }
+        }
+    }
+
+    val dialogTitle = infoDialogTitle
+    if (dialogTitle != null) {
+        val dialogMessage = when (dialogTitle) {
+            "Видеозвонок" -> "Интерфейс профиля готов. Видеозвонки подключим отдельным этапом."
+            "Фотографии и видео" -> "Медиатека профиля будет подключена отдельно. Фото и видео обложки уже можно менять через меню сверху."
+            "Ссылки" -> "Добавление и отображение ссылок подключим отдельным этапом."
+            "Конфиденциальность" -> "Настройки видимости и приватности подключим отдельным этапом."
+            else -> "Не удалось воспроизвести выбранный трек. Попробуй выбрать другой аудиофайл."
+        }
+        AlertDialog(
+            onDismissRequest = { infoDialogTitle = null },
+            title = { Text(dialogTitle) },
+            text = { Text(dialogMessage) },
+            confirmButton = {
+                TextButton(onClick = { infoDialogTitle = null }) {
+                    Text("Понятно")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun PixelProfileDetail(
+    icon: ImageVector,
+    title: String,
+    value: String
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top
+    ) {
+        Surface(
+            modifier = Modifier.size(48.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(23.dp)
+                )
+            }
+        }
+
+        Spacer(Modifier.width(18.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                title,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                value,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 15.sp,
+                lineHeight = 22.sp
+            )
         }
     }
 }
 
+@Composable
+private fun PixelProfileOptionRow(
+    icon: ImageVector,
+    title: String,
+    trailing: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 15.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Surface(
+            modifier = Modifier.size(44.dp),
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
+        Spacer(Modifier.width(15.dp))
+        Text(
+            title,
+            modifier = Modifier.weight(1f),
+            color = MaterialTheme.colorScheme.onSurface,
+            fontSize = 16.sp
+        )
+        Text(
+            trailing,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontSize = 28.sp
+        )
+    }
+}
 @Composable
 private fun PixelProfileAction(
     modifier: Modifier,
