@@ -2714,6 +2714,9 @@ private fun ChatScreen(
     onBack: () -> Unit
 ) {
     var input by rememberSaveable { mutableStateOf("") }
+    var showChatMenu by remember { mutableStateOf(false) }
+    var showAttachmentMenu by remember { mutableStateOf(false) }
+    var showNotice by remember { mutableStateOf<String?>(null) }
 
     val messages = remember {
         mutableStateListOf(
@@ -2736,106 +2739,113 @@ private fun ChatScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Surface(
-                color = MaterialTheme.colorScheme.background,
-                tonalElevation = 0.dp
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 1.dp
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
                         .height(64.dp)
-                        .padding(horizontal = 6.dp),
+                        .padding(horizontal = 4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(
-                        onClick = onBack
-                    ) {
-                        Text(
-                            text = "‹",
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            fontSize = 32.sp
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Назад"
                         )
                     }
 
-                    AppAvatar(
-                        initials = chat.initials,
-                        size = 42.dp
-                    )
-
+                    AppAvatar(initials = chat.initials, size = 42.dp)
                     Spacer(Modifier.width(10.dp))
 
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Column(Modifier.weight(1f)) {
                         Text(
                             text = chat.name,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-
                         Spacer(Modifier.height(2.dp))
-
                         Text(
-                            text = if (chat.online) {
-                                "в сети"
-                            } else {
-                                "был недавно"
-                            },
-                            color = if (chat.online) {
-                                MaterialTheme.colorScheme.tertiary
-                            } else {
-                                MaterialTheme.colorScheme.onSurfaceVariant
-                            },
-                            fontSize = 11.sp
+                            text = if (chat.online) "в сети" else "был недавно",
+                            color = if (chat.online) MaterialTheme.colorScheme.tertiary
+                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 12.sp
                         )
                     }
 
-                    TextButton(
-                        onClick = {
-                            // Позже подключим настоящий звонок.
-                        }
+                    IconButton(
+                        onClick = { showNotice = "Звонки пока не подключены" }
                     ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.nav_calls),
-                            contentDescription = "Позвонить",
-                            modifier = Modifier.size(28.dp)
-                        )
+                        Icon(Icons.Outlined.Call, contentDescription = "Позвонить")
+                    }
+
+                    Box {
+                        IconButton(onClick = { showChatMenu = true }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "Меню чата")
+                        }
+                        DropdownMenu(
+                            expanded = showChatMenu,
+                            onDismissRequest = { showChatMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Поиск в чате") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Search, contentDescription = null)
+                                },
+                                onClick = {
+                                    showChatMenu = false
+                                    showNotice = "Поиск по сообщениям пока не подключён"
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Уведомления") },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.NotificationsOff, contentDescription = null)
+                                },
+                                onClick = {
+                                    showChatMenu = false
+                                    showNotice = "Настройка уведомлений пока не подключена"
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Очистить историю") },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.Delete, contentDescription = null)
+                                },
+                                onClick = {
+                                    showChatMenu = false
+                                    messages.clear()
+                                    showNotice = "Локальная история очищена"
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
     ) { padding ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
         ) {
-
             LazyColumn(
                 state = listState,
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp),
-                contentPadding = PaddingValues(
-                    top = 10.dp,
-                    bottom = 10.dp
-                ),
+                contentPadding = PaddingValues(vertical = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(7.dp)
             ) {
-                items(
-                    count = messages.size,
-                    key = { index -> index }
-                ) { index ->
-
-                    val message = messages[index]
-
+                items(count = messages.size, key = { index -> index }) { index ->
                     PixelChatMessage(
-                        text = message,
+                        text = messages[index],
                         outgoing = true
                     )
                 }
@@ -2849,90 +2859,120 @@ private fun ChatScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .imePadding()
-                        .padding(
-                            horizontal = 8.dp,
-                            vertical = 8.dp
-                        ),
+                        .padding(horizontal = 8.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Box {
+                        IconButton(
+                            onClick = { showAttachmentMenu = true },
+                            modifier = Modifier.size(46.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "Вложения",
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
 
-                    Box(
-                        modifier = Modifier
-                            .size(46.dp)
-                            .clip(CircleShape)
-                            .clickable {
-                                // Позже здесь будет меню:
-                                // фото, видео, файл, контакт и т.д.
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "+",
-                            color = MaterialTheme.colorScheme.onSecondaryContainer,
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        DropdownMenu(
+                            expanded = showAttachmentMenu,
+                            onDismissRequest = { showAttachmentMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Фото") },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.Image, contentDescription = null)
+                                },
+                                onClick = {
+                                    showAttachmentMenu = false
+                                    showNotice = "Прикрепление фото пока не подключено"
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Видео") },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.Videocam, contentDescription = null)
+                                },
+                                onClick = {
+                                    showAttachmentMenu = false
+                                    showNotice = "Прикрепление видео пока не подключено"
+                                }
+                            )
+                            DropdownMenuItem(
+                                text = { Text("Файл") },
+                                leadingIcon = {
+                                    Icon(Icons.Outlined.AttachFile, contentDescription = null)
+                                },
+                                onClick = {
+                                    showAttachmentMenu = false
+                                    showNotice = "Прикрепление файлов пока не подключено"
+                                }
+                            )
+                        }
                     }
 
-                    Spacer(Modifier.width(5.dp))
+                    Spacer(Modifier.width(4.dp))
 
                     OutlinedTextField(
                         value = input,
-                        onValueChange = {
-                            input = it
-                        },
+                        onValueChange = { input = it },
                         modifier = Modifier.weight(1f),
                         placeholder = {
                             Text(
-                                text = "Сообщение",
+                                "Сообщение",
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
                         singleLine = true,
-                        shape = RoundedCornerShape(22.dp)
+                        shape = RoundedCornerShape(24.dp)
                     )
 
-                    Spacer(Modifier.width(7.dp))
+                    Spacer(Modifier.width(6.dp))
 
-                    Box(
+                    IconButton(
+                        onClick = {
+                            val message = input.trim()
+                            if (message.isNotEmpty()) {
+                                messages.add(message)
+                                input = ""
+                                scope.launch {
+                                    if (messages.isNotEmpty()) {
+                                        listState.animateScrollToItem(messages.lastIndex)
+                                    }
+                                }
+                            }
+                        },
+                        enabled = input.isNotBlank(),
                         modifier = Modifier
                             .size(48.dp)
                             .clip(CircleShape)
                             .background(
-                                if (input.isNotBlank()) {
-                                    MaterialTheme.colorScheme.primary
-                                } else {
-                                    MaterialTheme.colorScheme.secondaryContainer
-                                }
+                                if (input.isNotBlank()) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.surfaceVariant
                             )
-                            .clickable {
-                                val message = input.trim()
-
-                                if (message.isNotEmpty()) {
-                                    messages.add(message)
-                                    input = ""
-
-                                    scope.launch {
-                                        if (messages.isNotEmpty()) {
-                                            listState.animateScrollToItem(
-                                                messages.lastIndex
-                                            )
-                                        }
-                                    }
-                                }
-                            },
-                        contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "➤",
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                        Icon(
+                            Icons.AutoMirrored.Filled.Send,
+                            contentDescription = "Отправить",
+                            tint = if (input.isNotBlank()) MaterialTheme.colorScheme.onPrimary
+                                   else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
         }
+    }
+
+    showNotice?.let { notice ->
+        AlertDialog(
+            onDismissRequest = { showNotice = null },
+            confirmButton = {
+                TextButton(onClick = { showNotice = null }) {
+                    Text("Понятно")
+                }
+            },
+            text = { Text(notice) }
+        )
     }
 }
 
