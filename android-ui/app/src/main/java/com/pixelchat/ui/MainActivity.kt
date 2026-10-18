@@ -884,6 +884,7 @@ private fun HomeScreen(onLogout: () -> Unit) {
                 exit = fadeOut() + scaleOut(animationSpec = tween(300))
             ) {
                 SmallFloatingActionButton(
+                    modifier = Modifier.padding(bottom = 84.dp),
                     onClick = { showNewChat = true },
                     shape = CircleShape,
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -896,15 +897,16 @@ private fun HomeScreen(onLogout: () -> Unit) {
                 }
             }
         },
-        bottomBar = {
-            PixelChatNavigation(selected = tab, onSelected = { tab = it })
-        }
     ) { padding ->
+        Box(modifier = Modifier.fillMaxSize()) {
         AnimatedContent(
             targetState = tab,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = padding.calculateTopPadding()),
+                .padding(
+                    top = padding.calculateTopPadding(),
+                    bottom = 100.dp
+                ),
             transitionSpec = {
                 fadeIn(animationSpec = tween(250)) +
                     slideInHorizontally(
@@ -942,6 +944,17 @@ private fun HomeScreen(onLogout: () -> Unit) {
                 )
             }
         }
+
+        PixelChatNavigation(
+            selected = tab,
+            onSelected = { tab = it },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 8.dp)
+        )
+        }
     }
 }
 
@@ -958,7 +971,8 @@ private fun SettingsTab(
 @Composable
 private fun PixelChatNavigation(
     selected: Int,
-    onSelected: (Int) -> Unit
+    onSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val items = listOf(
         "Чаты" to Icons.Outlined.Chat,
@@ -967,13 +981,19 @@ private fun PixelChatNavigation(
         "Профиль" to Icons.Outlined.Person
     )
 
-    NavigationBar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding(),
-        containerColor = MaterialTheme.colorScheme.surface,
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        tonalElevation = 3.dp
+        tonalElevation = 4.dp,
+        shadowElevation = 5.dp
+    ) {
+    NavigationBar(
+        modifier = Modifier.fillMaxWidth(),
+        containerColor = Color.Transparent,
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        tonalElevation = 0.dp
     ) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
@@ -996,6 +1016,7 @@ private fun PixelChatNavigation(
                 )
             )
         }
+    }
     }
 }
 
@@ -1771,13 +1792,34 @@ private fun ProfileTab(
     var menuExpanded by remember { mutableStateOf(false) }
     var infoDialogTitle by rememberSaveable { mutableStateOf<String?>(null) }
 
+    val musicStore = remember(context) { SessionStore(context) }
+    val musicScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        val session = musicStore.getSession()
+        if (session != null) {
+            if (selectedMusicUri == null && session.musicUri.isNotBlank()) {
+                selectedMusicUri = session.musicUri
+            }
+            if (selectedMusicName == null && session.musicName.isNotBlank()) {
+                selectedMusicName = session.musicName
+            }
+        }
+    }
+
     val musicPicker = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
+        contract = ActivityResultContracts.OpenDocument()
     ) { uri ->
         if (uri != null) {
-            selectedMusicUri = uri.toString()
-            musicPlaying = false
-            selectedMusicName = context.contentResolver.query(
+            try {
+                context.contentResolver.takePersistableUriPermission(
+                    uri,
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+                )
+            } catch (_: Exception) {
+            }
+
+            val name = context.contentResolver.query(
                 uri,
                 arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
                 null,
@@ -1786,6 +1828,14 @@ private fun ProfileTab(
             )?.use { cursor ->
                 if (cursor.moveToFirst()) cursor.getString(0) else null
             } ?: "Музыка профиля"
+
+            selectedMusicUri = uri.toString()
+            selectedMusicName = name
+            musicPlaying = false
+
+            musicScope.launch {
+                musicStore.saveMusic(uri.toString(), name)
+            }
         }
     }
 
@@ -2029,20 +2079,40 @@ private fun ProfileTab(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = name.ifBlank { "PIXEL CHAT" },
-                            modifier = Modifier.weight(1f),
+                            text = name.ifBlank { "PIXEL" },
+                            modifier = Modifier.weight(1f, fill = false),
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 30.sp,
                             fontWeight = FontWeight.ExtraBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
-                        Spacer(Modifier.width(104.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Surface(
+                            modifier = Modifier.size(24.dp),
+                            shape = CircleShape,
+                            color = androidx.compose.ui.graphics.Color(0xFF5798FF)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    text = "✓",
+                                    color = androidx.compose.ui.graphics.Color.White,
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                        Spacer(Modifier.weight(1f))
                     }
 
-                    Spacer(Modifier.height(18.dp))
+                    Text(
+                        text = "@${username.removePrefix("@").ifBlank { "pixelchat" }}",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 17.sp,
+                        modifier = Modifier.padding(top = 6.dp, bottom = 18.dp)
+                    )
 
-                    // Music appears before username, birthday, and biography as requested.
+                    // Music card follows the profile name and username.
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.surfaceContainerHigh,
@@ -2075,7 +2145,7 @@ private fun ProfileTab(
                             Column(
                                 modifier = Modifier
                                     .weight(1f)
-                                    .clickable { musicPicker.launch("audio/*") }
+                                    .clickable { musicPicker.launch(arrayOf("audio/*")) }
                             ) {
                                 Text(
                                     "Любимая музыка",
@@ -2098,7 +2168,7 @@ private fun ProfileTab(
                             IconButton(
                                 onClick = {
                                     if (selectedMusicUri == null) {
-                                        musicPicker.launch("audio/*")
+                                        musicPicker.launch(arrayOf("audio/*"))
                                     } else if (musicPlaying) {
                                         mediaPlayer?.pause()
                                         musicPlaying = false
@@ -2134,14 +2204,6 @@ private fun ProfileTab(
                     }
 
                     Spacer(Modifier.height(24.dp))
-
-                    PixelProfileDetail(
-                        icon = Icons.Outlined.Person,
-                        title = "Имя пользователя",
-                        value = "@${username.removePrefix("@").ifBlank { "pixelchat" }}"
-                    )
-
-                    Spacer(Modifier.height(18.dp))
 
                     PixelProfileDetail(
                         icon = Icons.Outlined.CalendarToday,

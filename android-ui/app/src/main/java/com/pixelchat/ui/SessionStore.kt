@@ -18,7 +18,9 @@ data class PixelSession(
     val bio: String = "",
     val birthDate: String = "",
     val photoUri: String = "",
-    val backgroundUri: String = ""
+    val backgroundUri: String = "",
+    val musicUri: String = "",
+    val musicName: String = ""
 )
 
 class SessionStore(
@@ -34,6 +36,8 @@ class SessionStore(
         val BIRTH_DATE = stringPreferencesKey("birth_date")
         val PHOTO_URI = stringPreferencesKey("photo_uri")
         val BACKGROUND_URI = stringPreferencesKey("background_uri")
+        val MUSIC_URI = stringPreferencesKey("music_uri")
+        val MUSIC_NAME = stringPreferencesKey("music_name")
     }
 
     suspend fun saveSession(
@@ -57,6 +61,13 @@ class SessionStore(
         }
     }
 
+    suspend fun saveMusic(uri: String, name: String) {
+        context.pixelChatDataStore.edit { preferences ->
+            preferences[MUSIC_URI] = uri
+            preferences[MUSIC_NAME] = name
+        }
+    }
+
     suspend fun getSession(): PixelSession? {
         val preferences = context.pixelChatDataStore.data.first()
 
@@ -73,7 +84,9 @@ class SessionStore(
             bio = preferences[BIO].orEmpty(),
             birthDate = preferences[BIRTH_DATE].orEmpty(),
             photoUri = preferences[PHOTO_URI].orEmpty(),
-            backgroundUri = preferences[BACKGROUND_URI].orEmpty()
+            backgroundUri = preferences[BACKGROUND_URI].orEmpty(),
+            musicUri = preferences[MUSIC_URI].orEmpty(),
+            musicName = preferences[MUSIC_NAME].orEmpty()
         )
     }
 
