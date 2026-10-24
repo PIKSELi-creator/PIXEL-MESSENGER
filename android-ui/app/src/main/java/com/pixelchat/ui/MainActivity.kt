@@ -1855,7 +1855,7 @@ private fun ProfileTab(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(Color(0xFF111521)),
         contentPadding = PaddingValues(bottom = 28.dp)
     ) {
         item {
@@ -1873,9 +1873,9 @@ private fun ProfileTab(
                                 .background(
                                     Brush.linearGradient(
                                         listOf(
-                                            MaterialTheme.colorScheme.primaryContainer,
-                                            MaterialTheme.colorScheme.surfaceContainerHigh,
-                                            MaterialTheme.colorScheme.background
+                                            Color(0xFF303B67),
+                                            Color(0xFF202638),
+                                            Color(0xFF111521)
                                         )
                                     )
                                 )
@@ -1887,7 +1887,7 @@ private fun ProfileTab(
                                 .align(Alignment.Center)
                                 .rotate(-18f)
                                 .background(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.14f),
+                                    Color(0xFF829CFF).copy(alpha = 0.14f),
                                     RoundedCornerShape(44.dp)
                                 )
                         )
@@ -1927,7 +1927,7 @@ private fun ProfileTab(
                                     colors = listOf(
                                         androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.40f),
                                         androidx.compose.ui.graphics.Color.Transparent,
-                                        MaterialTheme.colorScheme.background.copy(alpha = 0.94f)
+                                        Color(0xFF111521).copy(alpha = 0.94f)
                                     )
                                 )
                             )
@@ -1945,7 +1945,7 @@ private fun ProfileTab(
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
+                                .background(Color(0xFF252C40).copy(alpha = 0.72f))
                         ) {
                             Icon(Icons.Outlined.ArrowBack, contentDescription = "Назад")
                         }
@@ -1957,7 +1957,7 @@ private fun ProfileTab(
                             modifier = Modifier
                                 .size(48.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
+                                .background(Color(0xFF252C40).copy(alpha = 0.72f))
                         ) {
                             Icon(Icons.Outlined.Videocam, contentDescription = "Видеозвонок")
                         }
@@ -1970,7 +1970,7 @@ private fun ProfileTab(
                                 modifier = Modifier
                                     .size(48.dp)
                                     .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f))
+                                    .background(Color(0xFF252C40).copy(alpha = 0.72f))
                             ) {
                                 Icon(Icons.Outlined.MoreVert, contentDescription = "Меню профиля")
                             }
@@ -2034,10 +2034,10 @@ private fun ProfileTab(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surface)
+                                .background(Color(0xFF252C40))
                                 .border(
                                     width = 3.dp,
-                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.75f),
+                                    color = Color(0xFF829CFF).copy(alpha = 0.75f),
                                     shape = CircleShape
                                 ),
                             contentAlignment = Alignment.Center
@@ -2055,12 +2055,12 @@ private fun ProfileTab(
                                 .align(Alignment.BottomEnd)
                                 .size(40.dp)
                                 .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
+                                .background(Color(0xFF829CFF))
                         ) {
                             Icon(
                                 Icons.Outlined.PhotoCamera,
                                 contentDescription = "Изменить аватар",
-                                tint = MaterialTheme.colorScheme.onPrimary
+                                tint = Color(0xFFFFFFFF)
                             )
                         }
                     }
@@ -2081,33 +2081,36 @@ private fun ProfileTab(
                         Text(
                             text = name.ifBlank { "PIXEL" },
                             modifier = Modifier.weight(1f, fill = false),
-                            color = MaterialTheme.colorScheme.onSurface,
+                            color = Color(0xFFF0F2FA),
                             fontSize = 30.sp,
                             fontWeight = FontWeight.ExtraBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         Spacer(Modifier.width(8.dp))
-                        Surface(
-                            modifier = Modifier.size(24.dp),
-                            shape = CircleShape,
-                            color = androidx.compose.ui.graphics.Color(0xFF5798FF)
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .border(
+                                    width = 2.dp,
+                                    color = Color(0xFF829CFF),
+                                    shape = CircleShape
+                                ),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = "✓",
-                                    color = androidx.compose.ui.graphics.Color.White,
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
+                            Text(
+                                text = "✓",
+                                color = Color(0xFF829CFF),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                         Spacer(Modifier.weight(1f))
                     }
 
                     Text(
                         text = "@${username.removePrefix("@").ifBlank { "pixelchat" }}",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = Color(0xFFA5AEC7),
                         fontSize = 17.sp,
                         modifier = Modifier.padding(top = 6.dp, bottom = 18.dp)
                     )
@@ -2115,7 +2118,7 @@ private fun ProfileTab(
                     // Music card follows the profile name and username.
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        color = Color(0xFF202638),
                         shape = RoundedCornerShape(28.dp),
                         tonalElevation = 1.dp
                     ) {
@@ -2128,13 +2131,13 @@ private fun ProfileTab(
                             Surface(
                                 modifier = Modifier.size(64.dp),
                                 shape = CircleShape,
-                                color = MaterialTheme.colorScheme.primary
+                                color = Color(0xFF829CFF)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Icon(
                                         Icons.Outlined.MusicNote,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        tint = Color(0xFFFFFFFF),
                                         modifier = Modifier.size(31.dp)
                                     )
                                 }
@@ -2149,7 +2152,7 @@ private fun ProfileTab(
                             ) {
                                 Text(
                                     "Любимая музыка",
-                                    color = MaterialTheme.colorScheme.onSurface,
+                                    color = Color(0xFFF0F2FA),
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     maxLines = 1,
@@ -2158,7 +2161,7 @@ private fun ProfileTab(
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     selectedMusicName ?: "Добавить любимый трек",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = Color(0xFFA5AEC7),
                                     fontSize = 14.sp,
                                     maxLines = 2,
                                     overflow = TextOverflow.Ellipsis
@@ -2189,7 +2192,7 @@ private fun ProfileTab(
                                         else -> Icons.Outlined.PlayArrow
                                     },
                                     contentDescription = if (musicPlaying) "Пауза" else "Воспроизвести",
-                                    tint = MaterialTheme.colorScheme.primary,
+                                    tint = Color(0xFF829CFF),
                                     modifier = Modifier.size(30.dp)
                                 )
                             }
@@ -2197,7 +2200,7 @@ private fun ProfileTab(
                             Icon(
                                 Icons.Outlined.KeyboardArrowRight,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                tint = Color(0xFFA5AEC7),
                                 modifier = Modifier.size(25.dp)
                             )
                         }
@@ -2223,7 +2226,7 @@ private fun ProfileTab(
 
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        color = Color(0xFF1D2435),
                         shape = RoundedCornerShape(28.dp)
                     ) {
                         Column(modifier = Modifier.padding(horizontal = 18.dp)) {
@@ -2233,14 +2236,14 @@ private fun ProfileTab(
                                 trailing = "›",
                                 onClick = { infoDialogTitle = "Фотографии и видео" }
                             )
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+                            HorizontalDivider(color = Color(0xFF343C50).copy(alpha = 0.55f))
                             PixelProfileOptionRow(
                                 icon = Icons.Outlined.Link,
                                 title = "Ссылки",
                                 trailing = "›",
                                 onClick = { infoDialogTitle = "Ссылки" }
                             )
-                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f))
+                            HorizontalDivider(color = Color(0xFF343C50).copy(alpha = 0.55f))
                             PixelProfileOptionRow(
                                 icon = Icons.Outlined.Lock,
                                 title = "Конфиденциальность",
