@@ -146,7 +146,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-private data class ChatItem(
+internal data class ChatItem(
     val name: String,
     val message: String,
     val time: String,
@@ -240,8 +240,14 @@ private fun PixelChatApp() {
         label = "root_screen_transition"
     ) { current ->
         when (current) {
-            "welcome" -> WelcomeScreen(
-                onStart = { screen = "register" }
+            "welcome" -> PixelWelcomeScreen(
+                onRegister = { screen = "register" },
+                onLogin = { screen = "login" }
+            )
+
+            "login" -> PixelLoginScreen(
+                onBack = { screen = "welcome" },
+                onRegister = { screen = "register" }
             )
 
             "register" -> RegisterScreen(
