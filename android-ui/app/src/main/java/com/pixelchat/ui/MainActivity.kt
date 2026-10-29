@@ -356,7 +356,7 @@ private fun WelcomeScreen(onStart: () -> Unit) {
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 22.dp, vertical = 24.dp),
+                .padding(horizontal = 24.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -365,7 +365,7 @@ private fun WelcomeScreen(onStart: () -> Unit) {
             Spacer(Modifier.height(22.dp))
 
             Text(
-                "PIXEL CHAT",
+                text = "PIXEL CHAT",
                 color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Black
@@ -374,74 +374,31 @@ private fun WelcomeScreen(onStart: () -> Unit) {
             Spacer(Modifier.height(8.dp))
 
             Text(
-                "Общайся. Звони. Отправляй подарки.",
+                text = "Общайся. Звони. Ищи друзей.",
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(Modifier.height(28.dp))
-
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                shape = RoundedCornerShape(28.dp),
-                tonalElevation = 5.dp
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        "Твой новый чат",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 21.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Text(
-                        "PIXEL CHAT объединяет сообщения, контакты, звонки и профиль в одном приложении.",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 13.sp,
-                        lineHeight = 19.sp
-                    )
-
-                    Text(
-                        """• Чаты и контакты
-• Голосовые звонки
-• Профиль и подарки
-• Защита сообщений""",
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 13.sp,
-                        lineHeight = 20.sp
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(22.dp))
+            Spacer(Modifier.height(32.dp))
 
             Button(
                 onClick = onStart,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(19.dp)
+                    .height(58.dp),
+                shape = RoundedCornerShape(19.dp),
+                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                    containerColor = androidx.compose.ui.graphics.Color(0xFF111315),
+                    contentColor = androidx.compose.ui.graphics.Color.White
+                )
             ) {
                 Text(
-                    "Начать",
+                    text = "Начать",
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.ExtraBold
                 )
             }
-
-            Spacer(Modifier.height(10.dp))
-
-            Text(
-                "Для создания аккаунта понадобится только email",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 11.sp,
-                textAlign = TextAlign.Center
-            )
         }
     }
 }
