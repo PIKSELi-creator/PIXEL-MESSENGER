@@ -1,4 +1,7 @@
 package com.pixelchat.ui
+import com.pixelchat.ui.screens.auth.WelcomeScreen
+import com.pixelchat.ui.screens.auth.AuthCard
+import com.pixelchat.ui.screens.auth.AuthField
 
 import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.layout.aspectRatio
@@ -302,7 +305,7 @@ private fun SplashScreen() {
 }
 
 @Composable
-private fun PixelLogo(size: Dp) {
+fun PixelLogo(size: Dp) {
     Box(
         modifier = Modifier.size(size),
         contentAlignment = Alignment.Center
@@ -347,7 +350,7 @@ private fun PixelLogo(size: Dp) {
 }
 
 @Composable
-private fun WelcomeScreen(onStart: () -> Unit) {
+private fun LegacyWelcomeScreen(onStart: () -> Unit) {
     val particles = listOf(
         0.08f to 0.16f, 0.21f to 0.29f,
         0.87f to 0.13f, 0.76f to 0.24f,
@@ -512,7 +515,7 @@ private fun WelcomeScreen(onStart: () -> Unit) {
 
 
 @Composable
-private fun AuthCard(
+private fun LegacyAuthCard(
     title: String,
     subtitle: String,
     onBack: () -> Unit,
@@ -561,7 +564,7 @@ private fun AuthCard(
 }
 
 @Composable
-private fun AuthField(
+private fun LegacyAuthField(
     label: String,
     value: String,
     onValueChange: (String) -> Unit,
