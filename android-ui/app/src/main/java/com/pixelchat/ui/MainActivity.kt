@@ -90,6 +90,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -347,61 +348,168 @@ private fun PixelLogo(size: Dp) {
 
 @Composable
 private fun WelcomeScreen(onStart: () -> Unit) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+    val particles = listOf(
+        0.08f to 0.16f, 0.21f to 0.29f,
+        0.87f to 0.13f, 0.76f to 0.24f,
+        0.13f to 0.48f, 0.91f to 0.43f,
+        0.06f to 0.75f, 0.89f to 0.68f,
+        0.28f to 0.86f, 0.72f to 0.91f,
+        0.48f to 0.11f, 0.56f to 0.82f
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    listOf(
+                        Color(0xFFF4F5F7),
+                        Color(0xFFE5E8EC),
+                        Color(0xFFF1F2F4)
+                    )
+                )
+            )
     ) {
+        Canvas(Modifier.fillMaxSize()) {
+            particles.forEachIndexed { index, point ->
+                drawCircle(
+                    color = if (index % 2 == 0)
+                        Color.White.copy(alpha = 0.75f)
+                    else Color(0xFF9CA3AD).copy(alpha = 0.28f),
+                    radius = if (index % 3 == 0) 3.5f else 2f,
+                    center = androidx.compose.ui.geometry.Offset(
+                        size.width * point.first,
+                        size.height * point.second
+                    )
+                )
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 24.dp, vertical = 24.dp),
+                .padding(horizontal = 28.dp, vertical = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            PixelLogo(132.dp)
+            Image(
+                painter = painterResource(id = R.drawable.pixel_bubble),
+                contentDescription = "Логотип PIXEL CHAT",
+                modifier = Modifier.size(190.dp),
+                contentScale = ContentScale.Fit
+            )
 
             Spacer(Modifier.height(22.dp))
 
-            Text(
-                text = "PIXEL CHAT",
-                color = MaterialTheme.colorScheme.onSurface,
-                fontSize = 36.sp,
-                fontWeight = FontWeight.Black
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "PIXEL",
+                    color = Color(0xFF252B32),
+                    fontSize = 35.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = (-1.5).sp
+                )
 
-            Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.width(9.dp))
+
+                Text(
+                    "CHAT",
+                    color = Color(0xFF00BFC8),
+                    fontSize = 35.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = (-1.5).sp
+                )
+            }
+
+            Spacer(Modifier.height(10.dp))
 
             Text(
-                text = "Общайся. Звони. Ищи друзей.",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 15.sp,
+                "Общайся. Звони. Ищи друзей.",
+                color = Color(0xFF68717C),
+                fontSize = 14.sp,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(42.dp))
 
-            Button(
-                onClick = onStart,
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(58.dp),
-                shape = RoundedCornerShape(19.dp),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = androidx.compose.ui.graphics.Color(0xFF111315),
-                    contentColor = androidx.compose.ui.graphics.Color.White
-                )
+                    .height(62.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(
+                        Brush.horizontalGradient(
+                            listOf(
+                                Color(0xDD303A43),
+                                Color(0xF018222B),
+                                Color(0xDD303A43)
+                            )
+                        )
+                    )
+                    .border(
+                        1.dp,
+                        Brush.horizontalGradient(
+                            listOf(
+                                Color(0xFFB9F9F7),
+                                Color(0xFF36DDE0),
+                                Color(0xFFB9F9F7)
+                            )
+                        ),
+                        RoundedCornerShape(24.dp)
+                    )
+                    .clickable(onClick = onStart)
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Начать",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.ExtraBold
+                    "Начать",
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Text(
+                    "→",
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    color = Color(0xFF75F5F0),
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(Modifier.height(30.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .height(1.dp)
+                        .background(Color(0xFFB9C0C8))
+                )
+
+                Text(
+                    "Общение начинается здесь",
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    color = Color(0xFF747D87),
+                    fontSize = 12.sp
+                )
+
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .height(1.dp)
+                        .background(Color(0xFFB9C0C8))
                 )
             }
         }
     }
 }
+
 
 @Composable
 private fun AuthCard(
