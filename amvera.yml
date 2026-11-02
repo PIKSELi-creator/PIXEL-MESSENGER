@@ -1,0 +1,14 @@
+meta:
+  environment: jvm
+  toolchain:
+    name: maven
+    version: 21
+
+build:
+  args: -f server-java-full/pom.xml
+  artifacts:
+    "server-java-full/target/pixel-chat-server-1.0.0.jar": /
+
+run:
+  jarName: pixel-chat-server-1.0.0.jar
+  containerPort: 8080
