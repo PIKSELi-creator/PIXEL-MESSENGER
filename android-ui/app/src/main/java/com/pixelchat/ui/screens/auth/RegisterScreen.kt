@@ -98,7 +98,7 @@ fun RegisterScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(54.dp),
-                shape = RoundedCornerShape(16.dp),
+                shape = CircleShape,
                 border = BorderStroke(1.dp, Color(0xFF555555)),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF171717),
@@ -179,7 +179,7 @@ private fun VerificationScreen(
                         onClick = onVerified,
                         enabled = code.length == 6,
                         modifier = Modifier.fillMaxWidth().height(54.dp),
-                        shape = RoundedCornerShape(18.dp)
+                        shape = CircleShape
                     ) {
                         Text("Подтвердить", fontWeight = FontWeight.Bold)
                     }
