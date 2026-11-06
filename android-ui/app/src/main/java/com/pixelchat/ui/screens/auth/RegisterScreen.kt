@@ -57,16 +57,26 @@ fun RegisterScreen(
                         fontSize = 27.sp
                     )
                 }
-
-                Text(
-                    "Регистрация",
-                    color = Color.White,
-                    fontSize = 25.sp,
-                    fontWeight = FontWeight.Bold
-                )
             }
 
-            Spacer(Modifier.height(30.dp))
+            Spacer(Modifier.height(20.dp))
+
+            Text(
+                "Регистрация",
+                color = Color.White,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            Text(
+                "Код можно будет взять в ТГ-боте",
+                color = Color(0xFFAAAAAA),
+                fontSize = 12.sp
+            )
+
+            Spacer(Modifier.height(24.dp))
 
             OutlinedTextField(
                 value = email,
