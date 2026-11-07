@@ -59,7 +59,7 @@ fun RegisterScreen(
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(12.dp))
 
             Text(
                 "Регистрация",
@@ -68,15 +68,15 @@ fun RegisterScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(4.dp))
 
             Text(
-                "Код можно будет взять в ТГ-боте",
+                "Код можно взять с ТГ-бота",
                 color = Color(0xFFAAAAAA),
                 fontSize = 12.sp
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = email,
@@ -107,7 +107,7 @@ fun RegisterScreen(
                 enabled = email.isNotBlank(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(54.dp),
+                    .height(58.dp),
                 shape = CircleShape,
                 border = BorderStroke(1.dp, Color(0xFF555555)),
                 colors = ButtonDefaults.buttonColors(
@@ -188,8 +188,15 @@ private fun VerificationScreen(
                     Button(
                         onClick = onVerified,
                         enabled = code.length == 6,
-                        modifier = Modifier.fillMaxWidth().height(54.dp),
-                        shape = CircleShape
+                        modifier = Modifier.fillMaxWidth().height(58.dp),
+                        shape = CircleShape,
+                        border = BorderStroke(1.dp, Color(0xFF555555)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF171717),
+                            contentColor = Color.White,
+                            disabledContainerColor = Color(0xFF111111),
+                            disabledContentColor = Color(0xFF777777)
+                        )
                     ) {
                         Text("Подтвердить", fontWeight = FontWeight.Bold)
                     }
