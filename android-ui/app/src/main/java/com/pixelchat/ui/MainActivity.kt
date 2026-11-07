@@ -181,26 +181,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun PixelChatTheme() {
-    val context = LocalContext.current
-    val isDark = isSystemInDarkTheme()
-
-    val colorScheme = if (android.os.Build.VERSION.SDK_INT >=
-        android.os.Build.VERSION_CODES.S
-    ) {
-        if (isDark) {
-            androidx.compose.material3.dynamicDarkColorScheme(context)
-        } else {
-            androidx.compose.material3.dynamicLightColorScheme(context)
-        }
-    } else {
-        if (isDark) darkColorScheme() else lightColorScheme()
-    }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography(),
-        shapes = Shapes()
-    ) {
+    PixelAppTheme {
         PixelChatApp()
     }
 }
@@ -856,7 +837,13 @@ private fun HomeScreen(onLogout: () -> Unit) {
             when (current) {
                 0 -> ChatsTab(chats = chats, onOpen = { openedChat = it })
                 1 -> ContactsTab(onOpen = { openedChat = it })
-                2 -> SettingsTab(onLogout = onLogout)
+                2 -> SettingsTab(
+                    name = profileName,
+                    username = profileUsername,
+                    photoUri = profilePhotoUri,
+                    onOpenProfile = { tab = 3 },
+                    onLogout = onLogout
+                )
                 else -> ProfileTab(
                     name = profileName,
                     username = profileUsername,
@@ -892,10 +879,17 @@ private fun HomeScreen(onLogout: () -> Unit) {
 
 @Composable
 private fun SettingsTab(
+    name: String,
+    username: String,
+    photoUri: Uri?,
+    onOpenProfile: () -> Unit,
     onLogout: () -> Unit
 ) {
-    SettingsScreen(
-        onBack = { },
+    PixelSettingsScreen(
+        name = name,
+        username = username,
+        photoUri = photoUri,
+        onOpenProfile = onOpenProfile,
         onLogout = onLogout
     )
 }
@@ -2498,72 +2492,6 @@ private fun ProfileAction(
                 Text(subtitle, color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
             }
             Text("›", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 22.sp)
-        }
-    }
-}
-
-@Composable
-private fun SettingsScreen(
-    onBack: () -> Unit,
-    onLogout: () -> Unit
-) {
-    var notifications by rememberSaveable { mutableStateOf(true) }
-    var compact by rememberSaveable { mutableStateOf(false) }
-    var animations by rememberSaveable { mutableStateOf(true) }
-    var previews by rememberSaveable { mutableStateOf(true) }
-
-    Column(
-        Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .padding(14.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = onBack) {
-                Text("‹", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 30.sp)
-            }
-            Column {
-                Text("Настройки", color = MaterialTheme.colorScheme.onSurface, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold)
-                Text("PIXEL NIGHT", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp)
-            }
-        }
-
-        Spacer(Modifier.height(7.dp))
-
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            item {
-                Text("Интерфейс", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
-            }
-            item { SettingSwitch("Анимации", "Плавные переходы экранов", animations) { animations = it } }
-            item { SettingSwitch("Компактный режим", "Меньше отступов в списках", compact) { compact = it } }
-
-            item {
-                Text("Уведомления", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
-            }
-            item { SettingSwitch("Новые сообщения", "Показывать уведомления чатов", notifications) { notifications = it } }
-            item { SettingSwitch("Предпросмотр", "Показывать текст сообщения", previews) { previews = it } }
-
-            item {
-                Text("Аккаунт и безопасность", color = MaterialTheme.colorScheme.onSecondaryContainer, fontSize = 12.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(6.dp))
-            }
-            item { SettingAction("Конфиденциальность", "Блокировки, онлайн-статус и права") }
-            item { SettingAction("Безопасность", "Сессии, ключи и шифрование") }
-            item { SettingAction("Устройства", "Активные подключения PIXEL CHAT") }
-            item { SettingAction("О PIXEL CHAT", "Material 3 • Server 10.0") }
-
-            item {
-                Spacer(Modifier.height(8.dp))
-                OutlinedButton(
-                    onClick = onLogout,
-                    modifier = Modifier.fillMaxWidth().height(54.dp),
-                    shape = RoundedCornerShape(19.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) {
-                    Text("Выйти из аккаунта", fontWeight = FontWeight.Bold)
-                }
-            }
-
-            item { Spacer(Modifier.height(18.dp)) }
         }
     }
 }
