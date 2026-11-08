@@ -1,4 +1,6 @@
 package com.pixelchat.ui
+import com.pixelchat.ui.settings.SettingsScreen
+import com.pixelchat.ui.settings.SettingsActions
 import com.pixelchat.ui.screens.auth.WelcomeScreen
 import com.pixelchat.ui.screens.auth.RegisterScreen
 
@@ -885,12 +887,27 @@ private fun SettingsTab(
     onOpenProfile: () -> Unit,
     onLogout: () -> Unit
 ) {
-    PixelSettingsScreen(
-        name = name,
+    SettingsScreen(
         username = username,
-        photoUri = photoUri,
-        onOpenProfile = onOpenProfile,
-        onLogout = onLogout
+        accountCount = 1,
+        actions = SettingsActions(
+            onThemes = {},
+            onCustomize = {},
+            onLanguage = {},
+            onFavorites = {},
+            onStories = {},
+            onFolders = {},
+            onPrivacy = {},
+            onDevices = {},
+            onNotifications = {},
+            onPowerSaving = {},
+            onUpdates = {},
+            onProfile = onOpenProfile,
+            onReorder = {},
+            onAddAccount = {},
+            onLogout = onLogout,
+            onDeleteAccount = {}
+        )
     )
 }
 
