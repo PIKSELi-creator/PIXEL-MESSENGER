@@ -37,6 +37,7 @@ import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Palette
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.PowerSettingsNew
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.Storage
@@ -54,6 +55,7 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -191,8 +193,25 @@ fun PixelAppTheme(content: @Composable () -> Unit) {
     val colorScheme = when {
         settings.dynamicColor.value && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
             if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        dark -> darkColorScheme()
-        else -> lightColorScheme()
+        dark -> darkColorScheme(
+            primary = Color(0xFFA7C7FF),
+            onPrimary = Color(0xFF10243A),
+            secondary = Color(0xFFD8B89A),
+            background = Color(0xFF151311),
+            surface = Color(0xFF1D1A18),
+            onSurface = Color(0xFFF0E9E2),
+            surfaceVariant = Color(0xFF3B342F),
+            onSurfaceVariant = Color(0xFFC9BDB2),
+            error = Color(0xFFFFB4AB)
+        )
+        else -> lightColorScheme(
+            primary = Color(0xFF42658A),
+            background = Color(0xFFF7F2ED),
+            surface = Color(0xFFFFF9F4),
+            onSurface = Color(0xFF211B17),
+            surfaceVariant = Color(0xFFECE2D9),
+            onSurfaceVariant = Color(0xFF51463E)
+        )
     }
 
     val density = LocalDensity.current
@@ -231,6 +250,11 @@ fun PixelSettingsScreen(
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+
+    fun matches(vararg terms: String): Boolean =
+        searchQuery.isBlank() || terms.any { it.contains(searchQuery.trim(), ignoreCase = true) }
 
     var showLastSeen by rememberSaveable { mutableStateOf(false) }
     var showClearCache by rememberSaveable { mutableStateOf(false) }
@@ -282,6 +306,7 @@ fun PixelSettingsScreen(
                 .padding(bottom = 24.dp)
         ) {
             /* Account */
+            if (searchQuery.isBlank() || matches("Профиль", "аккаунт", name, username)) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -341,10 +366,26 @@ fun PixelSettingsScreen(
                     )
                 }
             }
+            }
+
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                placeholder = { Text("Поиск настроек") },
+                leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                singleLine = true,
+                shape = MaterialTheme.shapes.extraLarge
+            )
 
             /* Appearance */
-            SettingsHeader("Оформление")
+            SettingsHeader("Оформление", visible = matches(
+                "Оформление", "Тема", "Динамические цвета", "Размер текста"
+            ))
 
+            if (searchQuery.isBlank() || matches("Оформление", "Тема")) {
             ListItem(
                 leadingContent = { Icon(Icons.Outlined.Palette, contentDescription = null) },
                 headlineContent = { Text("Тема") },
@@ -369,12 +410,14 @@ fun PixelSettingsScreen(
                         }
                     }
                 },
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             )
+            }
 
             SettingsSwitchRow(
                 icon = Icons.Outlined.Wallpaper,
                 title = "Динамические цвета",
+                visible = matches("Оформление", "Динамические цвета", "обои"),
                 subtitle = if (dynamicSupported) {
                     "Цвета берутся из обоев системы"
                 } else {
@@ -385,6 +428,7 @@ fun PixelSettingsScreen(
                 onCheckedChange = { settings.dynamicColor.set(it) }
             )
 
+            if (searchQuery.isBlank() || matches("Оформление", "Размер текста", "текст")) {
             ListItem(
                 leadingContent = { Icon(Icons.Outlined.TextFields, contentDescription = null) },
                 headlineContent = { Text("Размер текста") },
@@ -403,14 +447,16 @@ fun PixelSettingsScreen(
                         style = MaterialTheme.typography.labelLarge
                     )
                 },
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
             )
+            }
 
             /* Notifications */
-            SettingsHeader("Уведомления")
+            SettingsHeader("Уведомления", visible = matches("Уведомления", "Новые сообщения", "Предпросмотр", "Звук", "Вибрация"))
             SettingsSwitchRow(
                 icon = Icons.Outlined.Notifications,
                 title = "Новые сообщения",
+                visible = matches("Уведомления", "Новые сообщения", "уведомления"),
                 subtitle = "Показывать уведомления чатов",
                 checked = settings.notifyMessages.value,
                 onCheckedChange = { settings.notifyMessages.set(it) }
@@ -418,6 +464,7 @@ fun PixelSettingsScreen(
             SettingsSwitchRow(
                 icon = Icons.Outlined.Visibility,
                 title = "Предпросмотр",
+                visible = matches("Уведомления", "Предпросмотр", "текст сообщения"),
                 subtitle = "Показывать текст сообщения",
                 checked = settings.notifyPreview.value,
                 enabled = settings.notifyMessages.value,
@@ -426,6 +473,7 @@ fun PixelSettingsScreen(
             SettingsSwitchRow(
                 icon = Icons.Outlined.MusicNote,
                 title = "Звук",
+                visible = matches("Уведомления", "Звук", "уведомления"),
                 subtitle = null,
                 checked = settings.notifySound.value,
                 enabled = settings.notifyMessages.value,
@@ -434,6 +482,7 @@ fun PixelSettingsScreen(
             SettingsSwitchRow(
                 icon = Icons.Outlined.Vibration,
                 title = "Вибрация",
+                visible = matches("Уведомления", "Вибрация", "уведомления"),
                 subtitle = null,
                 checked = settings.notifyVibrate.value,
                 enabled = settings.notifyMessages.value,
@@ -441,16 +490,26 @@ fun PixelSettingsScreen(
             )
 
             /* Privacy */
-            SettingsHeader("Конфиденциальность")
+            SettingsHeader(
+                "Конфиденциальность",
+                visible = matches(
+                    "Конфиденциальность",
+                    "Время захода",
+                    "Отметки о прочтении",
+                    "Заблокированные"
+                )
+            )
             SettingsNavRow(
                 icon = Icons.Outlined.Schedule,
                 title = "Время захода",
+                visible = matches("Конфиденциальность", "Время захода", "последний визит"),
                 subtitle = lastSeenLabels[settings.lastSeen.value.coerceIn(0, 2)],
                 onClick = { showLastSeen = true }
             )
             SettingsSwitchRow(
                 icon = Icons.Outlined.DoneAll,
                 title = "Отметки о прочтении",
+                visible = matches("Конфиденциальность", "Отметки о прочтении", "прочтении"),
                 subtitle = "Собеседники видят, что вы прочитали сообщение",
                 checked = settings.readReceipts.value,
                 onCheckedChange = { settings.readReceipts.set(it) }
@@ -458,15 +517,24 @@ fun PixelSettingsScreen(
             SettingsNavRow(
                 icon = Icons.Outlined.Block,
                 title = "Заблокированные",
+                visible = matches("Конфиденциальность", "Заблокированные", "блокировка"),
                 subtitle = "Скоро",
                 onClick = { soon() }
             )
 
             /* Chats */
-            SettingsHeader("Чаты")
+            SettingsHeader(
+                "Чаты",
+                visible = matches(
+                    "Чаты",
+                    "Отправка по Enter",
+                    "Автозагрузка по Wi-Fi"
+                )
+            )
             SettingsSwitchRow(
                 icon = Icons.Outlined.Keyboard,
                 title = "Отправка по Enter",
+                visible = matches("Чаты", "Отправка по Enter", "Enter"),
                 subtitle = "Клавиша Enter отправляет сообщение",
                 checked = settings.enterToSend.value,
                 onCheckedChange = { settings.enterToSend.set(it) }
@@ -474,54 +542,60 @@ fun PixelSettingsScreen(
             SettingsSwitchRow(
                 icon = Icons.Outlined.CloudDownload,
                 title = "Автозагрузка по Wi-Fi",
+                visible = matches("Чаты", "Автозагрузка по Wi-Fi", "загрузка"),
                 subtitle = "Фото и видео из чатов",
                 checked = settings.autoDownloadWifi.value,
                 onCheckedChange = { settings.autoDownloadWifi.set(it) }
             )
 
             /* Data */
-            SettingsHeader("Данные и память")
+            SettingsHeader("Данные и память", visible = matches("Данные и память", "Очистить кэш"))
             SettingsNavRow(
                 icon = Icons.Outlined.Storage,
                 title = "Очистить кэш",
+                visible = matches("Данные и память", "Очистить кэш", "кэш", "память"),
                 subtitle = Formatter.formatShortFileSize(context, cacheBytes),
                 onClick = { showClearCache = true }
             )
 
             /* Security */
-            SettingsHeader("Безопасность")
+            SettingsHeader("Безопасность", visible = matches("Безопасность", "Устройства"))
             SettingsNavRow(
                 icon = Icons.Outlined.Devices,
                 title = "Устройства",
+                visible = matches("Безопасность", "Устройства", "безопасность"),
                 subtitle = "Скоро",
                 onClick = { soon() }
             )
 
             /* About */
-            SettingsHeader("О приложении")
+            SettingsHeader("О приложении", visible = matches("О приложении", "PIXEL CHAT", "Версия"))
             SettingsNavRow(
                 icon = Icons.Outlined.Info,
                 title = "PIXEL CHAT",
+                visible = matches("О приложении", "PIXEL CHAT", "версия"),
                 subtitle = if (versionName.isBlank()) "Версия неизвестна" else "Версия $versionName",
                 onClick = { showAbout = true }
             )
 
-            Spacer(Modifier.height(12.dp))
+            if (searchQuery.isBlank() || matches("Выйти из аккаунта", "выход")) {
+                Spacer(Modifier.height(12.dp))
 
-            ListItem(
-                modifier = Modifier.clickable { showLogout = true },
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.PowerSettingsNew,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                },
-                headlineContent = {
-                    Text("Выйти из аккаунта", color = MaterialTheme.colorScheme.error)
-                },
-                colors = ListItemDefaults.colors(containerColor = Color.Transparent)
-            )
+                ListItem(
+                    modifier = Modifier.clickable { showLogout = true },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.PowerSettingsNew,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    headlineContent = {
+                        Text("Выйти из аккаунта", color = MaterialTheme.colorScheme.error)
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                )
+            }
         }
     }
 
@@ -618,7 +692,8 @@ private val lastSeenLabels = listOf("Все", "Мои контакты", "Ник
 /* ------------------------------------------------------------------ */
 
 @Composable
-private fun SettingsHeader(text: String) {
+private fun SettingsHeader(text: String, visible: Boolean = true) {
+    if (!visible) return
     Text(
         text = text,
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 4.dp),
@@ -634,10 +709,15 @@ private fun SettingsSwitchRow(
     subtitle: String?,
     checked: Boolean,
     enabled: Boolean = true,
+    visible: Boolean = true,
     onCheckedChange: (Boolean) -> Unit
 ) {
+    if (!visible) return
     ListItem(
-        modifier = Modifier.toggleable(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 3.dp)
+            .clip(MaterialTheme.shapes.large)
+            .toggleable(
             value = checked,
             enabled = enabled,
             role = Role.Switch,
@@ -664,7 +744,7 @@ private fun SettingsSwitchRow(
                 }
             )
         },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     )
 }
 
@@ -673,10 +753,15 @@ private fun SettingsNavRow(
     icon: ImageVector,
     title: String,
     subtitle: String?,
+    visible: Boolean = true,
     onClick: () -> Unit
 ) {
+    if (!visible) return
     ListItem(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 3.dp)
+            .clip(MaterialTheme.shapes.large)
+            .clickable(onClick = onClick),
         leadingContent = { Icon(icon, contentDescription = null) },
         headlineContent = { Text(title) },
         supportingContent = if (subtitle != null) ({ Text(subtitle) }) else null,
@@ -686,7 +771,7 @@ private fun SettingsNavRow(
                 contentDescription = null
             )
         },
-        colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+        colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     )
 }
 
