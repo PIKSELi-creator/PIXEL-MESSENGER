@@ -1,5 +1,7 @@
 package com.pixelchat.ui.settings
 
+import com.pixelchat.ui.R
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
