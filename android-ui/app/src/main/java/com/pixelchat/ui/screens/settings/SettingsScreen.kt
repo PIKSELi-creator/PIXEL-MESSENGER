@@ -75,7 +75,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.pixelchat.R
 
 /** Все переходы с экрана настроек. Навигацию подключаешь снаружи. */
 data class SettingsActions(
