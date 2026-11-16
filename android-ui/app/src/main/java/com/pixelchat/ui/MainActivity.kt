@@ -188,6 +188,62 @@ private fun PixelChatTheme() {
     }
 }
 
+private val PixelBrandDark = darkColorScheme(
+    primary = Color(0xFF7E9BFF),
+    onPrimary = Color(0xFF0A1738),
+    primaryContainer = Color(0xFF1D2B57),
+    onPrimaryContainer = Color(0xFFDCE5FF),
+    secondary = Color(0xFF5BD6C0),
+    onSecondary = Color(0xFF00382F),
+    secondaryContainer = Color(0xFF123F38),
+    onSecondaryContainer = Color(0xFFB8F5E9),
+    background = Color(0xFF0A0C10),
+    onBackground = Color(0xFFF4F6FA),
+    surface = Color(0xFF111419),
+    onSurface = Color(0xFFF4F6FA),
+    surfaceVariant = Color(0xFF222832),
+    onSurfaceVariant = Color(0xFFA7AFBD),
+    outline = Color(0xFF3C4451),
+    outlineVariant = Color(0xFF262C35),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6)
+)
+
+private val PixelBrandLight = lightColorScheme(
+    primary = Color(0xFF3D5BD9),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFDDE3FF),
+    onPrimaryContainer = Color(0xFF0B1B4D),
+    secondary = Color(0xFF0B7F6E),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFB8F0E6),
+    onSecondaryContainer = Color(0xFF00382F),
+    background = Color(0xFFF6F7F9),
+    onBackground = Color(0xFF11151B),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF11151B),
+    surfaceVariant = Color(0xFFE1E5EC),
+    onSurfaceVariant = Color(0xFF5A626F),
+    outline = Color(0xFFC7CDD8),
+    outlineVariant = Color(0xFFE1E5EC),
+    error = Color(0xFFB3261E),
+    onError = Color(0xFFFFFFFF),
+    errorContainer = Color(0xFFF9DEDC),
+    onErrorContainer = Color(0xFF410E0B)
+)
+
+@Composable
+private fun PixelBrandTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = if (isSystemInDarkTheme()) PixelBrandDark else PixelBrandLight,
+        typography = Typography(),
+        shapes = Shapes(),
+        content = content
+    )
+}
+
 @Composable
 private fun PixelChatApp() {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -837,7 +893,15 @@ private fun HomeScreen(onLogout: () -> Unit) {
             label = "pixel_main_tab"
         ) { current ->
             when (current) {
-                0 -> ChatsTab(chats = chats, onOpen = { openedChat = it })
+                0 -> PixelBrandTheme {
+                    ChatsTab(
+                        chats = chats,
+                        onOpen = { openedChat = it },
+                        accountName = profileName,
+                        accountUsername = profileUsername,
+                        accountPhotoUri = profilePhotoUri
+                    )
+                }
                 1 -> ContactsTab(onOpen = { openedChat = it })
                 2 -> SettingsTab(
                     name = profileName,
@@ -966,7 +1030,10 @@ private fun PixelChatNavigation(
 @Composable
 private fun ChatsTab(
     chats: List<ChatItem>,
-    onOpen: (ChatItem) -> Unit
+    onOpen: (ChatItem) -> Unit,
+    accountName: String = "PIXEL CHAT",
+    accountUsername: String = "",
+    accountPhotoUri: Uri? = null
 ) {
     var query by rememberSaveable { mutableStateOf("") }
     var filter by rememberSaveable { mutableStateOf(0) }
@@ -987,225 +1054,367 @@ private fun ChatsTab(
         matchesSearch && matchesFilter
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = 18.dp,
-            bottom = 112.dp
-        ),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding()
     ) {
-        item {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.surface
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp),
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
+                Column(Modifier.weight(1f)) {
                     Text(
                         "Чаты",
-                        style = MaterialTheme.typography.displaySmall,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontSize = 28.sp,
+                            lineHeight = 34.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = (-0.3).sp
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-
                     Spacer(Modifier.height(2.dp))
-
                     Text(
                         "${filtered.size} ${if (filtered.size == 1) "диалог" else "диалога"}",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp
+                        ),
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-
                 Box {
                     Surface(
                         onClick = { showAccountMenu = true },
-                        modifier = Modifier.size(52.dp),
+                        modifier = Modifier.size(48.dp),
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.primaryContainer,
-                        tonalElevation = 2.dp
+                        color = MaterialTheme.colorScheme.primaryContainer
                     ) {
-                        Box(
-                            contentAlignment = Alignment.Center
-                        ) {
+                        Box(contentAlignment = Alignment.Center) {
                             Icon(
-                                imageVector = Icons.Outlined.Add,
-                                contentDescription = "Добавить аккаунт",
-                                modifier = Modifier.size(28.dp),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                                Icons.Outlined.Person,
+                                contentDescription = "Аккаунт",
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.size(22.dp)
                             )
                         }
                     }
-
                     DropdownMenu(
                         expanded = showAccountMenu,
-                        onDismissRequest = { showAccountMenu = false }
+                        onDismissRequest = { showAccountMenu = false },
+                        modifier = Modifier.width(300.dp),
+                        shape = RoundedCornerShape(20.dp),
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        shadowElevation = 6.dp
                     ) {
-                        DropdownMenuItem(
-                            text = { Text("Добавить аккаунт") },
-                            onClick = {
-                                showAccountMenu = false
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, top = 10.dp, end = 8.dp, bottom = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Ваш аккаунт",
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.titleSmall.copy(
+                                    fontSize = 16.sp,
+                                    lineHeight = 22.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            IconButton(
+                                onClick = { showAccountMenu = false },
+                                modifier = Modifier.size(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Close,
+                                    contentDescription = "Закрыть",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(20.dp)
+                                )
                             }
+                        }
+
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHighest
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 12.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                AppAvatar(
+                                    initials = accountName
+                                        .trim()
+                                        .firstOrNull()
+                                        ?.uppercase()
+                                        ?: "P",
+                                    size = 48.dp,
+                                    photoUri = accountPhotoUri
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = accountName.ifBlank { "PIXEL CHAT" },
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontSize = 15.sp,
+                                            lineHeight = 20.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        ),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                    val username = accountUsername
+                                        .trim()
+                                        .removePrefix("@")
+                                    if (username.isNotBlank()) {
+                                        Spacer(Modifier.height(2.dp))
+                                        Text(
+                                            text = "@$username",
+                                            style = MaterialTheme.typography.bodySmall.copy(
+                                                fontSize = 12.sp,
+                                                lineHeight = 16.sp
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Outlined.Check,
+                                    contentDescription = "Текущий аккаунт",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        }
+
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outlineVariant
+                        )
+
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    "Добавить аккаунт",
+                                    fontSize = 14.sp
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Add,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            onClick = { showAccountMenu = false }
                         )
                         DropdownMenuItem(
-                            text = { Text("Переключить аккаунт") },
-                            onClick = {
-                                showAccountMenu = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { Text("Мои аккаунты") },
-                            onClick = {
-                                showAccountMenu = false
-                            }
+                            text = {
+                                Text(
+                                    "Мои аккаунты",
+                                    fontSize = 14.sp
+                                )
+                            },
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Outlined.Contacts,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            },
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            onClick = { showAccountMenu = false }
                         )
                     }
                 }
             }
         }
 
-        item {
-            OutlinedTextField(
-                value = query,
-                onValueChange = { query = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize(),
-                singleLine = true,
-                label = { Text("Поиск") },
-                placeholder = { Text("Люди, @username, группы, каналы и боты") },
-                leadingIcon = {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 8.dp),
+            singleLine = true,
+            placeholder = {
+                Text(
+                    "Поиск по чатам",
+                    style = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            leadingIcon = {
+                Icon(
+                    Icons.Outlined.Search,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
+                )
+            },
+            trailingIcon = {
+                AnimatedVisibility(
+                    visible = query.isNotEmpty(),
+                    enter = fadeIn() + scaleIn(),
+                    exit = fadeOut() + scaleOut()
+                ) {
+                    IconButton(
+                        onClick = { query = "" },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            Icons.Outlined.Close,
+                            contentDescription = "Очистить",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+            },
+            shape = RoundedCornerShape(16.dp),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 15.sp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                cursorColor = MaterialTheme.colorScheme.primary
+            )
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            PixelFilterChip("Все", filter == 0) { filter = 0 }
+            PixelFilterChip("В сети", filter == 1) { filter = 1 }
+            PixelFilterChip("Непрочитанные", filter == 2) { filter = 2 }
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentPadding = PaddingValues(
+                start = 20.dp,
+                end = 20.dp,
+                bottom = 24.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp, bottom = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        "⌕",
-                        fontSize = 25.sp,
+                        "Последние чаты",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        "${filtered.size}",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
                         color = MaterialTheme.colorScheme.primary
                     )
-                },
-                trailingIcon = {
-                    AnimatedVisibility(
-                        visible = query.isNotEmpty(),
-                        enter = fadeIn() + scaleIn(),
-                        exit = fadeOut() + scaleOut()
-                    ) {
-                        TextButton(
-                            onClick = { query = "" }
-                        ) {
-                            Text("Очистить")
-                        }
-                    }
-                },
-                shape = MaterialTheme.shapes.extraLarge,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor =
-                        MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedContainerColor =
-                        MaterialTheme.colorScheme.surfaceContainerHigh,
-                    focusedBorderColor =
-                        MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor =
-                        MaterialTheme.colorScheme.outline,
-                    focusedTextColor =
-                        MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor =
-                        MaterialTheme.colorScheme.onSurface,
-                    cursorColor =
-                        MaterialTheme.colorScheme.primary
-                )
-            )
-        }
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                PixelFilterChip(
-                    text = "Все",
-                    selected = filter == 0
-                ) { filter = 0 }
-
-                PixelFilterChip(
-                    text = "В сети",
-                    selected = filter == 1
-                ) { filter = 1 }
-
-                PixelFilterChip(
-                    text = "Непрочитанные",
-                    selected = filter == 2
-                ) { filter = 2 }
+                }
             }
-        }
 
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        top = 4.dp,
-                        bottom = 2.dp
-                    ),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    "Последние чаты",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-
-                Spacer(Modifier.weight(1f))
-
-                Text(
-                    "${filtered.size}",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary
+            items(
+                items = filtered,
+                key = { "${it.name}_${it.time}" }
+            ) { chat ->
+                PixelExpressiveChatItem(
+                    chat = chat,
+                    onClick = { onOpen(chat) }
                 )
             }
-        }
 
-        items(
-            items = filtered,
-            key = { "${it.name}_${it.time}" }
-        ) { chat ->
-            PixelExpressiveChatItem(
-                chat = chat,
-                onClick = { onOpen(chat) }
-            )
-        }
-
-        if (filtered.isEmpty()) {
-            item {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                    tonalElevation = 1.dp
-                ) {
-                    Column(
+            if (filtered.isEmpty()) {
+                item {
+                    Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(28.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                            .padding(top = 24.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        color = MaterialTheme.colorScheme.surfaceContainer
                     ) {
-                        Text(
-                            "Ничего не найдено",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                        Spacer(Modifier.height(6.dp))
-
-                        Text(
-                            "Попробуй изменить запрос или фильтр",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(28.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(56.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                color = MaterialTheme.colorScheme.surfaceContainerHigh
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        Icons.Outlined.Chat,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(16.dp))
+                            Text(
+                                if (query.isBlank()) "Пока нет чатов" else "Ничего не найдено",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                if (query.isBlank()) "Начните диалог с контактом"
+                                else "Измените запрос или фильтр",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontSize = 14.sp,
+                                    lineHeight = 20.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
             }
@@ -1222,22 +1431,28 @@ private fun PixelFilterChip(
     FilterChip(
         selected = selected,
         onClick = onClick,
+        modifier = Modifier.height(32.dp),
+        shape = RoundedCornerShape(8.dp),
         label = {
             Text(
                 text,
-                fontWeight = if (selected) {
-                    FontWeight.Bold
-                } else {
-                    FontWeight.Medium
-                }
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontSize = 13.sp,
+                    fontWeight = if (selected) {
+                        FontWeight.SemiBold
+                    } else {
+                        FontWeight.Medium
+                    }
+                ),
+                maxLines = 1
             )
         },
-        shape = if (selected) {
-            MaterialTheme.shapes.largeIncreased
-        } else {
-            MaterialTheme.shapes.large
-        },
-        modifier = Modifier.animateContentSize()
+        colors = FilterChipDefaults.filterChipColors(
+            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            containerColor = Color.Transparent,
+            labelColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     )
 }
 
@@ -1249,73 +1464,113 @@ private fun PixelExpressiveChatItem(
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
 
-    ListItem(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(),
-        leadingContent = {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(
+                    interactionSource = interaction,
+                    indication = null,
+                    onClick = onClick
+                )
+                .background(
+                    if (pressed) {
+                        MaterialTheme.colorScheme.surfaceContainerHigh
+                    } else {
+                        Color.Transparent
+                    }
+                )
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Box {
-                AppAvatar(chat.initials, 56.dp)
-                AnimatedVisibility(
-                    visible = chat.online,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
+                AppAvatar(chat.initials, 52.dp)
+                if (chat.online) {
                     Box(
                         modifier = Modifier
-                            .size(13.dp)
+                            .size(12.dp)
                             .align(Alignment.BottomEnd)
                             .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.tertiary)
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .border(
+                                width = 2.dp,
+                                color = MaterialTheme.colorScheme.background,
+                                shape = CircleShape
+                            )
                     )
                 }
             }
-        },
-        supportingContent = {
-            Text(
-                chat.message,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        },
-        trailingContent = {
+
+            Spacer(Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = chat.name,
+                    modifier = Modifier.weight(1f, fill = false),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 16.sp,
+                        lineHeight = 22.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = chat.message,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+
+            Spacer(Modifier.width(8.dp))
+
             Column(horizontalAlignment = Alignment.End) {
                 Text(
-                    chat.time,
-                    style = MaterialTheme.typography.labelSmall,
+                    text = chat.time,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontSize = 11.sp,
+                        lineHeight = 14.sp
+                    ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                AnimatedVisibility(
-                    visible = chat.unread > 0,
-                    enter = fadeIn() + scaleIn(),
-                    exit = fadeOut() + scaleOut()
-                ) {
-                    Badge(modifier = Modifier.padding(top = 5.dp)) {
-                        Text(chat.unread.toString())
+                if (chat.unread > 0) {
+                    Spacer(Modifier.height(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .height(20.dp)
+                            .widthIn(min = 20.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary)
+                            .padding(horizontal = 6.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = if (chat.unread > 99) "99+" else chat.unread.toString(),
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 11.sp,
+                                lineHeight = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            maxLines = 1
+                        )
                     }
                 }
             }
-        },
-        colors = ListItemDefaults.colors(
-            containerColor = if (pressed) {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            } else {
-                Color.Transparent
-            },
-            headlineColor = MaterialTheme.colorScheme.onSurface,
-            supportingColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            trailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        interactionSource = interaction
-    ) {
-        Text(
-            chat.name,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(start = 72.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outlineVariant
         )
     }
 }
